@@ -5,6 +5,14 @@ create table member_ids (
 );
 CREATE INDEX member_ids_member_id ON member_ids (member_id);
 
+create table passwords (
+	id BIGSERIAL PRIMARY KEY,
+	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	salt TEXT NOT NULL,
+	hash TEXT NOT NULL,
+	UNIQUE (member_id)
+);
+
 create table names (
 	id BIGSERIAL PRIMARY KEY,
 	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,

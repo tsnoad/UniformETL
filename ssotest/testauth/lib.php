@@ -44,7 +44,7 @@ class eassotestauth extends db {
 	
 			setcookie("session_key", $session_key, time()+3600, "/", ".eassotestauth.com", true, true);
 
-			echo "<img src='https://eassotestone.com/setcookie.php?session_key=".urlencode($session_key)."' />";
+			$testone = new siteone;
 	
 			echo "login success";
 			die;
@@ -75,6 +75,27 @@ class eassotestauth extends db {
 		setcookie("session_key", $session_key, time()+1, "/", ".eassotestauth.com", true, true);
 		echo "logout success";
 		die;
+	}
+}
+
+class othersites extends db {
+	function generatepass() {
+		$pass = md5(rand());
+
+		$this->runq("INSERT INTO createcookiepasses (pass) VALUES ('".pg_escape_string($pass)."');");
+
+		return $pass;
+	}
+
+	function checkpass() {
+	}
+}
+
+class siteone extends othersites {
+	function __construct() {
+		$pass = $this->generatepass();
+
+		echo "<img src='https://eassotestone.com/setcookie.php?pass=".urlencode($pass)."' />";
 	}
 }
 
