@@ -1,0 +1,15 @@
+1. Create folders
+mkdir dumps
+mkdir dumps/dailydumps
+
+3. create database
+createdb hotel
+psql hotel < create.sql
+
+2. create ssh key for data source server
+
+4. run extraction to get data from data source
+./extract.sh
+
+5. run transformation to add data to database
+./transform.php

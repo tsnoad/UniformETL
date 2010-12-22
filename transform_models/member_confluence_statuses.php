@@ -127,20 +127,14 @@ Class MemberConfluenceStatuses {
 		if (empty($add['sn'])) $add['sn'] = " ";
 		if (empty($add['givenname'])) $add['givenname'] = " ";
 
-/* 		$data_add_item['mail'] = utf8_encode($data_add_item['mail']); */
+		ldap_add($this->ldap, "uid={$data_add_item['member_id']},".$this->base, $add);
 
-/* 		ldap_add($this->ldap, "uid={$data_add_item['member_id']},".$this->base, $add); */
-			if (!ldap_add($this->ldap, "uid={$data_add_item['member_id']},".$this->base, $add)) {
-				var_dump($data_add_item);
-				var_dump(utf8_encode($data_add_item['mail']));
-				var_dump(utf8_encode(utf8_encode($data_add_item['mail'])));
-				var_dump(utf8_encode(utf8_encode(utf8_encode($data_add_item['mail']))));
-				var_dump(utf8_encode(utf8_encode(utf8_encode(utf8_encode($data_add_item['mail'])))));
-				var_dump(utf8_encode(utf8_encode(utf8_encode(utf8_encode(utf8_encode($data_add_item['mail']))))));
-/* 				var_dump(utf8_encode($data_add_item['mail']) == $data_add_item['mail']); */
-/* 				var_dump(trim(utf8_encode($data_add_item['mail']))); */
-/* 				var_dump(utf8_encode($data_add_item['mail']) == trim(utf8_encode($data_add_item['mail']))); */
-			}
+/*
+		if (!ldap_add($this->ldap, "uid={$data_add_item['member_id']},".$this->base, $add)) {
+			var_dump($data_add_item);
+			var_dump(iso8859tot61($data_add_item['mail']));
+		}
+*/
 	}
 
 	function delete_data($data_delete_item) {
