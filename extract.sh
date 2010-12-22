@@ -8,10 +8,8 @@ echo 'clearing old files'
 echo `date`
 echo '--------'
 
-cd dumps/
-rm *.*
-cd dailydumps/
-rm *
+rm /home/user/hotel/dumps/*.*
+rm /home/user/hotel/dumps/dailydumps/*
 
 echo '========'
 echo 'get latest dump from easysadmin@foxrep:'
@@ -40,6 +38,8 @@ echo 'primary processing data'
 echo `date`
 echo '--------'
 
+cd /home/user/hotel/dumps/dailydumps/
+
 for i in *.dat ; do
 	origin="$i"
 	destination="../"$i
@@ -54,9 +54,9 @@ for i in *.dat ; do
 
 	mv $origin $destination
 done;
-cd ../../
 
-cd dumps/
+
+cd /home/user/hotel/dumps/
 
 echo '========'
 echo 'secondary processing data'
@@ -76,7 +76,7 @@ for i in *.dat ; do
 
 done;
 
-cd ../
+cd /home/user/hotel/
 
 echo '========'
 echo 'preparing psql import'
