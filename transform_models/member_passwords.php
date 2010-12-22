@@ -25,10 +25,12 @@ Class MemberPasswords {
 			$member_id = trim($member_passwords_query_tmp['member_id']);
 
 			$password['member_id'] = $member_id;
-			$password['password'] = trim($member_emails_query_tmp['password']);
+			$password['password'] = trim($member_passwords_query_tmp['password']);
+
+			$members_passwords[$member_id] = $password;
 		}
 
-		return $passwords;
+		return $members_passwords;
 	}
 
 	function get_src_members_passwords($chunk_id) {
@@ -38,7 +40,7 @@ Class MemberPasswords {
 			$chunk_member_ids[] = $bar['member_id'];
 		}
 
-		$search_results = gandalf_runq("SELECT DISTINCT a.person_id, a.passphrase FROM authentication a WHERE (a.person_id='".implode("' OR a.person_id='", $chunk_member_ids)."') AND a.end_date='infinity';");
+		$search_results = gandalf_runq("SELECT DISTINCT a.person_id, a.passphrase FROM authentication a WHERE (a.person_id='".implode("' OR a.person_id='", $chunk_member_ids)."') AND a.end_date='infinity' AND passphrase IS NOT NULL AND passphrase!='';");
 
 		foreach ($search_results as $search_result) {
 			if (empty($search_result['person_id'])) continue; 
@@ -59,9 +61,10 @@ Class MemberPasswords {
 		$salt = md5(rand());
 		$hash = md5($salt.$data_add_item['password']);
 
-print_r($data_add_item);
+		$salt = md5(rand());
+		$ldap_hash = "{SSHA}".base64_encode(pack("H*",sha1($data_add_item['password'].$salt)).$salt);
 
-/* 		runq("INSERT INTO passwords (member_id, salt, hash) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($salt)."', '".pg_escape_string($hash)."');"); */
+		runq("INSERT INTO passwords (member_id, salt, hash, ldap_hash) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($salt)."', '".pg_escape_string($hash)."', '".pg_escape_string($ldap_hash)."');");
 	}
 
 	function delete_data($data_delete_item) {

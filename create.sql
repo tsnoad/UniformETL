@@ -10,8 +10,10 @@ create table passwords (
 	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	salt TEXT NOT NULL,
 	hash TEXT NOT NULL,
+	ldap_hash TEXT NOT NULL,
 	UNIQUE (member_id)
 );
+CREATE INDEX passwords_member_id ON passwords (member_id);
 
 create table names (
 	id BIGSERIAL PRIMARY KEY,

@@ -95,7 +95,7 @@ $global_timer = microtime(true);
 
 unset($chunk_ids);
 
-$chunk_size = 1000;
+$chunk_size = 10000;
 $chunk_offset = 0;
 $chunking_complete = false;
 
@@ -150,7 +150,7 @@ foreach ($chunk_ids as $chunk_count => $chunk_id) {
 
 	echo "Members ".str_pad(substr("IDs:", 0, 8), 8)."\t".count($members_add)." Added;\t".count($members_update)." Updated;\t".$members_delete_count." Deleted\t".round(microtime(true) - $chunk_timer, 3)."s\n";
 
-	foreach (array("passwords", "names", "emails", "addresses", "web_statuses", "ecpd_statuses", "confluence_statuses") as $transform) {
+	foreach (array(/* "passwords",  */"names", "emails", "addresses", "web_statuses", "ecpd_statuses", "confluence_statuses") as $transform) {
 		$transform_timer = microtime(true);
 
 		switch ($transform) {
