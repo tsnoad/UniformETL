@@ -18,7 +18,7 @@ echo 'get latest dump from easysadmin@foxrep:'
 echo `date`
 echo '--------'
 
-scp easysadmin@foxrep.nat.internal:/data01/datadump/*.tgz ./
+scp -i /home/user/.ssh/id_rsa easysadmin@foxrep.nat.internal:/data01/datadump/*.tgz ./
 
 echo '========'
 echo 'decompressing selected files'

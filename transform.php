@@ -18,6 +18,7 @@ Class SingleTransforms {
 		}
 
 		$data_add = array();
+		$data_nochange = array();
 		$data_update = array();
 		$data_delete = $dst_data_by_members;
 		$data_delete_count = 0;
@@ -27,6 +28,8 @@ Class SingleTransforms {
 
 			if (empty($dst_data_member)) {
 				$data_add[] = $src_data_member;
+			} else if ($dst_data_member != $src_data_member) {
+				$data_nochange[] = $src_data_member;
 			} else {
 				$data_update[] = $src_data_member;
 			}
@@ -36,7 +39,7 @@ Class SingleTransforms {
 
 		$data_delete_count = count($data_delete);
 
-		return array($data_add, $data_update, $data_delete, $data_delete_count);
+		return array($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count);
 	}
 }
 
@@ -48,6 +51,7 @@ Class PluralTransforms {
 		}
 
 		$data_add = array();
+		$data_nochange = array();
 		$data_update = array();
 		$data_delete = $dst_data_by_members;
 		$data_delete_count = 0;
@@ -65,7 +69,7 @@ Class PluralTransforms {
 				if (!in_array($name_hash, $dst_data_member_hashes)) {
 					$data_add[] = $src_data_member_data;
 				} else {
-					$data_update[] = $src_data_member_data;
+					$data_nochange[] = $src_data_member_data;
 				}
 
 				unset($data_delete[$member_id][$name_hash]);
@@ -78,7 +82,7 @@ Class PluralTransforms {
 			}
 		}
 
-		return array($data_add, $data_update, $data_delete, $data_delete_count);
+		return array($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count);
 	}
 }
 
@@ -92,6 +96,9 @@ require_once("transform_models/member_ecpd_statuses.php");
 require_once("transform_models/member_confluence_statuses.php");
 
 $global_timer = microtime(true);
+
+
+echo "creating chunks:";
 
 unset($chunk_ids);
 
@@ -116,9 +123,11 @@ while (!$chunking_complete && $chunk_offset < $chunk_size * 40) {
 	}
 
 	$chunk_offset += $chunk_size;
+
+	echo ".";
 }
 
-echo "chunks created. time elapsed ".round(microtime(true) - $global_timer)."s\n";
+echo "\nchunks created. time elapsed ".round(microtime(true) - $global_timer)."s\n";
 $global_timer = microtime(true);
 
 $chunk_times = array(0);
@@ -139,8 +148,8 @@ foreach ($chunk_ids as $chunk_count => $chunk_id) {
 	$src_members = $transform_class->get_src_members($chunk_id);
 	$dst_members = $transform_class->get_dst_members($chunk_id);
 
-	unset($members_add, $members_update, $members_delete, $members_delete_count);
-	list($members_add, $members_update, $members_delete, $members_delete_count) = $transform_class->transform($src_members, $dst_members);
+	unset($members_add, $members_nochange, $members_update, $members_delete, $members_delete_count);
+	list($members_add, $members_nochange, $members_update, $members_delete, $members_delete_count) = $transform_class->transform($src_members, $dst_members);
 
 	if (!empty($members_add)) {
 		foreach ($members_add as $member_id) {
@@ -148,9 +157,14 @@ foreach ($chunk_ids as $chunk_count => $chunk_id) {
 		}
 	}
 
-	echo "Members ".str_pad(substr("IDs:", 0, 8), 8)."\t".count($members_add)." Added;\t".count($members_update)." Updated;\t".$members_delete_count." Deleted\t".round(microtime(true) - $chunk_timer, 3)."s\n";
+	echo "Members ".str_pad(substr("IDs:", 0, 8), 8)."\t".
+	count($members_add)." Added;\t".
+	count($members_nochange)." Not Changed;\t".
+	count($members_update)." Updated;\t".
+	$members_delete_count." Deleted\t".
+	round(microtime(true) - $chunk_timer, 3)."s\n";
 
-	foreach (array(/* "passwords",  */"names", "emails", "addresses", "web_statuses", "ecpd_statuses", "confluence_statuses") as $transform) {
+	foreach (array("passwords", "names", "emails", "addresses", "web_statuses", "ecpd_statuses", "confluence_statuses") as $transform) {
 		$transform_timer = microtime(true);
 
 		switch ($transform) {
@@ -180,8 +194,8 @@ foreach ($chunk_ids as $chunk_count => $chunk_id) {
 		$src_data_by_members = $transform_class->get_src_data($chunk_id);
 		$dst_data_by_members = $transform_class->get_dst_data($chunk_id);
 
-		unset($data_add, $data_update, $data_delete, $data_delete_count);
-		list($data_add, $data_update, $data_delete, $data_delete_count) = $transform_class->transform($src_data_by_members, $dst_data_by_members);
+		unset($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count);
+		list($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count) = $transform_class->transform($src_data_by_members, $dst_data_by_members);
 
 		if (!empty($data_add)) {
 			foreach ($data_add as $data_add_item) {
@@ -195,7 +209,12 @@ foreach ($chunk_ids as $chunk_count => $chunk_id) {
 			}
 		}
 
-		echo "Members ".str_pad(substr(ucwords($transform).":", 0, 8), 8)."\t".count($data_add)." Added;\t".count($data_update)." Updated;\t".$data_delete_count." Deleted\t".round(microtime(true) - $transform_timer, 3)."s\n";
+		echo "Members ".str_pad(substr(ucwords($transform).":", 0, 8), 8)."\t".
+		count($data_add)." Added;\t".
+		count($data_nochange)." Not Changed;\t".
+		count($data_update)." Updated;\t".
+		$data_delete_count." Deleted;\t".
+		round(microtime(true) - $transform_timer, 3)."s\n";
 
 		$total['add'][$transform] += count($data_add);
 		$total['update'][$transform] += count($data_update);
