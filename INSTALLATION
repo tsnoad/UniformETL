@@ -6,7 +6,7 @@ mkdir dumps/dailydumps
 createdb hotel
 psql hotel < create.sql
 
-3. create ssh key for data source server
+3. create ssh key for data source server.
 ssh-keygen -t rsa
 scp ~/.ssh/id_rsa.pub remote.server.com:.ssh/authorized_keys2
 

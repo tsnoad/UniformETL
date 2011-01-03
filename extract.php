@@ -71,10 +71,14 @@ foreach ($required_tables as $table) {
 echo "CREATE INDEX dump_cpgcustomer_cpgid ON dump_cpgcustomer (cpgid) WHERE (cpgid='IEA');\n";
 echo "CREATE INDEX dump_cpgcustomer_customerid ON dump_cpgcustomer (cast(customerid AS BIGINT)) WHERE (cpgid='IEA');\n";
 echo "CREATE INDEX dump_cpgcustomer_custstatusid ON dump_cpgcustomer (custstatusid) WHERE (custstatusid='MEMB');\n";
+
 echo "CREATE INDEX dump_name_customerid ON dump_name (cast(customerid AS BIGINT));\n";
+
 echo "CREATE INDEX dump_address_customerid ON dump_address (cast(customerid AS BIGINT));\n";
+
 echo "CREATE INDEX dump_email_emailtypeid ON dump_email (emailtypeid) WHERE (emailtypeid='INET');\n";
 echo "CREATE INDEX dump_email_customerid ON dump_email (cast(customerid AS BIGINT)) WHERE (emailtypeid='INET');\n";
+
 echo "CREATE INDEX dump_groupmember_groupid ON dump_groupmember (groupid) WHERE (groupid='6052');\n";
 echo "CREATE INDEX dump_groupmember_customerid ON dump_groupmember (cast(customerid AS BIGINT)) WHERE (groupid='6052');\n";
 

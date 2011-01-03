@@ -16,13 +16,14 @@ echo 'get latest dump from easysadmin@foxrep:'
 echo `date`
 echo '--------'
 
-scp -i /home/user/.ssh/id_rsa easysadmin@foxrep.nat.internal:/data01/datadump/*.tgz ./
+scp -i /home/user/.ssh/id_rsa_foxrep easysadmin@foxrep.nat.internal:/data01/datadump/*.tgz /home/user/hotel/dumps/dailydumps/
 
 echo '========'
 echo 'decompressing selected files'
 echo `date`
 echo '--------'
 
+cd /home/user/hotel/dumps/dailydumps/
 tar -xvzf *.tgz taboutcpgCustomer.dat taboutName.dat taboutEMail.dat taboutAddress.dat taboutGroupMember.dat taboutUserTableColumns.dat
 
 echo '========'
@@ -30,6 +31,7 @@ echo 'processing legend'
 echo `date`
 echo '--------'
 
+cd /home/user/hotel/dumps/dailydumps/
 sed -e 's/||/,/g' -e 's/*$%#\r//g' taboutUserTableColumns.dat > ../taboutUserTableColumns.csv
 rm taboutUserTableColumns.dat
 
@@ -39,7 +41,6 @@ echo `date`
 echo '--------'
 
 cd /home/user/hotel/dumps/dailydumps/
-
 for i in *.dat ; do
 	origin="$i"
 	destination="../"$i
@@ -55,14 +56,12 @@ for i in *.dat ; do
 	mv $origin $destination
 done;
 
-
-cd /home/user/hotel/dumps/
-
 echo '========'
 echo 'secondary processing data'
 echo `date`
 echo '--------'
 
+cd /home/user/hotel/dumps/
 for i in *.dat ; do
 	origin="$i"
 	destinationtmp="`basename "$i" .${i##*.}`.dat.tmp2"
@@ -76,13 +75,12 @@ for i in *.dat ; do
 
 done;
 
-cd /home/user/hotel/
-
 echo '========'
 echo 'preparing psql import'
 echo `date`
 echo '--------'
 
+cd /home/user/hotel/
 rm dump.sql
 ./extract.php >> dump.sql
 
@@ -91,6 +89,8 @@ echo 'importing to psql'
 echo `date`
 echo '--------'
 
+
+cd /home/user/hotel/
 psql hotel < dump.sql
 
 echo '========'
