@@ -60,9 +60,13 @@ create table ecpd_statuses (
 );
 CREATE INDEX ecpd_statuses_member_id ON ecpd_statuses (member_id);
 
-
+CREATE TABLE processes (
+	process_id BIGSERIAL PRIMARY KEY,
+	start_date TIMESTAMP DEFAULT now()
+);
 CREATE TABLE chunks (
-	chunk_id BIGSERIAL PRIMARY KEY
+	chunk_id BIGSERIAL PRIMARY KEY,
+	process_id BIGINT REFERENCES processes ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE TABLE chunk_member_ids (
 	chunk_id BIGINT REFERENCES chunks ON UPDATE CASCADE ON DELETE CASCADE,

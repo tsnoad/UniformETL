@@ -58,9 +58,9 @@ Class SingleTransforms {
 			if (empty($dst_data_member)) {
 				$data_add[] = $src_data_member;
 			} else if ($dst_data_member != $src_data_member) {
-				$data_nochange[] = $src_data_member;
-			} else {
 				$data_update[] = $src_data_member;
+			} else {
+				$data_nochange[] = $src_data_member;
 			}
 
 			unset($data_delete[$member_id]);
@@ -133,11 +133,11 @@ class Chunks {
 		
 			$chunk_ids[] = $chunk_id;
 		
-			runq("INSERT INTO chunks VALUES ('{$chunk_id}');");
+			runq("INSERT INTO chunks (chunk_id, process_id) VALUES ('".pg_escape_string($chunk_id)."', '".pg_escape_string($this->process_id)."');");
 		
-			runq("INSERT INTO chunk_member_ids SELECT DISTINCT '{$chunk_id}'::BIGINT AS chunk_id, customerid::BIGINT AS member_id FROM dump_cpgcustomer WHERE cpgid='IEA' ORDER BY customerid::BIGINT ASC LIMIT {$chunk_size} OFFSET {$chunk_offset};");
+			runq("INSERT INTO chunk_member_ids SELECT DISTINCT '".pg_escape_string($chunk_id)."'::BIGINT AS chunk_id, customerid::BIGINT AS member_id FROM dump_cpgcustomer WHERE cpgid='IEA' ORDER BY customerid::BIGINT ASC LIMIT '".pg_escape_string($chunk_size)."' OFFSET '".pg_escape_string($chunk_offset)."';");
 		
-			$chunk_members_query = runq("SELECT count(*) FROM chunk_member_ids WHERE chunk_id='{$chunk_id}';");
+			$chunk_members_query = runq("SELECT count(*) FROM chunk_member_ids WHERE chunk_id='".pg_escape_string($chunk_id)."';");
 		
 			if ($chunk_members_query[0]['count'] < $chunk_size) {
 				$chunking_complete = true;
@@ -199,8 +199,6 @@ class GlobalTiming {
 	}
 }
 
-
-
 require_once("transform_models/member_ids.php");
 require_once("transform_models/member_passwords.php");
 require_once("transform_models/member_names.php");
@@ -210,9 +208,35 @@ require_once("transform_models/member_web_statuses.php");
 require_once("transform_models/member_ecpd_statuses.php");
 require_once("transform_models/member_confluence_statuses.php");
 
+class Processor {
+	public $process_id;
 
+	function start_process() {
+		$process_id_query = runq("SELECT nextval('processes_process_id_seq');");
+		$process_id = $process_id_query[0]['nextval'];
+
+		$this->process_id = $process_id;
+
+		runq("INSERT INTO processes (process_id) VALUES ('".pg_escape_string($process_id)."');");
+	}
+
+	function deleted_members() {
+		$deleted_members_query = runq("SELECT m.* FROM member_ids m LEFT OUTER JOIN dump_cpgcustomer c ON (m.member_id=c.customerid::BIGINT) WHERE c.customerid::BIGINT IS NULL;");
+
+		if (!empty($deleted_members_query)) {
+			foreach ($deleted_members_query as $deleted_member) {
+				var_dump($deleted_member['member_id']);
+			}
+		}
+	}
+}
+
+$processor = New Processor;
+$processor->start_process();
+$processor->deleted_members();
 
 $chunks = New Chunks;
+$chunks->process_id = $processor->process_id;
 $chunk_ids = $chunks->create_chunks();
 
 $global_timing = New GlobalTiming;
@@ -222,35 +246,13 @@ $global_timing->start_timing();
 foreach ($chunk_ids as $chunk_count => $chunk_id) {
 	$global_timing->chunk_started();
 
-	$transform_timer = microtime(true);
-
-	$transform_class = New MemberIds;
-
-	unset($src_members, $dst_members);
-
-	$src_members = $transform_class->get_src_members($chunk_id);
-	$dst_members = $transform_class->get_dst_members($chunk_id);
-
-	unset($members_add, $members_nochange, $members_update, $members_delete, $members_delete_count);
-	list($members_add, $members_nochange, $members_update, $members_delete, $members_delete_count) = $transform_class->transform($src_members, $dst_members);
-
-	if (!empty($members_add)) {
-		foreach ($members_add as $member_id) {
-			$transform_class->add_member($member_id);
-		}
-	}
-
-	echo "Members ".str_pad(substr("IDs:", 0, 8), 8)."\t".
-	count($members_add)." Added;\t".
-	count($members_nochange)." Not Changed;\t".
-	count($members_update)." Updated;\t".
-	$members_delete_count." Deleted\t".
-	round(microtime(true) - $transform_timer, 3)."s\n";
-
-	foreach (array("passwords", "names", "emails", "addresses", "web_statuses", "ecpd_statuses", "confluence_statuses") as $transform) {
+	foreach (array("member_ids", "passwords", "names", "emails", "addresses", "web_statuses", "ecpd_statuses", "confluence_statuses") as $transform) {
 		$transform_timer = microtime(true);
 
 		switch ($transform) {
+			case "member_ids":
+				$transform_class = New MemberIds;
+				break;
 			case "passwords":
 				$transform_class = New MemberPasswords;
 				break;
@@ -274,6 +276,7 @@ foreach ($chunk_ids as $chunk_count => $chunk_id) {
 				break;
 		}
 
+		unset($src_data_by_members, $dst_data_by_members);
 		$src_data_by_members = $transform_class->get_src_data($chunk_id);
 		$dst_data_by_members = $transform_class->get_dst_data($chunk_id);
 
@@ -283,6 +286,14 @@ foreach ($chunk_ids as $chunk_count => $chunk_id) {
 		if (!empty($data_add)) {
 			foreach ($data_add as $data_add_item) {
 				$transform_class->add_data($data_add_item);
+			}
+		}
+
+		if (!empty($data_nochange)) {
+		}
+
+		if (!empty($data_update)) {
+			foreach ($data_update as $data_update_item) {
 			}
 		}
 
@@ -300,12 +311,13 @@ foreach ($chunk_ids as $chunk_count => $chunk_id) {
 		round(microtime(true) - $transform_timer, 3)."s\n";
 
 		$total['add'][$transform] += count($data_add);
+		$total['nochange'][$transform] += count($data_nochange);
 		$total['update'][$transform] += count($data_update);
 		$total['delete'][$transform] += $data_delete_count;
 	}
 
 	$global_timing->chunk_completed();
-	echo $global_timing->eta_report();
+	$global_timing->eta_report();
 }
 
 print_r($total);

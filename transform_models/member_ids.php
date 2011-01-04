@@ -1,6 +1,14 @@
 <?php
 
 Class MemberIds {
+	function get_src_data($src_member_ids_chunk) {
+		return $this->get_src_members($src_member_ids_chunk);
+	}
+
+	function get_dst_data($src_member_ids_chunk) {
+		return $this->get_dst_members($src_member_ids_chunk);
+	}
+
 	function get_members($member_query) {
 		if (empty($member_query)) return null;
 
@@ -24,13 +32,13 @@ Class MemberIds {
 		return $this->get_members($dst_member_query);
 	}
 
-	function add_member($member_id) {
-		runq("INSERT INTO member_ids (member_id) VALUES ('".pg_escape_string($member_id)."');");
+	function add_data($data_add_item) {
+		runq("INSERT INTO member_ids (member_id) VALUES ('".pg_escape_string($data_add_item)."');");
 	}
 
-// 	function delete_member($member_id) {
-// 		runq("DELETE FROM member_ids WHERE member_id='".pg_escape_string($member_id)."';");
-// 	}
+	function delete_data($data_delete_item) {
+/* 		runq("DELETE FROM member_ids WHERE member_id='".pg_escape_string($data_delete_item)."';"); */
+	}
 
 	function transform($src_members, $dst_members) {
 		$members_add = array();
