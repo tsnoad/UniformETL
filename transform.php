@@ -10,6 +10,35 @@ function runq($query) {
 	return $return;
 }
 
+Class Conf {
+	public $primary_transforms = array(
+		"member_ids"
+	);
+	public $secondary_transforms = array(
+		"passwords",
+		"names",
+		"emails",
+		"addresses",
+		"web_statuses",
+		"ecpd_statuses"
+	);
+	public $tertiary_transforms = array(
+		"confluence_statuses"
+	);
+
+/*
+	public $transform_requires = array(
+		"member_ids" => "transform_models/member_ids.php",
+		"passwords" => "transform_models/member_passwords.php",
+		"names" => "transform_models/member_names.php",
+		"emails" => "transform_models/member_emails.php",
+		"web_statuses" => "transform_models/member_web_statuses.php",
+		"ecpd_statuses" => "transform_models/member_ecpd_statuses.php",
+		"confluence_statuses" => "transform_models/member_confluence_statuses.php"
+	);
+*/
+}
+
 Class SingleTransforms {
 	function transform($src_data_by_members, $dst_data_by_members) {
 		if (empty($src_data_by_members)) {
@@ -86,6 +115,92 @@ Class PluralTransforms {
 	}
 }
 
+class Chunks {
+	function create_chunks() {
+		echo "creating chunks:";
+
+		$global_timer = microtime(true);
+
+		$chunk_size = 10000;
+		$max_records = $chunk_size * 5;
+
+		$chunk_offset = 0;
+		$chunking_complete = false;
+		
+		while (!$chunking_complete && $chunk_offset < $max_records) {
+			$chunk_id_query = runq("SELECT nextval('chunks_chunk_id_seq');");
+			$chunk_id = $chunk_id_query[0]['nextval'];
+		
+			$chunk_ids[] = $chunk_id;
+		
+			runq("INSERT INTO chunks VALUES ('{$chunk_id}');");
+		
+			runq("INSERT INTO chunk_member_ids SELECT DISTINCT '{$chunk_id}'::BIGINT AS chunk_id, customerid::BIGINT AS member_id FROM dump_cpgcustomer WHERE cpgid='IEA' ORDER BY customerid::BIGINT ASC LIMIT {$chunk_size} OFFSET {$chunk_offset};");
+		
+			$chunk_members_query = runq("SELECT count(*) FROM chunk_member_ids WHERE chunk_id='{$chunk_id}';");
+		
+			if ($chunk_members_query[0]['count'] < $chunk_size) {
+				$chunking_complete = true;
+			}
+		
+			$chunk_offset += $chunk_size;
+		
+			echo ".";
+		}
+		
+		echo "\nchunks created. time elapsed ".round(microtime(true) - $global_timer)."s\n\n";
+
+		return $chunk_ids;
+	}
+}
+
+class GlobalTiming {
+	public $chunk_count;
+	public $chunk_durations = array();
+	public $chunks_completed = 0;
+
+	function start_timing() {
+		$this->start_time = microtime(true);
+	}
+
+	function chunk_started() {
+		$this->chunk_start_time = microtime(true);
+	}
+
+	function chunk_completed() {
+		$chunk_duration = microtime(true) - $this->chunk_start_time;
+
+		array_push($this->chunk_durations, $chunk_duration);
+
+		unset($this->chunk_start_time);
+
+		$this->chunks_completed += 1;
+	}
+
+	function eta_report() {
+		$chunk_number = $this->chunks_completed;
+		$total_chunks = $this->chunk_count;
+
+		$time_elapsed = round(array_sum($this->chunk_durations));
+
+		$recent_chunk_times = array_slice($this->chunk_durations, -5);
+		$recent_chunk_time_avg = array_sum($recent_chunk_times) / count($recent_chunk_times);
+
+		$time_remaining = round($recent_chunk_time_avg * ($total_chunks - $chunk_number));
+
+		echo "Completed chunk: {$chunk_number} of {$total_chunks}\t";
+		echo "{$time_elapsed}s elapsed\t";
+
+		if ($chunk_number < $total_chunks) {
+			echo "{$time_remaining}s remaining";
+		}
+
+		echo "\n\n";
+	}
+}
+
+
+
 require_once("transform_models/member_ids.php");
 require_once("transform_models/member_passwords.php");
 require_once("transform_models/member_names.php");
@@ -95,51 +210,19 @@ require_once("transform_models/member_web_statuses.php");
 require_once("transform_models/member_ecpd_statuses.php");
 require_once("transform_models/member_confluence_statuses.php");
 
-$global_timer = microtime(true);
 
 
-echo "creating chunks:";
+$chunks = New Chunks;
+$chunk_ids = $chunks->create_chunks();
 
-unset($chunk_ids);
-
-$chunk_size = 10000;
-$chunk_offset = 0;
-$chunking_complete = false;
-
-while (!$chunking_complete && $chunk_offset < $chunk_size * 50) {
-	$chunk_id_query = runq("SELECT nextval('chunks_chunk_id_seq');");
-	$chunk_id = $chunk_id_query[0]['nextval'];
-
-	$chunk_ids[] = $chunk_id;
-
-	runq("INSERT INTO chunks VALUES ('{$chunk_id}');");
-
-	runq("INSERT INTO chunk_member_ids SELECT DISTINCT '{$chunk_id}'::BIGINT AS chunk_id, customerid::BIGINT AS member_id FROM dump_cpgcustomer WHERE cpgid='IEA' ORDER BY customerid::BIGINT ASC LIMIT {$chunk_size} OFFSET {$chunk_offset};");
-
-	$chunk_members_query = runq("SELECT count(*) FROM chunk_member_ids WHERE chunk_id='{$chunk_id}';");
-
-	if ($chunk_members_query[0]['count'] < $chunk_size) {
-		$chunking_complete = true;
-	}
-
-	$chunk_offset += $chunk_size;
-
-	echo ".";
-}
-
-echo "\nchunks created. time elapsed ".round(microtime(true) - $global_timer)."s\n";
-$global_timer = microtime(true);
-
-$chunk_times = array(0);
+$global_timing = New GlobalTiming;
+$global_timing->chunk_count = count($chunk_ids);
+$global_timing->start_timing();
 
 foreach ($chunk_ids as $chunk_count => $chunk_id) {
-	$chunk_number = $chunk_count + 1;
-	$time_elapsed = microtime(true) - $global_timer;
-	$time_remaining = array_sum($chunk_times) / count($chunk_times) * (count($chunk_ids) - $chunk_number);
-	echo "\n";
-	echo "Chunk: ".$chunk_number." of ".count($chunk_ids)."\t".round($time_elapsed)."s elapsed\t".round($time_remaining)."s remaining\n";
+	$global_timing->chunk_started();
 
-	$chunk_timer = microtime(true);
+	$transform_timer = microtime(true);
 
 	$transform_class = New MemberIds;
 
@@ -162,7 +245,7 @@ foreach ($chunk_ids as $chunk_count => $chunk_id) {
 	count($members_nochange)." Not Changed;\t".
 	count($members_update)." Updated;\t".
 	$members_delete_count." Deleted\t".
-	round(microtime(true) - $chunk_timer, 3)."s\n";
+	round(microtime(true) - $transform_timer, 3)."s\n";
 
 	foreach (array("passwords", "names", "emails", "addresses", "web_statuses", "ecpd_statuses", "confluence_statuses") as $transform) {
 		$transform_timer = microtime(true);
@@ -221,8 +304,8 @@ foreach ($chunk_ids as $chunk_count => $chunk_id) {
 		$total['delete'][$transform] += $data_delete_count;
 	}
 
-	array_unshift($chunk_times, microtime(true) - $chunk_timer);
-	$chunk_times = array_slice($chunk_times, 0, 5);
+	$global_timing->chunk_completed();
+	echo $global_timing->eta_report();
 }
 
 print_r($total);

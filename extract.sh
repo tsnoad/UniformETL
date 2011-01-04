@@ -1,29 +1,50 @@
 #!/bin/bash
 
+export dumpdir=/home/user/hotel/dumps/
+export dumpuntardir=/home/user/hotel/dumps/dailydumps/
+
+export identity=/home/user/.ssh/id_rsa_foxrep
+
 echo 'starting extract'
 echo `date`
+
+echo '========'
+echo 'checking environment'
+echo `date`
+echo '--------'
+
+if [ ! -d "$dumpdir" ]; then
+	echo "environment is missing dumps folder"
+	exit 1
+fi
+
+if [ ! -d "$dumpuntardir" ]; then
+	echo "environment is missing dailydumps folder"
+	exit 1
+fi
 
 echo '========'
 echo 'clearing old files'
 echo `date`
 echo '--------'
 
-rm /home/user/hotel/dumps/*.*
-rm /home/user/hotel/dumps/dailydumps/*
+rm $dumpdir/*.*
+rm $dumpuntardir/*
 
 echo '========'
 echo 'get latest dump from easysadmin@foxrep:'
 echo `date`
 echo '--------'
 
-scp -i /home/user/.ssh/id_rsa_foxrep easysadmin@foxrep.nat.internal:/data01/datadump/*.tgz /home/user/hotel/dumps/dailydumps/
+scp -i $identity easysadmin@foxrep.nat.internal:/data01/datadump/*.tgz $dumpuntardir \
+|| { echo "could not get latest dump"; exit 1; }
 
 echo '========'
 echo 'decompressing selected files'
 echo `date`
 echo '--------'
 
-cd /home/user/hotel/dumps/dailydumps/
+cd $dumpuntardir
 tar -xvzf *.tgz taboutcpgCustomer.dat taboutName.dat taboutEMail.dat taboutAddress.dat taboutGroupMember.dat taboutUserTableColumns.dat
 
 echo '========'
@@ -31,7 +52,7 @@ echo 'processing legend'
 echo `date`
 echo '--------'
 
-cd /home/user/hotel/dumps/dailydumps/
+cd $dumpuntardir
 sed -e 's/||/,/g' -e 's/*$%#\r//g' taboutUserTableColumns.dat > ../taboutUserTableColumns.csv
 rm taboutUserTableColumns.dat
 
@@ -40,7 +61,7 @@ echo 'primary processing data'
 echo `date`
 echo '--------'
 
-cd /home/user/hotel/dumps/dailydumps/
+cd $dumpuntardir
 for i in *.dat ; do
 	origin="$i"
 	destination="../"$i
