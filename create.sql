@@ -62,7 +62,14 @@ CREATE INDEX ecpd_statuses_member_id ON ecpd_statuses (member_id);
 
 CREATE TABLE processes (
 	process_id BIGSERIAL PRIMARY KEY,
-	start_date TIMESTAMP DEFAULT now()
+	start_date TIMESTAMP NOT NULL DEFAULT now(),
+	finished BOOLEAN DEFAULT FALSE,
+	finish_date TIMESTAMP,
+	source_path TEXT NOT NULL,
+	source_timestamp TIMESTAMP NOT NULL,
+	source_md5 TEXT NOT NULL,
+	watch_pid TEXT NOT NULL,
+	extract_pid TEXT NOT NULL
 );
 CREATE TABLE chunks (
 	chunk_id BIGSERIAL PRIMARY KEY,

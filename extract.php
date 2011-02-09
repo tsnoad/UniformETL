@@ -1,8 +1,18 @@
 #!/usr/bin/php5
 <?php
 
+$process_id = $_SERVER['argv'][1];
+
+if (empty($process_id)) {
+	die("extract process id has not been supplied");
+}
+
 //where are the dump files
-$dump_path = "/home/user/hotel/dumps";
+$dump_path = "/home/user/hotel/extract_processes/".$process_id;
+
+if (!is_dir($dump_path)) {
+	die("invalid process id, or could not find process folder in export_processes");
+}
 
 //what tables do we need
 $required_tables = array("cpgCustomer", "Name", "Address", "EMail", "GroupMember");
@@ -58,7 +68,7 @@ foreach ($required_tables as $table) {
 	$createtable .= "\n";
 
 	//SQL to import table data
-	$createtable .= "COPY dump_".strtolower($table)." (".implode(", ", $columnsref[$table]).") FROM '{$dump_path}//tabout{$table}.sql' DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS ".'$$\$$'.";\n";
+	$createtable .= "COPY dump_".strtolower($table)." (".implode(", ", $columnsref[$table]).") FROM '{$dump_path}/tabout{$table}.sql' DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS ".'$$\$$'.";\n";
 
 	//output SQL
 	//this will normally be written to a file to be applied to the database

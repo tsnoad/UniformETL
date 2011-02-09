@@ -232,7 +232,8 @@ class Processor {
 }
 
 $processor = New Processor;
-$processor->start_process();
+// $processor->start_process();
+$processor->process_id = 15;
 $processor->deleted_members();
 
 $chunks = New Chunks;
