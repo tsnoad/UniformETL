@@ -1,12 +1,10 @@
 #!/bin/bash
 
-psql -c "UPDATE processes SET extract_pid='"$$"' WHERE process_id='"$1"';" hotel
-
 server=easysadmin@foxrep.nat.internal
 
 scriptdir=/home/user/hotel/
 
-dumpdir=/home/user/hotel/extract_processes/
+dumpdir=/home/user/hotel/extract/extract_processes/
 
 identity=/home/user/.ssh/id_rsa_foxrep
 
@@ -28,15 +26,32 @@ if [ ! "$2" ]; then
 	exit 1
 fi
 
-if [ ! -d "$dumpdir$1" ]; then
-	echo "invalid process id, or could not find process folder in export_processes"
+if [ ! "$3" ]; then
+	echo "dump source timestamp has not been supplied"
 	exit 1
 fi
 
-extractdir=$dumpdir$1;
-extractuntardir=$dumpdir$1"/untar";
+if [ ! "$4" ]; then
+	echo "dump source md5 hash has not been supplied"
+	exit 1
+fi
 
-mkdir $extractuntardir
+echo '========'
+echo 'stuff'
+echo `date`
+echo '--------'
+
+extractdir=$dumpdir$1
+extractuntardir=$dumpdir$1"/untar"
+
+mkdir $extractdir \
+|| { echo "could not create dump folder"; exit 1; }
+
+mkdir $extractuntardir \
+|| { echo "could not create dump untar folder"; exit 1; }
+
+$scriptdir/extract/process_recorder.php "started" "$1" "$2" "$3" "$4" "$$" \
+|| { echo "could not record start of extract process"; exit 1; }
 
 echo '========'
 echo 'get latest dump from easysadmin@foxrep:'
@@ -129,8 +144,16 @@ $scriptdir/extract.php $1 >> $extractdir/dump.sql
 # cd /home/user/hotel/
 # psql hotel < dump.sql
 
+
+# echo '========'
+# echo 'stuff'
+# echo `date`
+# echo '--------'
+
+$scriptdir/extract/process_recorder.php "finished" "$1" \
+|| { echo "could not record finish of extract process"; exit 1; }
+
 echo '========'
 echo 'extract complete'
 echo `date`
 
-psql -c "UPDATE processes SET finished='TRUE', finish_date=now() WHERE process_id='"$1"';" hotel

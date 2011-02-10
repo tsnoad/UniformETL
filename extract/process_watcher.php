@@ -10,40 +10,43 @@ function runq($query) {
 	return $return;
 }
 
-var_dump(function_exists("proc_get_status"));
+$unfinisheds_query = runq("SELECT * FROM extract_processes WHERE finished=FALSE;");
 
-/* $unfinisheds_query = runq("SELECT * FROM extract_processes WHERE finished=FALSE;"); */
-
-/*
 if (empty($unfinisheds_query)) {
 	die("no active extract processes");
 }
-*/
 
-/* foreach ($unfinisheds_query as $unfinished) { */
-foreach (array(array("extract_pid" => 2795), array("extract_pid" => 2649273930)) as $unfinished) {
+echo "\n"."Found ".count($unfinisheds_query)." processes";
+
+foreach ($unfinisheds_query as $unfinished) {
+	echo "\n"."Checking process:";
 	$unfinished_status = shell_exec("ps h p ".escapeshellarg($unfinished['extract_pid'])." o pid | wc -l");
-
-var_dump(shell_exec("ps h p ".escapeshellarg($unfinished['extract_pid'])));
-var_dump(shell_exec("ps h p ".escapeshellarg($unfinished['extract_pid'])." o pid | wc -l"));
-
-/* 	var_dump($unfinished_status_query); */
 
 	if (trim($unfinished_status) > 0) {
 		//process is running, all is well
+		echo "\t"."running";
 		continue;
 	}
 
+	//process is no longer running, we need to wait to see if it's recorded as finished
+	echo "\t"."stopped. wait 5s...";
+
 	sleep(5);
 
-	$unfinished_status = shell_exec("ps h p ".escapeshellarg($unfinished['extract_pid'])." o pid | wc -l");
+	$status_query = runq("SELECT * FROM extract_processes WHERE process_id='".pg_escape_string($unfinished['process_id'])."' LIMIT 1;");
 
-var_dump(shell_exec("ps h p ".escapeshellarg($unfinished['extract_pid'])));
-var_dump(shell_exec("ps h p ".escapeshellarg($unfinished['extract_pid'])." o pid | wc -l"));
+	if ($status_query[0]['finished'] == 't') {
+		//process has completed normally
+		echo "\t"."completed.";
+		continue;
 
-	if (trim($unfinished_status) > 0) {
-/* 		runq("UPDATE extract_processes SET (finished=TRUE, finished_time=now(), failed=TRUE);"); */
+	} else {
+		echo "\t"."failed.";
+		shell_exec("/home/user/hotel/extract/process_recorder.php failed ".escapeshellarg($unfinished['process_id']));
+		continue;
 	}
 }
+
+echo "\n";
 
 ?>

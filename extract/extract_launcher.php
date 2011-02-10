@@ -50,11 +50,11 @@ class Watcher {
 
 		$query_result = trim($dump_query);
 		
-		if (empty($dump_query)) {
+		if (empty($query_result)) {
 			die("Y U NO connect");
 		}
 		
-		$this->dump_query_rows = explode("\n", $dump_query);
+		$this->dump_query_rows = explode("\n", $query_result);
 	}
 
 	function calc_time_difference() {
@@ -119,46 +119,43 @@ class Watcher {
 
 	function inspect_dumps() {
 		foreach ($this->files as $file_key => $file) {
-			if (!$this->dump_too_old() && !$this->dump_already_processed()) {
-				$this->start_extract();
+			if (!$this->dump_too_old($file) && !$this->dump_already_processed($file)) {
+				$this->start_extract($file);
 			}
 		}
 	}
 
-	function dump_too_old() {
+	function dump_too_old($file) {
 		$newest_process_query = runq("SELECT max(source_timestamp) FROM extract_processes;");
 		$newest_process_timestamp = $newest_process_query[0]['max'];
 	
 		if ($file['modtime'] <= strtotime($newest_process_timestamp)) {
-			var_dump("skipping");
+			var_dump("skipping - dump too old");
 			return true;
 		}
 	}
 
-	function dump_already_processed() {
-		$already_processed_query = runq("SELECT count(*) FROM processes WHERE extract_source_md5='".pg_escape_string($file['md5'])."' OR source_timestamp='".pg_escape_string(date("c", $file['modtime']))."';");
+	function dump_already_processed($file) {
+		$already_processed_query = runq("SELECT count(*) FROM extract_processes WHERE source_md5='".pg_escape_string($file['md5'])."' OR source_timestamp='".pg_escape_string(date("c", $file['modtime']))."';");
 		$already_processed_count = $already_processed_query[0]['count'];
 	
 		if ($already_processed_count > 0) {
-			var_dump("skipping");
+			var_dump("skipping - already processed");
 			return true;
 		}
 	}
 
-	function start_extract() {
+	function start_extract($file) {
 		var_dump("jackpot");
 	
-/*
 		$process_id_query = runq("SELECT nextval('processes_process_id_seq');");
 		$process_id = $process_id_query[0]['nextval'];
 	
-		runq("INSERT INTO processes (process_id, source_path, source_timestamp, source_md5, watch_pid) VALUES ('".pg_escape_string($process_id)."', '".pg_escape_string($file['path'])."', '".pg_escape_string(date("c", $file['modtime']))."', '".pg_escape_string($file['md5'])."', '".pg_escape_string($pid)."');");
-	
-		mkdir("/home/user/hotel/extract/extract_processes/".$process_id);
-	
-		system("/home/user/hotel/extract/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path']));
-*/
-	
+		runq("INSERT INTO processes (process_id) VALUES ('".pg_escape_string($process_id)."');");
+
+/* 		system("/home/user/hotel/extract/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])); */
+		shell_exec("/home/user/hotel/extract/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > /dev/null 2>/dev/null & echo $!");
+
 		die("dump started");
 	}
 }
