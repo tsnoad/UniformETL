@@ -1,16 +1,7 @@
 #!/usr/bin/php5
 <?php
 
-
-function runq($query) {
-	$conn = pg_connect("dbname=hotel user=user");
-	$result = pg_query($conn, $query);
-	$return = pg_fetch_all($result);
-	pg_close($conn);
-
-	return $return;
-}
-
+require("/etc/uniformetl/database.php");
 
 $event = $_SERVER["argv"][1];
 

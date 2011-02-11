@@ -1,30 +1,8 @@
 #!/usr/bin/php5
 <?php
 
-$pid = getmypid();
-
-function runq($query) {
-	$conn = pg_connect("dbname=hotel user=user");
-	$result = pg_query($conn, $query);
-	$return = pg_fetch_all($result);
-	pg_close($conn);
-
-	return $return;
-}
-
-class Conf {
-	public $server = "easysadmin@foxrep.nat.internal";
-	public $identity = "/home/user/.ssh/id_rsa_foxrep";
-	public $dumps_path = '/data01/datadump/*.tgz';
-	public $dump_path_check_regex = "/^\/data01\/datadump\/FoxtrotTableDump[0-9]{8,8}\.tgz$/";
-
-/*
-	public $identity = "";
-	public $server = "golf@eacbr-db1.nat.internal";
-	public $dumps_path = '/var/golf/foxtrot_dump/*201101*.tgz';
-	public $dump_path_check_regex = "/^\/var\/golf\/foxtrot_dump\/FoxtrotTableDump[0-9]{8,8}\.tgz$/";
-*/
-}
+require("/etc/uniformetl/config.php");
+require("/etc/uniformetl/database.php");
 
 class Watcher {
 	public $conf;
@@ -119,19 +97,9 @@ class Watcher {
 
 	function inspect_dumps() {
 		foreach ($this->files as $file_key => $file) {
-			if (!$this->dump_too_old($file) && !$this->dump_already_processed($file)) {
+			if (!$this->dump_already_processed($file) && !$this->dump_too_old($file)) {
 				$this->start_extract($file);
 			}
-		}
-	}
-
-	function dump_too_old($file) {
-		$newest_process_query = runq("SELECT max(source_timestamp) FROM extract_processes;");
-		$newest_process_timestamp = $newest_process_query[0]['max'];
-	
-		if ($file['modtime'] <= strtotime($newest_process_timestamp)) {
-			var_dump("skipping - dump too old");
-			return true;
 		}
 	}
 
@@ -145,6 +113,16 @@ class Watcher {
 		}
 	}
 
+	function dump_too_old($file) {
+		$newest_process_query = runq("SELECT max(source_timestamp) FROM extract_processes;");
+		$newest_process_timestamp = $newest_process_query[0]['max'];
+	
+		if ($file['modtime'] <= strtotime($newest_process_timestamp)) {
+			var_dump("skipping - dump too old");
+			return true;
+		}
+	}
+
 	function start_extract($file) {
 		var_dump("jackpot");
 	
@@ -154,7 +132,7 @@ class Watcher {
 		runq("INSERT INTO processes (process_id) VALUES ('".pg_escape_string($process_id)."');");
 
 /* 		system("/home/user/hotel/extract/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])); */
-		shell_exec("/home/user/hotel/extract/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > /dev/null 2>/dev/null & echo $!");
+		shell_exec("/home/user/hotel/extract/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > /home/user/hotel/logs/extractlog 2>/home/user/hotel/logs/extractlog & echo $!");
 
 		die("dump started");
 	}

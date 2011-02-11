@@ -37,7 +37,7 @@ if [ ! "$4" ]; then
 fi
 
 echo '========'
-echo 'stuff'
+echo 'recording start'
 echo `date`
 echo '--------'
 
@@ -134,21 +134,19 @@ echo `date`
 echo '--------'
 
 cd $extractdir
-$scriptdir/extract.php $1 >> $extractdir/dump.sql
+$scriptdir/extract/extract.php $1 >> $extractdir/dump.sql
 
-# echo '========'
-# echo 'importing to psql'
-# echo `date`
-# echo '--------'
+echo '========'
+echo 'importing to psql'
+echo `date`
+echo '--------'
 
-# cd /home/user/hotel/
-# psql hotel < dump.sql
+psql hotel < $extractdir/dump.sql
 
-
-# echo '========'
-# echo 'stuff'
-# echo `date`
-# echo '--------'
+echo '========'
+echo 'recording finish'
+echo `date`
+echo '--------'
 
 $scriptdir/extract/process_recorder.php "finished" "$1" \
 || { echo "could not record finish of extract process"; exit 1; }

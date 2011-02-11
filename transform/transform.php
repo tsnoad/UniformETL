@@ -1,43 +1,8 @@
 #!/usr/bin/php5
 <?php
 
-function runq($query) {
-	$conn = pg_connect("dbname=hotel user=user");
-	$result = pg_query($conn, $query);
-	$return = pg_fetch_all($result);
-	pg_close($conn);
-
-	return $return;
-}
-
-Class Conf {
-	public $primary_transforms = array(
-		"member_ids"
-	);
-	public $secondary_transforms = array(
-		"passwords",
-		"names",
-		"emails",
-		"addresses",
-		"web_statuses",
-		"ecpd_statuses"
-	);
-	public $tertiary_transforms = array(
-		"confluence_statuses"
-	);
-
-/*
-	public $transform_requires = array(
-		"member_ids" => "transform_models/member_ids.php",
-		"passwords" => "transform_models/member_passwords.php",
-		"names" => "transform_models/member_names.php",
-		"emails" => "transform_models/member_emails.php",
-		"web_statuses" => "transform_models/member_web_statuses.php",
-		"ecpd_statuses" => "transform_models/member_ecpd_statuses.php",
-		"confluence_statuses" => "transform_models/member_confluence_statuses.php"
-	);
-*/
-}
+require("/etc/uniformetl/config.php");
+require("/etc/uniformetl/database.php");
 
 Class SingleTransforms {
 	function transform($src_data_by_members, $dst_data_by_members) {
@@ -208,16 +173,54 @@ require_once("transform_models/member_web_statuses.php");
 require_once("transform_models/member_ecpd_statuses.php");
 require_once("transform_models/member_confluence_statuses.php");
 
+class Models {
+	public $conf;
+
+	function start() {
+		foreach (array("member_ids", "names", "emails") as $transform) {
+			$this->init_model($transform);
+		}
+	}
+
+	function init_model($transform) {
+		switch ($transform) {
+			case "member_ids":
+				$this->member_ids = New MemberIds;
+				break;
+			case "passwords":
+				$this->passwords = New MemberPasswords;
+				break;
+			case "names":
+				$this->names = New MemberNames;
+				break;
+			case "emails":
+				$this->emails = New MemberEmails;
+				break;
+			case "addresses":
+				$this->addresses = New MemberAddresses;
+				break;
+			case "web_statuses":
+				$this->web_statuses = New MemberWebStatuses;
+				break;
+			case "ecpd_statuses":
+				$this->ecpd_statuses = New MemberEcpdStatuses;
+				break;
+			case "confluence_statuses":
+				$this->confluence_statuses = New MemberConfluenceStatuses;
+				break;
+		}
+	}
+}
+
 class Processor {
 	public $process_id;
 
 	function start_process() {
-		$process_id_query = runq("SELECT nextval('processes_process_id_seq');");
-		$process_id = $process_id_query[0]['nextval'];
+		runq("INSERT INTO transform_processes (process_id, transform_pid) VALUES ('".pg_escape_string($this->process_id)."', '".pg_escape_string(getmypid())."');");
+	}
 
-		$this->process_id = $process_id;
-
-		runq("INSERT INTO processes (process_id) VALUES ('".pg_escape_string($process_id)."');");
+	function finish_process() {
+		runq("UPDATE transform_processes SET finshed=TRUE, finish_date=now() WHERE process_id='".pg_escape_string($this->process_id)."';");
 	}
 
 	function deleted_members() {
@@ -231,9 +234,14 @@ class Processor {
 	}
 }
 
+
+
+
+$conf = New Conf;
+
 $processor = New Processor;
-// $processor->start_process();
-$processor->process_id = 15;
+$processor->process_id = $_SERVER['argv'][1];
+$processor->start_process();
 $processor->deleted_members();
 
 $chunks = New Chunks;
@@ -322,5 +330,7 @@ foreach ($chunk_ids as $chunk_count => $chunk_id) {
 }
 
 print_r($total);
+
+$processor->finish_process();
 
 ?>
