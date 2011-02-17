@@ -1,7 +1,7 @@
 #!/usr/bin/php5
 <?php
 
-require("/etc/uniformetl/database.php");
+require_once("/etc/uniformetl/database.php");
 
 $event = $_SERVER["argv"][1];
 

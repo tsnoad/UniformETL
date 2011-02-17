@@ -1,14 +1,23 @@
 #!/usr/bin/php5
 <?php
 
-require("/etc/uniformetl/config.php");
-require("/etc/uniformetl/database.php");
+require_once("/etc/uniformetl/config.php");
+require_once("/etc/uniformetl/database.php");
 
 class Watcher {
 	public $conf;
 
 	function start() {
 		$this->conf = New Conf;
+
+		echo "########\n";
+		echo "########\n";
+		
+		echo "starting extract process launcher\n";
+		echo date("r")."\n";
+
+		$this->check_already_extracting();
+		$this->check_already_transforming();
 
 		$this->list_remote_dumps();
 
@@ -19,6 +28,22 @@ class Watcher {
 		$this->create_dump_array();
 
 		$this->inspect_dumps();
+	}
+
+	function check_already_extracting() {
+		$already_extracting = runq("SELECT count(*) FROM extract_processes WHERE finished=FALSE;");
+
+		if ($already_extracting[0]['count'] > 0) {
+			die("extract is currently running");
+		}
+	}
+
+	function check_already_transforming() {
+		$already_transforming = runq("SELECT count(*) FROM transform_processes WHERE finished=FALSE;");
+
+		if ($already_transforming[0]['count'] > 0) {
+			die("transform is currently running");
+		}
 	}
 
 	function list_remote_dumps() {
@@ -131,8 +156,7 @@ class Watcher {
 	
 		runq("INSERT INTO processes (process_id) VALUES ('".pg_escape_string($process_id)."');");
 
-/* 		system("/home/user/hotel/extract/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])); */
-		shell_exec("/home/user/hotel/extract/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > /home/user/hotel/logs/extractlog 2>/home/user/hotel/logs/extractlog & echo $!");
+		shell_exec($this->conf->software_path."extract/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".$this->conf->software_path."logs/extractlog 2>".$this->conf->software_path."logs/extractlog & echo $!");
 
 		die("dump started");
 	}

@@ -1,12 +1,6 @@
 #!/bin/bash
 
-server=easysadmin@foxrep.nat.internal
-
-scriptdir=/home/user/hotel/
-
-dumpdir=/home/user/hotel/extract/extract_processes/
-
-identity=/home/user/.ssh/id_rsa_foxrep
+source /etc/uniformetl/config.sh
 
 echo 'starting extract'
 echo `date`
@@ -67,7 +61,7 @@ echo `date`
 echo '--------'
 
 cd $extractuntardir
-tar -xvzf *.tgz taboutcpgCustomer.dat taboutName.dat taboutEMail.dat taboutAddress.dat taboutGroupMember.dat taboutUserTableColumns.dat \
+tar -xvzf *.tgz $untar_files \
 || { echo "could not untar dump"; exit 1; }
 
 echo '========'
@@ -102,6 +96,10 @@ for i in *.dat ; do
 
 	if [ "$origin" = "taboutcpgCustomer.dat" ] ; then
 		sed -e '2~1s/^[0-9][0-9]\+\ *||\ *\(IEA\|TS[0-9][0-9]\)\ *||/~~&/g' -e 's/||/~~||~~/g' -e 's/*$%#\r/~~/g' -i $origin
+
+	elif [ "$origin" = "taboutInvoice.dat" ] ; then
+		sed -e '2~1s/^\(IEA\|TS[0-9][0-9]\)\ *||/~~&/g' -e 's/||/~~||~~/g' -e 's/*$%#\r/~~/g' -i $origin
+
 	else
 		sed -e '2~1s/^[0-9][0-9]\+\ *||/~~&/g' -e 's/||/~~||~~/g' -e 's/*$%#\r/~~/g' -i $origin
 	fi
@@ -134,7 +132,7 @@ echo `date`
 echo '--------'
 
 cd $extractdir
-$scriptdir/extract/extract.php $1 >> $extractdir/dump.sql
+$scriptdir/extract/extract.php "$1" >> $extractdir/dump.sql
 
 echo '========'
 echo 'importing to psql'
