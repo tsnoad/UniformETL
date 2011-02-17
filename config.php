@@ -18,11 +18,16 @@ class Conf {
 	public $dump_path_check_regex = "/^\/var\/golf\/foxtrot_dump\/FoxtrotTableDump[0-9]{8,8}\.tgz$/";
 */
 
+	public $software_path = "/home/user/hotel/";
+
 	//extract.php
 	//where are the dump files
-	public $dump_path = "/home/user/hotel/extract/extract_processes/";
+/* 	public $dump_path = $software_path."extract/extract_processes/"; */
 
 	public $model_path = "/home/user/hotel/transform/transform_models/";
+
+	public $do_transforms = array("member_ids", "passwords", "names", "emails", "addresses", "web_statuses", "ecpd_statuses", "confluence_statuses", "invoices");
+/* 	public $do_transforms = array("invoices"); */
 }
 
 ?>
