@@ -1,8 +1,10 @@
 #!/usr/bin/php5
 <?php
 
-require("/etc/uniformetl/config.php");
-require("/etc/uniformetl/database.php");
+require_once("/etc/uniformetl/config.php");
+require_once("/etc/uniformetl/database.php");
+
+require_once("/etc/uniformetl/transform/transform_models.php");
 
 Class SingleTransforms {
 	function transform($src_data_by_members, $dst_data_by_members) {
@@ -87,7 +89,7 @@ class Chunks {
 		$global_timer = microtime(true);
 
 		$chunk_size = 10000;
-		$max_records = $chunk_size * 5;
+		$max_records = $chunk_size * 500000;
 
 		$chunk_offset = 0;
 		$chunking_complete = false;
@@ -164,54 +166,6 @@ class GlobalTiming {
 	}
 }
 
-require_once("transform_models/member_ids.php");
-require_once("transform_models/member_passwords.php");
-require_once("transform_models/member_names.php");
-require_once("transform_models/member_emails.php");
-require_once("transform_models/member_addresses.php");
-require_once("transform_models/member_web_statuses.php");
-require_once("transform_models/member_ecpd_statuses.php");
-require_once("transform_models/member_confluence_statuses.php");
-
-class Models {
-	public $conf;
-
-	function start() {
-		foreach (array("member_ids", "names", "emails") as $transform) {
-			$this->init_model($transform);
-		}
-	}
-
-	function init_model($transform) {
-		switch ($transform) {
-			case "member_ids":
-				$this->member_ids = New MemberIds;
-				break;
-			case "passwords":
-				$this->passwords = New MemberPasswords;
-				break;
-			case "names":
-				$this->names = New MemberNames;
-				break;
-			case "emails":
-				$this->emails = New MemberEmails;
-				break;
-			case "addresses":
-				$this->addresses = New MemberAddresses;
-				break;
-			case "web_statuses":
-				$this->web_statuses = New MemberWebStatuses;
-				break;
-			case "ecpd_statuses":
-				$this->ecpd_statuses = New MemberEcpdStatuses;
-				break;
-			case "confluence_statuses":
-				$this->confluence_statuses = New MemberConfluenceStatuses;
-				break;
-		}
-	}
-}
-
 class Processor {
 	public $process_id;
 
@@ -220,7 +174,7 @@ class Processor {
 	}
 
 	function finish_process() {
-		runq("UPDATE transform_processes SET finshed=TRUE, finish_date=now() WHERE process_id='".pg_escape_string($this->process_id)."';");
+		runq("UPDATE transform_processes SET finished=TRUE, finish_date=now() WHERE process_id='".pg_escape_string($this->process_id)."';");
 	}
 
 	function deleted_members() {
@@ -236,6 +190,9 @@ class Processor {
 
 
 
+if (empty($_SERVER['argv'][1])) {
+	die("extract process id has not been supplied");
+}
 
 $conf = New Conf;
 
@@ -243,6 +200,10 @@ $processor = New Processor;
 $processor->process_id = $_SERVER['argv'][1];
 $processor->start_process();
 $processor->deleted_members();
+
+$models = New Models;
+$models->conf = $conf;
+$models->start();
 
 $chunks = New Chunks;
 $chunks->process_id = $processor->process_id;
@@ -255,35 +216,10 @@ $global_timing->start_timing();
 foreach ($chunk_ids as $chunk_count => $chunk_id) {
 	$global_timing->chunk_started();
 
-	foreach (array("member_ids", "passwords", "names", "emails", "addresses", "web_statuses", "ecpd_statuses", "confluence_statuses") as $transform) {
+	foreach ($models->transforms as $transform) {
 		$transform_timer = microtime(true);
 
-		switch ($transform) {
-			case "member_ids":
-				$transform_class = New MemberIds;
-				break;
-			case "passwords":
-				$transform_class = New MemberPasswords;
-				break;
-			case "names":
-				$transform_class = New MemberNames;
-				break;
-			case "emails":
-				$transform_class = New MemberEmails;
-				break;
-			case "addresses":
-				$transform_class = New MemberAddresses;
-				break;
-			case "web_statuses":
-				$transform_class = New MemberWebStatuses;
-				break;
-			case "ecpd_statuses":
-				$transform_class = New MemberEcpdStatuses;
-				break;
-			case "confluence_statuses":
-				$transform_class = New MemberConfluenceStatuses;
-				break;
-		}
+		$transform_class = $models->init_class($transform);
 
 		unset($src_data_by_members, $dst_data_by_members);
 		$src_data_by_members = $transform_class->get_src_data($chunk_id);

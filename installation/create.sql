@@ -60,7 +60,20 @@ create table ecpd_statuses (
 );
 CREATE INDEX ecpd_statuses_member_id ON ecpd_statuses (member_id);
 
+create table invoices (
+	id BIGSERIAL PRIMARY KEY,
+	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	batch_hash TEXT,
+	type TEXT,
+	status TEXT,
+	amount FLOAT,
+	UNIQUE (member_id, batch_hash, status, amount)
+);
+CREATE INDEX invoices_member_id ON invoices (member_id);
 
+CREATE VIEW balance AS (
+	SELECT sum(i.amount) as balance FROM invoices i GROUP BY member_id
+);
 
 
 CREATE TABLE processes(
@@ -82,6 +95,7 @@ CREATE TABLE transform_processes(
 	start_date TIMESTAMP NOT NULL DEFAULT now(),
 	finished BOOLEAN DEFAULT FALSE,
 	finish_date TIMESTAMP,
+	failed BOOLEAN DEFAULT FALSE,
 	transform_pid TEXT NOT NULL
 );
 CREATE TABLE chunks (
