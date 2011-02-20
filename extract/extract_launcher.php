@@ -122,9 +122,20 @@ class Watcher {
 
 	function inspect_dumps() {
 		foreach ($this->files as $file_key => $file) {
+			if ($this->dump_too_new($file)) {
+				continue;
+			}
+
 			if (!$this->dump_already_processed($file) && !$this->dump_too_old($file)) {
 				$this->start_extract($file);
 			}
+		}
+	}
+
+	function dump_too_new($file) {
+		if ($file['modtime'] + 300 > time()) {
+			var_dump("skipping - dump too new, possibly incomplete");
+			return true;
 		}
 	}
 

@@ -82,6 +82,10 @@ class Extractor {
 		
 			//get the table name
 			$tablename = array_shift($tablecolumns);
+
+			if ($tablename == "vReceipt") {
+				$tablename = "Receipt";
+			}
 		
 			//place the array of column names into an array
 			//and index with the table name

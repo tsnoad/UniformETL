@@ -26,7 +26,7 @@ class Conf {
 
 	public $model_path = "/home/user/hotel/transform/transform_models/";
 
-	public $do_transforms = array("member_ids", "passwords", "names", "emails", "addresses", "web_statuses", "ecpd_statuses", "confluence_statuses", "invoices");
+	public $do_transforms = array("member_ids", "passwords", "names", "emails", "addresses", "web_statuses", "ecpd_statuses", "confluence_statuses", "invoices", "receipts");
 /* 	public $do_transforms = array("invoices"); */
 }
 

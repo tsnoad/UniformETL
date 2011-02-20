@@ -100,6 +100,9 @@ for i in *.dat ; do
 	elif [ "$origin" = "taboutInvoice.dat" ] ; then
 		sed -e '2~1s/^\(IEA\|TS[0-9][0-9]\)\ *||/~~&/g' -e 's/||/~~||~~/g' -e 's/*$%#\r/~~/g' -i $origin
 
+	elif [ "$origin" = "taboutReceipt.dat" ] ; then
+		sed -e '2~1s/^\(IEA\|TS[0-9][0-9]\)\ *||/~~&/g' -e 's/||/~~||~~/g' -e 's/*$%#\r/~~/g' -i $origin
+
 	else
 		sed -e '2~1s/^[0-9][0-9]\+\ *||/~~&/g' -e 's/||/~~||~~/g' -e 's/*$%#\r/~~/g' -i $origin
 	fi
@@ -116,11 +119,16 @@ cd $extractdir
 for i in *.dat ; do
 	origin="$i"
 	destinationtmp="`basename "$i" .${i##*.}`.dat.tmp2"
+	destinationtmp2="`basename "$i" .${i##*.}`.dat.tmp22"
 	destination="`basename "$i" .${i##*.}`.sql"
 
 	echo `date +%T`'	secondary processing file: '$i
 
 	sed -e '1s/^/~~/' -e '$d' -e 's/\\/\\\\/g' -e "s/'/\\\'/g" -e 's/||/|/g' -e "s/~~/'/g" $origin > $destinationtmp
+
+	tr -d '\0' < $destinationtmp > $destinationtmp2
+
+	mv $destinationtmp2 $destinationtmp
 
 	perl -MEncode -ne 'binmode(STDOUT, ":utf8"); print decode("iso-8859-1", "$_");' < $destinationtmp > $destination
 

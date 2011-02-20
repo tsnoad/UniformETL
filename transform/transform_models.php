@@ -9,6 +9,7 @@ require_once("transform_models/member_web_statuses.php");
 require_once("transform_models/member_ecpd_statuses.php");
 require_once("transform_models/member_confluence_statuses.php");
 require_once("transform_models/member_invoices.php");
+require_once("transform_models/member_receipts.php");
 
 class Models {
 	public $required_transforms = array(
@@ -20,6 +21,7 @@ class Models {
 		"member_ids" => array(),
 		"names" => array("member_ids"),
 		"passwords" => array("member_ids"),
+		"receipts" => array("member_ids"),
 		"web_statuses" => array("member_ids")
 	);
 
@@ -32,6 +34,7 @@ class Models {
 		"member_ids" => array("dump_cpgcustomer"),
 		"names" => array("dump_name"),
 		"passwords" => array(),
+		"receipts" => array("dump_receipt"),
 		"web_statuses" => array("dump_cpgcustomer")
 	);
 	
@@ -44,6 +47,7 @@ class Models {
 		"member_ids" => "primary",
 		"names" => "secondary",
 		"passwords" => "secondary",
+		"receipts" => "secondary",
 		"web_statuses" => "secondary"
 	);
 	
@@ -77,7 +81,8 @@ class Models {
 		"dump_email" => "EMail",
 		"dump_invoice" => "Invoice",
 		"dump_groupmember" => "GroupMember",
-		"dump_name" => "Name"
+		"dump_name" => "Name",
+		"dump_receipt" => "Receipt"
 	);
 
 	public $transforms;
@@ -183,6 +188,9 @@ class Models {
 				break;
 			case "invoices":
 				$transform_class = New MemberInvoices;
+				break;
+			case "receipts":
+				$transform_class = New MemberReceipts;
 				break;
 		}
 

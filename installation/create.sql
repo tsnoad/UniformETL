@@ -71,12 +71,29 @@ create table invoices (
 );
 CREATE INDEX invoices_member_id ON invoices (member_id);
 
-CREATE VIEW balance AS (
-	SELECT sum(i.amount) as balance FROM invoices i GROUP BY member_id
+create table receipts (
+	id BIGSERIAL PRIMARY KEY,
+	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	batch_hash TEXT,
+	type TEXT,
+	status TEXT,
+	amount FLOAT,
+	UNIQUE (member_id, batch_hash, status, amount)
+);
+CREATE INDEX receipts_member_id ON receipts (member_id);
+
+CREATE VIEW member_invoices_sum AS (
+	SELECT i.member_id, sum(i.amount) as sum FROM invoices i GROUP BY member_id
+);
+CREATE VIEW member_receipts_sum AS (
+	SELECT r.member_id, sum(r.amount) as sum FROM receipts r GROUP BY member_id
+);
+CREATE VIEW member_balance AS (
+	SELECT i.member_id, i.sum-r.sum as balance FROM member_invoices_sum i INNER JOIN member_receipts_sum r ON (r.member_id=i.member_id)
 );
 
 
-CREATE TABLE processes(
+CREATE TABLE processes (
 	process_id BIGSERIAL PRIMARY KEY
 );
 CREATE TABLE extract_processes(
