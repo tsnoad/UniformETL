@@ -65,7 +65,7 @@ Class MemberConfluenceStatuses {
 			foreach (array("PREF", "OFIC") as $name_type) {
 				if (empty($src_member_names[$member_id][$name_type])) continue;
 
-				$src_member_statuses[$member_id]['cn'] = $src_member_names[$member_id][$name_type]['given_names']." ".$src_member_names[$member_id][$name_type]['family_name'];
+				$src_member_statuses[$member_id]['cn'] = strtolower($src_member_names[$member_id][$name_type]['given_names'].$src_member_names[$member_id][$name_type]['family_name']);
 				$src_member_statuses[$member_id]['sn'] = $src_member_names[$member_id][$name_type]['family_name'];
 				$src_member_statuses[$member_id]['givenname'] = $src_member_names[$member_id][$name_type]['given_names'];
 
@@ -139,6 +139,25 @@ Class MemberConfluenceStatuses {
 
 	function delete_data($data_delete_item) {
 /* 		runq("DELETE FROM ecpd_statuses WHERE member_id='".pg_escape_string($data_delete_item)."';"); */
+	}
+
+	function update_data($data_add_item) {
+		$add['uid'] = $data_add_item['member_id'];
+		$add['objectclass'][0] = "inetOrgPerson";
+		
+		$add['cn'] = $data_add_item['cn'];
+		$add['sn'] = $data_add_item['sn'];
+		$add['givenname'] = $data_add_item['givenname'];
+		$add['mail'] = $data_add_item['mail'];
+
+		$salt = md5(rand());
+		$add['userpassword'] = $data_add_item['userpassword'];
+		
+		if (empty($add['cn'])) $add['cn'] = " ";
+		if (empty($add['sn'])) $add['sn'] = " ";
+		if (empty($add['givenname'])) $add['givenname'] = " ";
+
+		ldap_modify($this->ldap, "uid={$data_add_item['member_id']},".$this->base, $add);
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {

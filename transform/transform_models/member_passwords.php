@@ -1,7 +1,7 @@
 <?php
 
 function gandalf_runq($query) {
-	$conn = pg_connect("host=192.168.25.232 dbname=ea_mart_auth user=user password=resources");
+	$conn = pg_connect("host=192.168.25.53 dbname=ea_mart_auth user=uetldevdbuser password=s2gGdYZsCK");
 	$result = pg_query($conn, $query);
 	$return = pg_fetch_all($result);
 	pg_close($conn);
@@ -69,6 +69,16 @@ Class MemberPasswords {
 
 	function delete_data($data_delete_item) {
 /* 		runq("DELETE FROM web_statuses WHERE member_id='".pg_escape_string($data_delete_item)."';"); */
+	}
+
+	function update_data($data_add_item) {
+		$salt = md5(rand());
+		$hash = md5($salt.$data_add_item['password']);
+
+		$salt = md5(rand());
+		$ldap_hash = "{SSHA}".base64_encode(pack("H*",sha1($data_add_item['password'].$salt)).$salt);
+
+		runq("UPDATE passwords SET salt='".pg_escape_string($salt)."', hash='".pg_escape_string($hash)."', ldap_hash='".pg_escape_string($ldap_hash)."' WHERE member_id='".pg_escape_string($data_add_item['member_id'])."';");
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {
