@@ -39,3 +39,11 @@ slappasswd -s somepassword -h {SSHA}
 
 3. Edit ldap configuration
 vi /etc/openldap/slapd.conf
+
+vi /etc/openldap/ldap.conf
+host    localhost
+base    dc=my-domain,dc=com
+
+vi /etc/ldap.conf
+
+ldapadd -x -W -D "cn=Manager,dc=my-domain,dc=com" -f tools/ldaptest.ldif
