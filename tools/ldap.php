@@ -14,18 +14,21 @@ http://www.server-world.info/en/note?os=SUSE_Linux_Enterprise_Server_11&p=ldap
 #ldapsearch -x -H ldap://localhost -b dc=home,dc=local
 #ldapsearch -x -D "cn=Manager,dc=my-domain,dc=com" -w "resources" -h "192.168.13.189" -b "dc=my-domain,dc=com" "uid=3900160"
 #ldapsearch -x -D "cn=admin,dc=ieaust,dc=com" -w "" -h "localhost" -b "dc=ieaust,dc=com" "cn=admin"
+#ldapsearch -x -D "cn=Manager,dc=my-domain,dc=com" -w "" -h "localhost" -b "dc=my-domain,dc=com" "cn=Manager"
 
 $timer = microtime(true);
 
-$base = "dc=example,dc=com";
+/* $base = "dc=example,dc=com"; */
+$base = "dc=my-domain,dc=com";
 
 ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 
 $ldap = ldap_connect("localhost");
-/* var_dump($ldap); */
+var_dump($ldap);
 
-$bind = ldap_bind($ldap, "cn=admin,".$base, "example");
-/* var_dump($bind); */
+/* $bind = ldap_bind($ldap, "cn=admin,".$base, "example"); */
+$bind = ldap_bind($ldap, "cn=Manager,".$base, "example");
+var_dump($bind);
 
 $iterations = 5;
 
@@ -46,7 +49,7 @@ if (true) {
 		}
 	}
 	
-	if (true) {
+	if (false) {
 		for ($i = 1; $i <= $iterations; $i ++) {
 			$add['uid'] = $i;
 			$add['objectclass'][0] = "inetOrgPerson";
