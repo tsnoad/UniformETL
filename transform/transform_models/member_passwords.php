@@ -71,10 +71,10 @@ Class MemberPasswords {
 	}
 
 	function add_data($data_add_item) {
-		$salt = make_salt();
+		$salt = $this->make_salt();
 		$hash = md5($salt.$data_add_item['password']);
 
-		$salt = make_salt();
+		$salt = $this->make_salt();
 		$ldap_hash = "{SSHA}".base64_encode(pack("H*",sha1($data_add_item['password'].$salt)).$salt);
 
 		runq("INSERT INTO passwords (member_id, salt, hash, ldap_hash) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($salt)."', '".pg_escape_string($hash)."', '".pg_escape_string($ldap_hash)."');");
@@ -85,10 +85,10 @@ Class MemberPasswords {
 	}
 
 	function update_data($data_add_item) {
-		$salt = make_salt();
+		$salt = $this->make_salt();
 		$hash = md5($salt.$data_add_item['password']);
 
-		$salt = make_salt();
+		$salt = $this->make_salt();
 		$ldap_hash = "{SSHA}".base64_encode(pack("H*",sha1($data_add_item['password'].$salt)).$salt);
 
 		runq("UPDATE passwords SET salt='".pg_escape_string($salt)."', hash='".pg_escape_string($hash)."', ldap_hash='".pg_escape_string($ldap_hash)."' WHERE member_id='".pg_escape_string($data_add_item['member_id'])."';");
