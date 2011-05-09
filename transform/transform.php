@@ -22,12 +22,22 @@ Class SingleTransforms {
 		foreach ($src_data_by_members as $member_id => $src_data_member) {
 			$dst_data_member = $dst_data_by_members[$member_id];
 
-			if (empty($dst_data_member)) {
-				$data_add[] = $src_data_member;
-			} else if ($dst_data_member != $src_data_member) {
-				$data_update[] = $src_data_member;
+			if (!empty($src_data_member) && is_array($src_data_member) && array_keys($src_data_member) == array("member_id", "password", "salt", "hash")) {
+				if (empty($dst_data_member)) {
+					$data_add[] = $src_data_member;
+				} else if ($dst_data_member['hash'] != md5($dst_data_member['salt'].$src_data_member['password'])) {
+					$data_update[] = $src_data_member;
+				} else {
+					$data_nochange[] = $src_data_member;
+				}
 			} else {
-				$data_nochange[] = $src_data_member;
+				if (empty($dst_data_member)) {
+					$data_add[] = $src_data_member;
+				} else if ($dst_data_member != $src_data_member) {
+					$data_update[] = $src_data_member;
+				} else {
+					$data_nochange[] = $src_data_member;
+				}
 			}
 
 			unset($data_delete[$member_id]);
@@ -89,7 +99,7 @@ class Chunks {
 		$global_timer = microtime(true);
 
 		$chunk_size = 10000;
-		$max_records = $chunk_size * 500000;
+		$max_records = $chunk_size * 50;
 
 		$chunk_offset = 0;
 		$chunking_complete = false;
@@ -182,7 +192,7 @@ class Processor {
 
 		if (!empty($deleted_members_query)) {
 			foreach ($deleted_members_query as $deleted_member) {
-				var_dump($deleted_member['member_id']);
+				print_r("Deleted Member: ".$deleted_member['member_id']."\n");
 			}
 		}
 	}
@@ -239,21 +249,24 @@ foreach ($chunk_ids as $chunk_count => $chunk_id) {
 
 		if (!empty($data_update)) {
 			foreach ($data_update as $data_update_item) {
-				if ($transform == "confluence_statuses" || $transform == "passwords") $transform_class->update_data($data_update_item);
+				if ($transform == "confluence_statuses") $transform_class->update_data($data_update_item);
+				if ($transform == "passwords") $transform_class->update_data($data_update_item);
 			}
 		}
 
 		if (!empty($data_delete)) {
 			foreach ($data_delete as $data_delete_item) {
-				$transform_class->delete_data($data_delete_item);
+				if (!empty($data_delete_item)) {
+					$transform_class->delete_data($data_delete_item);
+				}
 			}
 		}
 
-		echo "Members ".str_pad(substr(ucwords($transform).":", 0, 8), 8)."\t".
-		count($data_add)." Added;\t".
-		count($data_nochange)." Not Changed;\t".
-		count($data_update)." Updated;\t".
-		$data_delete_count." Deleted;\t".
+		echo str_pad(substr(ucwords($transform).":", 0, 12), 12)."\t".
+		str_pad(count($data_add)." Added;", 8 + strlen(" Added;"), " ", STR_PAD_LEFT)."\t".
+		str_pad(count($data_nochange)." Not Changed;", 8 + strlen(" Not Changed;"), " ", STR_PAD_LEFT)."\t".
+		str_pad(count($data_update)." Updated;", 8 + strlen(" Updated;"), " ", STR_PAD_LEFT)."\t".
+		str_pad($data_delete_count." Deleted;", 8 + strlen(" Deleted;"), " ", STR_PAD_LEFT)."\t".
 		round(microtime(true) - $transform_timer, 3)."s\n";
 
 		$total['add'][$transform] += count($data_add);

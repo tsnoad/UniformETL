@@ -24,7 +24,18 @@ ssh-keygen -t rsa -f ~/.ssh/id_rsa_foxrep
 cat ~/.ssh/id_rsa_foxrep.pub | ssh remote.server.com "cat >> ~/.ssh/authorized_keys2"
 
 4. run extraction to get data from data source
-
+./extract.sh
 
 5. run transformation to add data to database
+./transform.php
 
+
+Installing LDAP on SLES 11.0
+
+1. Install openldap
+
+2. Generate a password
+slappasswd -s somepassword -h {SSHA}
+
+3. Edit ldap configuration
+vi /etc/openldap/slapd.conf
