@@ -59,11 +59,24 @@ Class MemberPasswords {
 		return $this->get_members_passwords($dst_member_passwords_query);
 	}
 
+	function make_salt() {
+		$sea = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		$sea_size = strlen($sea);
+
+		$salt_size = 32;
+
+		for ($i = 0; $i < $salt_size; $i ++) {
+			$salt .= substr($sea, rand(0, $sea_size - 1), 1);
+		}
+
+		return $salt;
+	}
+
 	function add_data($data_add_item) {
-		$salt = md5(rand());
+		$salt = make_salt();
 		$hash = md5($salt.$data_add_item['password']);
 
-		$ldap_salt = md5(rand());
+		$ldap_salt = make_salt();
 		$ldap_hash = "{SSHA}".base64_encode(pack("H*",sha1($data_add_item['password'].$ldap_salt)).$ldap_salt);
 
 		runq("INSERT INTO passwords (member_id, salt, hash, ldap_hash) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($salt)."', '".pg_escape_string($hash)."', '".pg_escape_string($ldap_hash)."');");
@@ -74,10 +87,10 @@ Class MemberPasswords {
 	}
 
 	function update_data($data_add_item) {
-		$salt = md5(rand());
+		$salt = make_salt();
 		$hash = md5($salt.$data_add_item['password']);
 
-		$ldap_salt = md5(rand());
+		$ldap_salt = make_salt();
 		$ldap_hash = "{SSHA}".base64_encode(pack("H*",sha1($data_add_item['password'].$ldap_salt)).$ldap_salt);
 
 		runq("UPDATE passwords SET salt='".pg_escape_string($salt)."', hash='".pg_escape_string($hash)."', ldap_hash='".pg_escape_string($ldap_hash)."' WHERE member_id='".pg_escape_string($data_add_item['member_id'])."';");
