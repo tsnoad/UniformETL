@@ -1,7 +1,7 @@
 <?php
 
 function runq($query) {
-	$conn = pg_connect("host=localhost dbname=hotel user=user password=skoobar");
+	$conn = pg_connect("host=localhost dbname=hotel user=tsnoad password=squibbles");
 	$result = pg_query($conn, $query);
 	$return = pg_fetch_all($result);
 	pg_close($conn);
@@ -9,11 +9,25 @@ function runq($query) {
 	return $return;
 }
 
+/*
 $foo = runq("select g.grade, d.division, count(m.member_id) from member_ids m inner join grades g on (g.member_id=m.member_id) inner join divisions d on (d.member_id=m.member_id) group by g.grade, d.division order by g.grade, d.division;");
 
 foreach ($foo as $bar) {
 	$x = $bar['division'];
 	$y = $bar['grade'];
+
+	$z = $bar['count'];
+
+	$x_y[$x][$y] = $z;
+	$y_x[$y][$x] = $z;
+}
+*/
+
+$foo = runq("select substr(email, strpos(email, '@') + 1) as email, count(email) from emails group by substr(email, strpos(email, '@') + 1);");
+
+foreach ($foo as $bar) {
+	$x = $bar['email'];
+	$y = 0;
 
 	$z = $bar['count'];
 
@@ -26,6 +40,9 @@ $y_totals = array_map("array_sum", $y_x);
 
 array_multisort($x_totals, $x_y);
 array_multisort($y_totals, $y_x);
+
+$x_y = array_slice($x_y, -10, 10, true);
+$y_x = array_slice($y_x, -10, 10, true);
 
 $total = array_sum(array_map("array_sum", $x_y));
 
@@ -120,7 +137,65 @@ div.datarow2 {
 		<td>&nbsp;</td>
 	</tr>
 </table>
+<?
+
+unset($x, $y, $x_y, $y_x, $x_totals, $y_totals, $total, $max);
+
+$scale = 2;
+$zoom = pow(10, $scale);
+
+var_dump($zoom);
+
+$zoom *= .5;
+
+$foo = runq("SELECT round(p.latitude::numeric, {$scale}) as latitude, round(p.longitude::numeric, {$scale}) as longitude, count(a.member_id) FROM addresses a INNER JOIN postcode_geolocation p ON (p.postcode=a.postcode) GROUP BY round(p.latitude::numeric, {$scale}), round(p.longitude::numeric, {$scale});");
+
+foreach ($foo as $bar) {
+	$x = $bar['longitude'];
+	$y = $bar['latitude'];
+
+	$z = $bar['count'];
+
+	$x_y[$x][$y] = $z;
+	$y_x[$y][$x] = $z;
+}
+
+$total = array_sum(array_map("array_sum", $x_y));
+
+$max = max(array_map("max", $x_y));
+
+$min_lon = min(array_keys($x_y));
+$max_lon = max(array_keys($x_y));
+
+$min_lat = min(array_keys($y_x));
+$max_lat = max(array_keys($y_x));
+
+$lon_range = $max_lon - $min_lon;
+$lat_range = $max_lat - $min_lat;
+
+?>
+<div style="width: <?= (($lon_range + 1) * $zoom) ?>px; height: <?= (($lat_range + 1) * $zoom) ?>px; position: relative; border: 1px solid black;">
+<?
+
+foreach ($foo as $bar) {
+	$lon = $bar['longitude'];
+	$lon -= $min_lon;
+	$lon *= $zoom;
+
+	$lat = $bar['latitude'];
+	$lat += $max_lat * -1;
+	$lat *= -1;
+	$lat *= $zoom;
+
+	?>
+	<div style="width: <?= $zoom / 10 ?>px; height: <?= $zoom / 10 ?>px; position: absolute; left: <?= $lon ?>px; top: <?= $lat ?>px; background-color: rgba(0, 0, 0, <?= ($bar['count'] / $max + .1) ?>);"></div>
+	<?
+}
+
+?>
+</div>
 </body>
 </html>
 <?
+
 ?>

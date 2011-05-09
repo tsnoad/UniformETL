@@ -1,6 +1,16 @@
 1. Create folders
-mkdir dumps
-mkdir dumps/dailydumps
+mkdir logs
+mkdir extract/extract_processes
+
+1a. Config
+ln -s /home/tsnoad/hotel/ /etc/uniformetl
+
+cp config.template.php config.php
+cp config.template.sh config.sh
+
+* * * * * su - tsnoad -c '/home/hotel/extract/extract_daemon.php >> /home/hotel/logs/extractdaemonlog'
+
+* * * * * su - tsnoad -c '/home/hotel/transform/transform_daemon.php >> /home/hotel/logs/transformdaemonlog'
 
 2. create database
 createdb hotel
@@ -8,10 +18,10 @@ psql hotel < create.sql
 
 3. create ssh key for data source server.
 ssh-keygen -t rsa
-scp ~/.ssh/id_rsa.pub remote.server.com:.ssh/authorized_keys2
+cat ~/.ssh/id_rsa_foxrep.pub | ssh remote.server.com "cat >> ~/.ssh/authorized_keys2"
 
 4. run extraction to get data from data source
-./extract.sh
+
 
 5. run transformation to add data to database
-./transform.php
+
