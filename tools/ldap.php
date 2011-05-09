@@ -5,9 +5,15 @@
 The Useful:
 http://www.howtoforge.com/install-and-configure-openldap-on-ubuntu-karmic-koala
 http://www.howforge.com/how-create-and-verify-ssha-hash-using-php
+
+SLES:
+http://www.openldap.org/doc/admin24/quickstart.html
+http://www.server-world.info/en/note?os=SUSE_Linux_Enterprise_Server_11&p=ldap
 */
 
 #ldapsearch -x -H ldap://localhost -b dc=home,dc=local
+#ldapsearch -x -D "cn=Manager,dc=my-domain,dc=com" -w "resources" -h "192.168.13.189" -b "dc=my-domain,dc=com" "uid=3900160"
+#ldapsearch -x -D "cn=admin,dc=ieaust,dc=com" -w "" -h "localhost" -b "dc=ieaust,dc=com" "cn=admin"
 
 $timer = microtime(true);
 

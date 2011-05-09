@@ -15,3 +15,14 @@ scp ~/.ssh/id_rsa.pub remote.server.com:.ssh/authorized_keys2
 
 5. run transformation to add data to database
 ./transform.php
+
+
+Installing LDAP on SLES 11.0
+
+1. Install openldap
+
+2. Generate a password
+slappasswd -s somepassword -h {SSHA}
+
+3. Edit ldap configuration
+vi /etc/openldap/slapd.conf

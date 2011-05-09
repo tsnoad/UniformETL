@@ -46,13 +46,11 @@ Class MemberReceipts {
 	}
 
 	function delete_data($data_delete_by_member) {
-/*
 		if (empty($data_delete_by_member)) return;
 
 		foreach ($data_delete_by_member as $data_delete_item) {
-			runq("DELETE FROM names WHERE member_id='".pg_escape_string($data_delete_item['member_id'])."' AND type='".pg_escape_string($data_delete_item['type'])."' AND given_names='".pg_escape_string($data_delete_item['given_names'])."' AND family_name='".pg_escape_string($data_delete_item['family_name'])."';");
+			runq("DELETE FROM receipts WHERE member_id='".pg_escape_string($data_delete_item['member_id'])."' AND batch_hash='".pg_escape_string($data_delete_item['batch_hash'])."' AND type='".pg_escape_string($data_delete_item['type'])."' AND status='".pg_escape_string($data_delete_item['status'])."' AND type='".pg_escape_string($data_delete_item['type'])."';");
 		}
-*/
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {

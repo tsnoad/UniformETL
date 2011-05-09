@@ -10,6 +10,8 @@ require_once("transform_models/member_ecpd_statuses.php");
 require_once("transform_models/member_confluence_statuses.php");
 require_once("transform_models/member_invoices.php");
 require_once("transform_models/member_receipts.php");
+require_once("transform_models/member_grades.php");
+require_once("transform_models/member_divisions.php");
 
 class Models {
 	public $required_transforms = array(
@@ -22,7 +24,9 @@ class Models {
 		"names" => array("member_ids"),
 		"passwords" => array("member_ids"),
 		"receipts" => array("member_ids"),
-		"web_statuses" => array("member_ids")
+		"web_statuses" => array("member_ids"),
+		"grades" => array("member_ids"),
+		"divisions" => array("member_ids")
 	);
 
 	public $required_tables = array(
@@ -35,7 +39,9 @@ class Models {
 		"names" => array("dump_name"),
 		"passwords" => array(),
 		"receipts" => array("dump_receipt"),
-		"web_statuses" => array("dump_cpgcustomer")
+		"web_statuses" => array("dump_cpgcustomer"),
+		"grades" => array("dump_cpgcustomer"),
+		"divisions" => array("dump_cpgcustomer")
 	);
 	
 	public $transform_priority = array(
@@ -48,7 +54,9 @@ class Models {
 		"names" => "secondary",
 		"passwords" => "secondary",
 		"receipts" => "secondary",
-		"web_statuses" => "secondary"
+		"web_statuses" => "secondary",
+		"grades" => "secondary",
+		"divisions" => "secondary"
 	);
 	
 	//indexes are written as required
@@ -191,6 +199,12 @@ class Models {
 				break;
 			case "receipts":
 				$transform_class = New MemberReceipts;
+				break;
+			case "grades":
+				$transform_class = New MemberGrades;
+				break;
+			case "divisions":
+				$transform_class = New MemberDivisions;
 				break;
 		}
 

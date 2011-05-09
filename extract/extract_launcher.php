@@ -51,6 +51,8 @@ class Watcher {
 
 		$dump_query = shell_exec("ssh -i ".escapeshellarg($this->conf->identity)." ".escapeshellarg($this->conf->server)." '".$remote_command."'");
 
+var_dump("ssh -i ".escapeshellarg($this->conf->identity)." ".escapeshellarg($this->conf->server)." '".$remote_command."'");
+
 		$query_result = trim($dump_query);
 		
 		if (empty($query_result)) {
