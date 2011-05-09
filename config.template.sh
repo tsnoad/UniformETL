@@ -1,4 +1,4 @@
-server=easysadmin@foxrep.nat.internal
+server=user@remote.server.com
 
 scriptdir=/home/user/hotel/
 

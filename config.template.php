@@ -6,7 +6,7 @@ class Conf {
 	public $user = "user";
 
 	//extract_launcher.php
-	public $server = "easysadmin@foxrep.nat.internal";
+	public $server = "user@remote.server.com";
 	public $identity = "/home/user/.ssh/id_rsa_foxrep";
 	public $dumps_path = '/data01/datadump/*.tgz';
 	public $dump_path_check_regex = "/^\/data01\/datadump\/FoxtrotTableDump[0-9]{8,8}\.tgz$/";
