@@ -1,0 +1,27 @@
+UNIFORM ETL
+
+Background
+----------
+Up until now, the ETLs that we've used have been slow, unstable and indecipherably written - in short hard to maintain, and impossible to expand. The reasoning behind UETL is to create a lightweight ETL, that can be modified as required, tested till it bleeds, and installed on almost any hardware, anywhere.
+
+
+How It Works
+------------
+
+1. Intelligent
+
+2. Modular
+
+3. Testable
+
+4. Expandable
+
+
+The Bits
+--------
+
+1. Extract
+
+2. Transform
+
+3. API
