@@ -101,6 +101,19 @@ Class MemberPasswords {
 
 		return $transform->transform($src_data_by_members, $dst_data_by_members);
 	}
+
+	function update_or_add_data($data_item) {
+		$member_id = $data_item['member_id'];
+
+		$existing_data_count = runq("SELECT count(*) FROM passwords WHERE member_id='".pg_escape_string($data_item['member_id'])."';");
+		$existing_data_count = $existing_data_count[0]['count'];
+
+		if ($existing_data_count > 0) {
+			$this->update_data($data_item);
+		} else {
+			$this->add_data($data_item);
+		}
+	}
 }
 
 ?>

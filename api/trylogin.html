@@ -20,12 +20,27 @@
 			<input type="submit" />
 		</form>
 
+		<hr />
+
 		<h2>Member Info</h2>
 
 		<label for="member_id">Member ID</label><input name="member_id" type="text" onkeyup="document.forms['details'].action = '/users/'+this.value;" /><br />
 
 		<form name="details" action="" method="GET" onsubmit="alert(this.action);">
 			<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
+			<input type="submit" />
+		</form>
+
+		<hr />
+
+		<h2>Update Password</h2>
+
+		<label for="member_id">Member ID</label><input name="member_id" type="text" onkeyup="document.forms['update'].action = '/users/'+this.value;" /><br />
+
+		<form name="update" action="" method="POST" onsubmit="alert(this.action);">
+			<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
+
+			<label for="password">Password</label><input name="password" type="password" /><br />
 			<input type="submit" />
 		</form>
 	</body>

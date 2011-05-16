@@ -1,36 +1,58 @@
-1. Create folders
+UNIFORM ETL
+
+Installation
+------------
+
+1. Get Files. Recommended installation path is /home/uetl/
+
+2. Create folders
 mkdir logs
 mkdir extract/extract_processes
 
-1a. Config
-ln -s /home/tsnoad/hotel/ /etc/uniformetl
+3. Create permanent link to config files
+ln -s /home/uetl/ /etc/uniformetl
 
+4. Create config files from templates
 cp config.template.php config.php
 cp config.template.sh config.sh
 
+5. Edit Config files
 nano config.php
 nano config.sh
 
-* * * * * su - tsnoad -c '/home/hotel/extract/extract_daemon.php >> /home/hotel/logs/extractdaemonlog'
-
-* * * * * su - tsnoad -c '/home/hotel/transform/transform_daemon.php >> /home/hotel/logs/transformdaemonlog'
-
-2. create database
+6. create database and load schema
 createdb hotel
 psql hotel < create.sql
 
-3. create ssh key for data source server.
-ssh-keygen -t rsa -f ~/.ssh/id_rsa_foxrep
-cat ~/.ssh/id_rsa_foxrep.pub | ssh remote.server.com "cat >> ~/.ssh/authorized_keys2"
+7. create ssh key for data source server.
+ssh-keygen -t rsa -f ~/.ssh/id_rsa_something
+cat ~/.ssh/id_rsa_something.pub | ssh remote.server.com "cat >> ~/.ssh/authorized_keys2"
 
-4. run extraction to get data from data source
-./extract.sh
+8. Add Extract Daemon to root's crontab
+#UETL Extract Daemon: waits for source data, starts extract, monitors progress.
+* * * * * su - tsnoad -c '/home/uetl/extract/extract_daemon.php >> /home/uetl/logs/extractdaemonlog'
 
-5. run transformation to add data to database
-./transform.php
+9. Add Transform Daemon to root's crontab
+#UETL Transform Daemon: waits for extract to finish, starts transform, monitors progress.
+* * * * * su - tsnoad -c '/home/uetl/transform/transform_daemon.php >> /home/uetl/logs/transformdaemonlog'
+
+10. Wait for Daemon to find data and start extracting...
+
+
+Configuring API
+---------------
+
+1. Make sure mod_rewrite is installed and enabled
+
+2. Configure apache to make /home/uelt/api/ available
+
+3. Configure apache to obey /home/uelt/api/.htaccess
 
 
 Installing LDAP on SLES 11.0
+----------------------------
+
+0. Find nice soft brick wall
 
 1. Install openldap
 
@@ -40,10 +62,22 @@ slappasswd -s somepassword -h {SSHA}
 3. Edit ldap configuration
 vi /etc/openldap/slapd.conf
 
+4. AAAAAAAAAAAARG
 vi /etc/openldap/ldap.conf
 host    localhost
 base    dc=my-domain,dc=com
 
+5. If you're here, then you're doing better than me...
 vi /etc/ldap.conf
 
+6. Let's just pretend it worked ^_^
 ldapadd -x -W -D "cn=Manager,dc=my-domain,dc=com" -f tools/ldaptest.ldif
+
+
+Installing LDAP on Ubuntu
+----------------------------
+
+1. Install openldap
+
+2. Finished (Oh, how I hate SLES)
+
