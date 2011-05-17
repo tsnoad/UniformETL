@@ -4,6 +4,11 @@ require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/database.php");
 require_once("/etc/uniformetl/transform/transform_models.php");
 
+require_once("/etc/uniformetl/api/model_users.php");
+require_once("/etc/uniformetl/api/model_user.php");
+require_once("/etc/uniformetl/api/model_userlogin.php");
+require_once("/etc/uniformetl/api/model_teapot.php");
+
 /*
 function returnXMLData($data) {
 	header("HTTP/1.1 200 OK");
@@ -34,258 +39,63 @@ function returnXMLData($data) {
 }
 */
 
-/*
+// Place where things happen: the API class works out what needs to be done, and which model it needs to use to do it.
 Class API {
-	
-}
+	// Thunderbirds are go!
+	function init() {
+		//call all the models that we might need
+		$this->init_models();
 
-Class Users {
-}
+		//based on the request, which model do we need to use
+		$model = $this->choose_model_for_situation();
 
-Class User {
-	function who_me() {
-		return preg_match("/^users\/[0-9]+\/?$/", $_GET['url']);
-	}
-
-	function what_do_i_do() {
-		switch ($_SERVER['REQUEST_METHOD']) {
-			case "GET":
-				$this->get_user();
-				break;
-			case "POST":
-				$this->update_user();
-				break;
-			case "PUT":
-			case "DELETE":
-			default:
-				header("HTTP/1.1 400 Bad Request");
-				die("HTTP/1.1 400 Bad Request");
-				break;
-		}
-	}
-
-	function get_user() {
-		$member_id = $this->get_member_id();
-
-		//get the member's information
-		$user_query = runq("SELECT m.member_id, w.member_id=m.member_id as web_status, e.member_id=m.member_id as ecpd_status FROM member_ids m LEFT JOIN web_statuses w ON (w.member_id=m.member_id) LEFT JOIN ecpd_statuses e ON (e.member_id=m.member_id) WHERE m.member_id='".pg_escape_string($member_id)."' LIMIT 1;");
-		$user = $user_query[0];
-	
-		//not in database?
-		if (empty($user_query)) {
-			header("HTTP/1.1 404 Not Found");
-			die("HTTP/1.1 404 Not Found");
-		}
-	
-		//get member's names
-		$names_query = runq("SELECT type, given_names, family_name FROM names n WHERE n.member_id='".pg_escape_string($member_id)."';");
-		foreach ($names_query as $names_query_tmp) {
-			//organise names by name type (there's only ever one name per name type)
-			$user['names'][$names_query_tmp['type']] = array("given_names" => $names_query_tmp['given_names'], "family_name" => $names_query_tmp['family_name']);
-		}
-	
-		//get member's email address
-		//ALL email addresses are equal. there is no preffered email address.
-		$emails_query = runq("SELECT email FROM emails e WHERE e.member_id='".pg_escape_string($member_id)."';");
-		foreach ($emails_query as $emails_query_tmp) {
-			//put email addresses in array
-			$user['emails'][] = $emails_query_tmp['email'];
-		}
-	
-		//get member's addresses
-		$address_query = runq("SELECT type, address, suburb, state, postcode, country FROM addresses a WHERE a.member_id='".pg_escape_string($member_id)."';");
-		$user['addresses'] = $address_query;
-	
-		//all good
-		header("HTTP/1.1 200 OK");
-	
-		//return JSON string
-		echo json_encode($user);
-	}
-
-	function update_user() {
-		$member_id = $this->get_member_id();
-	}
-
-	function get_member_id() {
-		//get the member id
-		preg_match("/^users\/([0-9]+)\/?$/", $_GET['url'], &$matches);
-		$member_id = $matches[1];
-	
-		//no member id?
-		if (empty($member_id)) {
+		//couldn't find a model
+		if (!$model) {
 			header("HTTP/1.1 400 Bad Request");
 			die("HTTP/1.1 400 Bad Request");
 		}
 
-		return $member_id;
-	}
-}
-
-Class UserLogin {
-}
-*/
-
-//if the request is for /users
-if (preg_match("/^users\/?$/", $_GET['url'])) {
-	//what's the request method?
-	switch ($_SERVER['REQUEST_METHOD']) {
-		case "GET":
-			header("HTTP/1.1 501 Not Implemented");
-			die("HTTP/1.1 501 Not Implemented");
-			break;
-		case "POST":
-		case "PUT":
-		case "DELETE":
-		default:
-			header("HTTP/1.1 400 Bad Request");
-			die("HTTP/1.1 400 Bad Request");
-			break;
+		//use the model to do stuff
+		$model->what_do_i_do();
 	}
 
-} else if (preg_match("/^users\/[0-9]+\/?$/", $_GET['url'])) {
-	//get the member id
-	preg_match("/^users\/([0-9]+)\/?$/", $_GET['url'], &$matches);
-	$member_id = $matches[1];
-
-	//no member id?
-	if (empty($member_id)) {
-		header("HTTP/1.1 400 Bad Request");
-		die("HTTP/1.1 400 Bad Request");
+	// Calls all the models that we might need
+	function init_models() {
+		//call all the models
+		$this->users_model = New Users;
+		$this->user_model = New User;
+		$this->userlogin_model = New UserLogin;
+		$this->teapot_model = New Teapot;
+	
+		//add all the models to an array, so that we can loop through them
+		$this->models = array(
+			$this->users_model,
+			$this->user_model,
+			$this->userlogin_model,
+			$this->teapot_model
+		);
 	}
 
-	//what's the request method?
-	switch ($_SERVER['REQUEST_METHOD']) {
-		//GET: return information about the member
-		case "GET":
-			//get the member's information
-			$user_query = runq("SELECT m.member_id, w.member_id=m.member_id as web_status, e.member_id=m.member_id as ecpd_status FROM member_ids m LEFT JOIN web_statuses w ON (w.member_id=m.member_id) LEFT JOIN ecpd_statuses e ON (e.member_id=m.member_id) WHERE m.member_id='".pg_escape_string($member_id)."' LIMIT 1;");
-			$user = $user_query[0];
-		
-			//not in database?
-			if (empty($user_query)) {
-				header("HTTP/1.1 404 Not Found");
-				die("HTTP/1.1 404 Not Found");
-			}
-		
-			//get member's names
-			$names_query = runq("SELECT type, given_names, family_name FROM names n WHERE n.member_id='".pg_escape_string($member_id)."';");
-			foreach ($names_query as $names_query_tmp) {
-				//organise names by name type (there's only ever one name per name type)
-				$user['names'][$names_query_tmp['type']] = array("given_names" => $names_query_tmp['given_names'], "family_name" => $names_query_tmp['family_name']);
-			}
-		
-			//get member's email address
-			//ALL email addresses are equal. there is no preffered email address.
-			$emails_query = runq("SELECT email FROM emails e WHERE e.member_id='".pg_escape_string($member_id)."';");
-			foreach ($emails_query as $emails_query_tmp) {
-				//put email addresses in array
-				$user['emails'][] = $emails_query_tmp['email'];
-			}
-		
-			//get member's addresses
-			$address_query = runq("SELECT type, address, suburb, state, postcode, country FROM addresses a WHERE a.member_id='".pg_escape_string($member_id)."';");
-			$user['addresses'] = $address_query;
-		
-			//all good
-			header("HTTP/1.1 200 OK");
-		
-			//return JSON string
-			echo json_encode($user);
-
-			break;
-		//POST: update member's information
-		case "POST":
-			//get the transform models class, so we can access the models
-			$models = New Models;
-			$conf = New Conf;
-			$models->conf = $conf;
-
-			//if we have to update the member's password
-			if (!empty($_POST['password'])) {
-				//load the passwords model
-				$password_model = $models->init_class("passwords");
-
-				//data to pass on to model
-				$add_or_update_data = array(
-					"member_id" => $member_id,
-					"password" => $_POST['password']
-				);
-
-				//update password, or create one if necessary
-				$password_model->update_or_add_data($add_or_update_data);
-			}
-
-			//all good
-			header("HTTP/1.1 200 OK");
-			print_r("HTTP/1.1 200 OK");
-
-			break;
-		case "PUT":
-		case "DELETE":
-			header("HTTP/1.1 501 Not Implemented");
-			die("HTTP/1.1 501 Not Implemented");
-			break;
-		default:
-			header("HTTP/1.1 400 Bad Request");
-			die("HTTP/1.1 400 Bad Request");
-			break;
-	}
-
-} else if (preg_match("/^users\/[0-9]+\/login\/?$/", $_GET['url'])) {
-	//get the member id
-	preg_match("/^users\/([0-9]+)\/login\/?$/", $_GET['url'], &$matches);
-	$member_id = $matches[1];
-
-	//no member id?
-	if (empty($member_id)) {
-		header("HTTP/1.1 400 Bad Request");
-		die("HTTP/1.1 400 Bad Request");
-	}
-
-	//what's the request method?
-	switch ($_SERVER['REQUEST_METHOD']) {
-		case "GET":
-			header("HTTP/1.1 400 Bad Request");
-			die("HTTP/1.1 400 Bad Request");
-			break;
-		//POST: try to log in with submitted data
-		case "POST":
-			//get password from request
-			$password = $_POST['password'];
-
-			//no password?
-			if (empty($password)) {
-				header("HTTP/1.1 400 Bad Request");
-				die("HTTP/1.1 400 Bad Request");
-			}
-
-			//get the member's password salt and hash
-			$login_query = runq("SELECT m.member_id, p.salt, p.hash FROM member_ids m INNER JOIN passwords p ON (p.member_id=m.member_id) WHERE m.member_id='".pg_escape_string($member_id)."' LIMIT 1;");
-			$login_tmp = $login_query[0];
-		
-			//try to log in
-			if (empty($login_tmp) || $login_tmp['hash'] !== md5($login_tmp['salt'].$password)) {
-				header("HTTP/1.1 401 Unauthorized");
-				die("HTTP/1.1 401 Unauthorized");
-		
-			//login successful
+	// Ask each model if they're the one who can process the request
+	function choose_model_for_situation() {
+		//loop through all the models
+		foreach ($this->models as $model) {
+			//run the model's who_me() function
+			if (call_user_func(array($model, "who_me"))) {
+				//this model can process the request
+				return $model;
 			} else {
-				header("HTTP/1.1 200 OK");
-				print_r("HTTP/1.1 200 OK");
+				//nope, try the next model
+				continue;
 			}
-			break;
-		case "PUT":
-		case "DELETE":
-		default:
-			header("HTTP/1.1 400 Bad Request");
-			die("HTTP/1.1 400 Bad Request");
-			break;
-	}
+		}
 
-} else {
-	header("HTTP/1.1 400 Bad Request");
-	die("HTTP/1.1 400 Bad Request");
+		//If we're here then we coudn't find a model who could process the request
+		return false;
+	}
 }
+
+$api = New API;
+$api->init();
 
 ?>

@@ -1,15 +1,24 @@
 <html>
+	<head>
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
+		<script type="text/javascript">
+			$(function() {
+				$("form[name=details]").submit(function () {
+					$(this).attr("action", "/users/"+$("#details_member_id").val());
+				});
+
+				$("form[name=update]").submit(function () {
+					$(this).attr("action", "/users/"+$("#update_member_id").val());
+				});
+
+				$("form[name=login]").submit(function () {
+					$(this).attr("action", "/users/"+$("#login_member_id").val()+"/login");
+				});
+			});
+		</script>
+	</head>
 	<body>
-		<h2>Login</h2>
-
-		<label for="member_id">Member ID</label><input name="member_id" type="text" onkeyup="document.forms['login'].action = '/users/'+this.value+'/login';" /><br />
-
-		<form name="login" action="" method="POST" onsubmit="alert(this.action);">
-			<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
-
-			<label for="password">Password</label><input name="password" type="password" /><br />
-			<input type="submit" />
-		</form>
+		<h1>API Demo</h1>
 
 		<hr />
 
@@ -24,9 +33,9 @@
 
 		<h2>Member Info</h2>
 
-		<label for="member_id">Member ID</label><input name="member_id" type="text" onkeyup="document.forms['details'].action = '/users/'+this.value;" /><br />
+		<label for="member_id">Member ID</label><input id="details_member_id" type="text" /><br />
 
-		<form name="details" action="" method="GET" onsubmit="alert(this.action);">
+		<form name="details" action="" method="GET">
 			<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
 			<input type="submit" />
 		</form>
@@ -35,12 +44,26 @@
 
 		<h2>Update Password</h2>
 
-		<label for="member_id">Member ID</label><input name="member_id" type="text" onkeyup="document.forms['update'].action = '/users/'+this.value;" /><br />
+		<label for="member_id">Member ID</label><input id="update_member_id" type="text" /><br />
 
-		<form name="update" action="" method="POST" onsubmit="alert(this.action);">
+		<form name="update" action="" method="POST">
 			<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
 
 			<label for="password">Password</label><input name="password" type="password" /><br />
+			<input type="submit" />
+		</form>
+
+		<hr />
+
+		<h2>Login</h2>
+
+		<label for="member_id">Member ID</label><input id="login_member_id" type="text" /><br />
+
+		<form name="login" action="" method="POST">
+			<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
+
+			<label for="password">Password</label><input name="password" type="password" /><br />
+
 			<input type="submit" />
 		</form>
 	</body>
