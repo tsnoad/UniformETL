@@ -99,12 +99,11 @@ class Chunks {
 		$global_timer = microtime(true);
 
 		$chunk_size = 10000;
-		$max_records = $chunk_size * 50;
 
 		$chunk_offset = 0;
 		$chunking_complete = false;
 		
-		while (!$chunking_complete && $chunk_offset < $max_records) {
+		while (!$chunking_complete) {
 			$chunk_id_query = runq("SELECT nextval('chunks_chunk_id_seq');");
 			$chunk_id = $chunk_id_query[0]['nextval'];
 		

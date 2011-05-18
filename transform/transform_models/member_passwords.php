@@ -1,14 +1,5 @@
 <?php
 
-function gandalf_runq($query) {
-	$conn = pg_connect("host=192.168.25.53 dbname=ea_mart_auth user=uetldevdbuser password=s2gGdYZsCK");
-	$result = pg_query($conn, $query);
-	$return = pg_fetch_all($result);
-	pg_close($conn);
-
-	return $return;
-}
-
 Class MemberPasswords {
 	function get_src_data($src_member_ids_chunk) {
 		return $this->get_src_members_passwords($src_member_ids_chunk);
@@ -35,6 +26,15 @@ Class MemberPasswords {
 		return $members_passwords;
 	}
 
+	function gandalf_runq($query) {
+		$conn = pg_connect("host=".$this->conf->member_passwords_dbhost." dbname=".$this->conf->member_passwords_dbname." user=".$this->conf->member_passwords_dbuser." password=".$this->conf->member_passwords_dbpass."");
+		$result = pg_query($conn, $query);
+		$return = pg_fetch_all($result);
+		pg_close($conn);
+	
+		return $return;
+	}
+
 	function get_src_members_passwords($chunk_id) {
 		$foo = runq("SELECT DISTINCT ch.member_id FROM chunk_member_ids ch WHERE ch.chunk_id='{$chunk_id}';");
 
@@ -42,7 +42,7 @@ Class MemberPasswords {
 			$chunk_member_ids[] = $bar['member_id'];
 		}
 
-		$search_results = gandalf_runq("SELECT DISTINCT a.person_id, a.passphrase FROM authentication a WHERE (a.person_id='".implode("' OR a.person_id='", $chunk_member_ids)."') AND a.end_date='infinity' AND passphrase IS NOT NULL AND passphrase!='';");
+		$search_results = $this->gandalf_runq("SELECT DISTINCT a.person_id, a.passphrase FROM authentication a WHERE (a.person_id='".implode("' OR a.person_id='", $chunk_member_ids)."') AND a.end_date='infinity' AND passphrase IS NOT NULL AND passphrase!='';");
 
 		foreach ($search_results as $search_result) {
 			if (empty($search_result['person_id'])) continue; 

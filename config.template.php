@@ -1,6 +1,24 @@
 <?php
 
 class Conf {
+	public $software_path = "/home/uetl/";
+	public $model_path = "/home/uetl/transform/transform_models/";
+
+	public $do_transforms = array(
+		"member_ids",
+		"passwords",
+		"names",
+		"emails",
+		"addresses",
+		"web_statuses",
+		"ecpd_statuses",
+		"confluence_statuses",
+		"invoices",
+		"receipts",
+		"grades",
+		"divisions"
+	);
+
 	//database.php
 	public $dbhost = "localhost";
 	public $dbname = "hotel";
@@ -13,12 +31,15 @@ class Conf {
 	public $dumps_path = '/data01/datadump/*.tgz';
 	public $dump_path_check_regex = "/^\/data01\/datadump\/FoxtrotTableDump[0-9]{8,8}\.tgz$/";
 
-	public $software_path = "/home/user/hotel/";
+	public $member_passwords_dbhost = "";
+	public $member_passwords_dbname = "";
+	public $member_passwords_dbuser = "";
+	public $member_passwords_dbpass = "";
 
-	public $model_path = "/home/user/hotel/transform/transform_models/";
-
-/* 	public $do_transforms = array("member_ids", "passwords", "names", "emails", "addresses", "web_statuses", "ecpd_statuses", "confluence_statuses", "invoices", "receipts"); */
-	public $do_transforms = array("confluence_statuses");
+	public $member_confluence_statuses_ldaphost = "localhost";
+	public $member_confluence_statuses_ldapbasedn = "dc=my-domain,dc=com";
+	public $member_confluence_statuses_ldapuser = "";
+	public $member_confluence_statuses_ldappass = "";
 }
 
 ?>

@@ -14,6 +14,8 @@ require_once("transform_models/member_grades.php");
 require_once("transform_models/member_divisions.php");
 
 class Models {
+	public $conf;
+
 	public $required_transforms = array(
 		"addresses" => array("member_ids"),
 		"confluence_statuses" => array("member_ids", "names", "emails", "passwords", "web_statuses"),
@@ -102,12 +104,6 @@ class Models {
 		$this->calculate_requirements();
 		$this->get_all_tables();
 		$this->get_all_source_tables();
-
-/*
-		print_r($this->transforms);
-		print_r($this->tables);
-		print_r($this->sources);
-*/
 	}
 
 	function calculate_requirements() {
@@ -207,6 +203,8 @@ class Models {
 				$transform_class = New MemberDivisions;
 				break;
 		}
+
+		$transform_class->conf = $this->conf;
 
 		return $transform_class;
 	}

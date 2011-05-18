@@ -1,13 +1,25 @@
 <?php
 
 Class MemberConfluenceStatuses {
-	function __construct() {
-		$this->base = "dc=example,dc=com";
+	public $ldap;
+	public $base;
+
+	function connect_to_ldap() {
+		if (!empty($this->ldap)) {
+			return;
+		}
+
+		$ldaphost = $this->conf->member_confluence_statuses_ldaphost;
+		$ldapbasedn = $this->conf->member_confluence_statuses_ldapbasedn;
+		$ldapuser = $this->conf->member_confluence_statuses_ldapuser;
+		$ldappass = $this->conf->member_confluence_statuses_ldappass;
+
+		$this->base = $ldapbasedn;
 
 		ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 
-		$this->ldap = ldap_connect("localhost");
-		ldap_bind($this->ldap, "cn=admin,".$this->base, "example");		
+		$this->ldap = ldap_connect($ldaphost);
+		ldap_bind($this->ldap, "cn={$ldapuser},".$this->base, $ldappass);	
 	}
 
 	function get_src_data($src_member_ids_chunk) {
@@ -84,13 +96,15 @@ Class MemberConfluenceStatuses {
 	}
 
 	function get_dst_members_confluence_statuses($chunk_id) {
+		$this->connect_to_ldap();
+
 		$foo = runq("SELECT DISTINCT ch.member_id FROM chunk_member_ids ch WHERE ch.chunk_id='{$chunk_id}';");
 
 		foreach ($foo as $bar) {
 			$chunk_member_ids[] = $bar['member_id'];
 		}
 
-		$search = ldap_search($this->ldap, $this->base, "(|(uid=".implode(")(uid=", $chunk_member_ids)."))", array("uid", "cn", "sn", "givenname", "mail", "userpassword"));
+		$search = ldap_search($this->ldap, $this->ldapbasedn, "(|(uid=".implode(")(uid=", $chunk_member_ids)."))", array("uid", "cn", "sn", "givenname", "mail", "userpassword"));
 		$search_results = ldap_get_entries($this->ldap, $search);
 
 		if (empty($search_results)) return null;
@@ -112,6 +126,8 @@ Class MemberConfluenceStatuses {
 	}
 
 	function add_data($data_add_item) {
+		$this->connect_to_ldap();
+
 		$add['uid'] = $data_add_item['member_id'];
 		$add['objectclass'][0] = "inetOrgPerson";
 		
@@ -127,21 +143,18 @@ Class MemberConfluenceStatuses {
 		if (empty($add['sn'])) $add['sn'] = " ";
 		if (empty($add['givenname'])) $add['givenname'] = " ";
 
-		ldap_add($this->ldap, "uid={$data_add_item['member_id']},".$this->base, $add);
-
-/*
-		if (!ldap_add($this->ldap, "uid={$data_add_item['member_id']},".$this->base, $add)) {
-			var_dump($data_add_item);
-			var_dump(iso8859tot61($data_add_item['mail']));
-		}
-*/
+		ldap_add($this->ldap, "uid={$data_add_item['member_id']},".$this->ldapbasedn, $add);
 	}
 
 	function delete_data($data_delete_item) {
+		$this->connect_to_ldap();
+
 /* 		runq("DELETE FROM ecpd_statuses WHERE member_id='".pg_escape_string($data_delete_item)."';"); */
 	}
 
 	function update_data($data_add_item) {
+		$this->connect_to_ldap();
+
 		$add['uid'] = $data_add_item['member_id'];
 		$add['objectclass'][0] = "inetOrgPerson";
 		
@@ -157,7 +170,7 @@ Class MemberConfluenceStatuses {
 		if (empty($add['sn'])) $add['sn'] = " ";
 		if (empty($add['givenname'])) $add['givenname'] = " ";
 
-		ldap_modify($this->ldap, "uid={$data_add_item['member_id']},".$this->base, $add);
+		ldap_modify($this->ldap, "uid={$data_add_item['member_id']},".$this->ldapbasedn, $add);
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {
