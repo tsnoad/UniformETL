@@ -81,7 +81,7 @@ Class User {
 		$models->conf = $this->conf;
 
 		//if we have to update the member's password
-		if (!empty($_POST['password'])) {
+		if (isset($_POST['password'])) {
 			//load the passwords model
 			$password_model = $models->init_class("passwords");
 
