@@ -10,8 +10,8 @@ Class UserLogin {
 		//what's the request method?
 		switch ($_SERVER['REQUEST_METHOD']) {
 			case "GET":
-				header("HTTP/1.1 400 Bad Request");
-				die("HTTP/1.1 400 Bad Request");
+				header("HTTP/1.1 405 Method Not Allowed");
+				die("HTTP/1.1 405 Method Not Allowed");
 				break;
 
 			case "POST":
@@ -21,8 +21,8 @@ Class UserLogin {
 			case "PUT":
 			case "DELETE":
 			default:
-				header("HTTP/1.1 400 Bad Request");
-				die("HTTP/1.1 400 Bad Request");
+				header("HTTP/1.1 405 Method Not Allowed");
+				die("HTTP/1.1 405 Method Not Allowed");
 				break;
 		}
 	}

@@ -17,8 +17,8 @@ Class User {
 				break;
 
 			case "PUT":
-				header("HTTP/1.1 400 Bad Request");
-				die("HTTP/1.1 400 Bad Request");
+				header("HTTP/1.1 405 Method Not Allowed");
+				die("HTTP/1.1 405 Method Not Allowed");
 				break;
 
 			case "DELETE":
@@ -26,8 +26,8 @@ Class User {
 				break;
 
 			default:
-				header("HTTP/1.1 400 Bad Request");
-				die("HTTP/1.1 400 Bad Request");
+				header("HTTP/1.1 405 Method Not Allowed");
+				die("HTTP/1.1 405 Method Not Allowed");
 				break;
 		}
 	}
@@ -78,8 +78,7 @@ Class User {
 
 		//get the transform models class, so we can access the models
 		$models = New Models;
-		$conf = New Conf;
-		$models->conf = $conf;
+		$models->conf = $this->conf;
 
 		//if we have to update the member's password
 		if (!empty($_POST['password'])) {

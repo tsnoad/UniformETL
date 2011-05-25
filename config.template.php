@@ -40,6 +40,8 @@ class Conf {
 	public $member_confluence_statuses_ldapbasedn = "dc=my-domain,dc=com";
 	public $member_confluence_statuses_ldapuser = "";
 	public $member_confluence_statuses_ldappass = "";
+
+	public $api_key = "3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2";
 }
 
 ?>
