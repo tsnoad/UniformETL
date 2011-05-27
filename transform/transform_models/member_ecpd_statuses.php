@@ -37,6 +37,10 @@ Class MemberEcpdStatuses {
 		runq("INSERT INTO ecpd_statuses (member_id) VALUES ('".pg_escape_string($data_add_item)."');");
 	}
 
+	function update_data($data_update_item) {
+		//needs to be coded
+	}
+
 	function delete_data($data_delete_item) {
 		runq("DELETE FROM ecpd_statuses WHERE member_id='".pg_escape_string($data_delete_item)."';");
 	}

@@ -47,6 +47,10 @@ Class MemberAddresses {
 		runq("INSERT INTO addresses (member_id, type, address, suburb, state, postcode, country) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['type'])."', '".pg_escape_string($data_add_item['address'])."', '".pg_escape_string($data_add_item['suburb'])."', '".pg_escape_string($data_add_item['state'])."', '".pg_escape_string($data_add_item['postcode'])."', '".pg_escape_string($data_add_item['country'])."');");
 	}
 
+	function update_data($data_update_item) {
+		//needs to be coded
+	}
+
 	function delete_data($data_delete_by_member) {
 		if (empty($data_delete_by_member)) return;
 

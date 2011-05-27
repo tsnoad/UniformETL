@@ -248,8 +248,7 @@ foreach ($chunk_ids as $chunk_count => $chunk_id) {
 
 		if (!empty($data_update)) {
 			foreach ($data_update as $data_update_item) {
-				if ($transform == "confluence_statuses") $transform_class->update_data($data_update_item);
-				if ($transform == "passwords") $transform_class->update_data($data_update_item);
+				$transform_class->update_data($data_update_item);
 			}
 		}
 

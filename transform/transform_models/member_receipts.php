@@ -45,6 +45,10 @@ Class MemberReceipts {
 		runq("INSERT INTO receipts (member_id, batch_hash, type, status, amount) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['batch_hash'])."', '".pg_escape_string($data_add_item['type'])."', '".pg_escape_string($data_add_item['status'])."', '".pg_escape_string($data_add_item['amount'])."');");
 	}
 
+	function update_data($data_update_item) {
+		//needs to be coded
+	}
+
 	function delete_data($data_delete_by_member) {
 		if (empty($data_delete_by_member)) return;
 

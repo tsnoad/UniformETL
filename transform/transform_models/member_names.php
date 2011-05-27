@@ -44,6 +44,10 @@ Class MemberNames {
 		runq("INSERT INTO names (member_id, type, given_names, family_name) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['type'])."', '".pg_escape_string($data_add_item['given_names'])."', '".pg_escape_string($data_add_item['family_name'])."');");
 	}
 
+	function update_data($data_update_item) {
+		//needs to be coded
+	}
+
 	function delete_data($data_delete_by_member) {
 		if (empty($data_delete_by_member)) return;
 
