@@ -44,9 +44,9 @@ Configuring API
 
 1. Make sure mod_rewrite is installed and enabled
 
-2. Configure apache to make /home/uelt/api/ available
+2. Configure apache to make /home/uetl/api/ available
 
-3. Configure apache to obey /home/uelt/api/.htaccess
+3. Configure apache to obey /home/uetl/api/.htaccess
 
 
 Installing LDAP on SLES 11.0
