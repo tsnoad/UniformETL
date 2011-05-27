@@ -1,31 +1,39 @@
 #!/usr/bin/php5
 <?php
 
+/**
+ * Extract Process Watcher
+ *
+ * Cleans up old processes. This script is run every minute by the
+ * extract daemon. Finds processes that have died or have been terminated and
+ * marks them as failed in the database.
+ *
+ */
+
+//get config settings and database
 require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/database.php");
-
 $conf = New Conf;
 
-echo "########\n";
-echo "########\n";
+//helpful log message
+echo "Starting Watcher...\n";
 
-echo "starting extract process watcher\n";
-echo date("r")."\n";
+//helpful log message
+echo "\tChecking environment...\t";
 
-echo "========\n";
-echo "checking environment\n";
-echo date("r")."\n";
-echo "--------\n";
-
+//check that we're not already running
 if (trim(shell_exec("ps h -C process_watcher.php o pid | wc -l")) > 1) {
-	die("watcher is already running");
+	//so we don't step on our own toes
+	die("FAILED: watcher is already running");
 }
 
-echo "========\n";
-echo "searching for unfinished processes\n";
-echo date("r")."\n";
-echo "--------\n";
+//helpful log message
+echo "OK\n";
 
+//helpful log message
+echo "\tSearching for unfinished processes...\t";
+
+//are there any extract processes that think they're still running?
 $unfinisheds_query = runq("SELECT * FROM extract_processes WHERE finished=FALSE;");
 
 if (empty($unfinisheds_query)) {
@@ -34,13 +42,11 @@ if (empty($unfinisheds_query)) {
 
 echo "Found ".count($unfinisheds_query)." processes\n";
 
-echo "========\n";
-/* echo "searching for unfinished processes\n"; */
-echo date("r")."\n";
-echo "--------\n";
-
+//for each process that we found
 foreach ($unfinisheds_query as $unfinished) {
 	echo "Checking process:\n";
+
+	//check it's pid. is it actually running
 	$unfinished_status = shell_exec("ps h p ".escapeshellarg($unfinished['extract_pid'])." o pid | wc -l");
 
 	if (trim($unfinished_status) > 0) {
@@ -49,11 +55,14 @@ foreach ($unfinisheds_query as $unfinished) {
 		continue;
 	}
 
-	//process is no longer running, we need to wait to see if it's recorded as finished
+	//process is no longer running
+	//it may have finished normally, but hasn't updated the database yet
 	echo "\t"."stopped. wait 5s...\n";
 
+	//wait a moment
 	sleep(5);
 
+	//check if the process has been marked as finished 
 	$status_query = runq("SELECT * FROM extract_processes WHERE process_id='".pg_escape_string($unfinished['process_id'])."' LIMIT 1;");
 
 	if ($status_query[0]['finished'] == 't') {
