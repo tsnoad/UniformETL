@@ -1,10 +1,10 @@
 <?php
 
-require_once("/etc/uniformetl/transform/transform_models/member_ids.php");
+require_once("/etc/uniformetl/transform/transform_models/member_receipts.php");
 
-class MemberIdsTest extends PHPUnit_Framework_TestCase {
+class MemberReceiptsTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
-		$this->model = new MemberIds;
+		$this->model = new MemberReceipts;
 	}
 	
 	public function testget_src_data() {
