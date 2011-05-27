@@ -20,8 +20,24 @@
 	<body>
 		<h1>API Demo</h1>
 
+		<h3>API Key</h3>
+		<p>All requests must be accompanied by the API key. This key lets the server know that we're an authorised client.</p>
+
+		<h3>HTTPS</h3>
+		<p>Requests to the API must be made via HTTPS, so that the API key remains secret.</p>
+
+		<h3>Request Methods</h3>
+		<p>Different types of requests use different HTTP Request Methods: for example, to request data the GET method is required, or to create a new record the PUT method is required, or to update a new record the POST method is required</p>
+
+		<h3>Response Codes</h3>
+		<p>Depending on success or failure the server will use an appropriate HTTP Response Code: for example when 404 Not Found when a member cannot be found, 401 Unauthorised when a login attempt fails, and 200 OK when a request is successful.</p>
+
+		<h3>Response Data</h3>
+		When data is requested it will be returned in a JSON string. In all other situations the server returns a short text message explaining the HTTP Response Code that has been returned.
+
 		<hr />
 
+<!--
 		<h2>All Members</h2>
 
 		<form name="" action="/users" method="GET">
@@ -30,8 +46,14 @@
 		</form>
 
 		<hr />
+-->
 
 		<h2>Member Info</h2>
+
+		<p>Get all available information of a single member. Returns a JSON string with member's information.</p>
+
+		<p>Request URI: /users/{member_id}<br />
+		Request Method: GET</p>
 
 		<label for="member_id">Member ID</label><input id="details_member_id" type="text" /><br />
 
@@ -43,6 +65,11 @@
 		<hr />
 
 		<h2>Update Password</h2>
+
+		<p>Update the password of a single member. returns Response Code 200 OK on success.</p>
+
+		<p>Request URI: /users/{member_id}<br />
+		Request Method: POST</p>
 
 		<label for="member_id">Member ID</label><input id="update_member_id" type="text" /><br />
 
@@ -56,6 +83,11 @@
 		<hr />
 
 		<h2>Login</h2>
+
+		<p>Verify a member's password. returns Response Code 200 OK on success.</p>
+
+		<p>Request URI: /users/{member_id}/login<br />
+		Request Method: POST</p>
 
 		<label for="member_id">Member ID</label><input id="login_member_id" type="text" /><br />
 

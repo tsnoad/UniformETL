@@ -1,6 +1,17 @@
 #!/usr/bin/php5
 <?php
 
+/**
+ * Extract Process Launcher
+ *
+ * Looks for new data to process. This script is run every minute by the
+ * extract daemon. It checks for new tar files on the target server, and when
+ * it finds one it checks that it's not still being modified, that we havn't
+ * already processed it, and that it's not older than the last file we
+ * processed. Then, if everything's okay the file is processed.
+ *
+ */
+
 require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/database.php");
 
@@ -8,13 +19,9 @@ class Watcher {
 	public $conf;
 
 	function start() {
-		$this->conf = New Conf;
+		echo "Starting Launcher...\n";
 
-		echo "########\n";
-		echo "########\n";
-		
-		echo "starting extract process launcher\n";
-		echo date("r")."\n";
+		$this->conf = New Conf;
 
 		$this->check_already_extracting();
 		$this->check_already_transforming();
@@ -47,11 +54,11 @@ class Watcher {
 	}
 
 	function list_remote_dumps() {
+		echo "\tSearching for files...\t";
+
 		$remote_command = 'date +%s; for file in '.escapeshellarg($this->conf->dumps_path).' ; do echo $file; stat --format=%Y $file; md5sum $file | cut -d " " -f 1; done';
 
 		$dump_query = shell_exec("ssh -i ".escapeshellarg($this->conf->identity)." ".escapeshellarg($this->conf->server)." '".$remote_command."'");
-
-var_dump("ssh -i ".escapeshellarg($this->conf->identity)." ".escapeshellarg($this->conf->server)." '".$remote_command."'");
 
 		$query_result = trim($dump_query);
 		
@@ -123,7 +130,13 @@ var_dump("ssh -i ".escapeshellarg($this->conf->identity)." ".escapeshellarg($thi
 	}
 
 	function inspect_dumps() {
+		echo "found ".count($this->files)."\n";
+
 		foreach ($this->files as $file_key => $file) {
+			echo "\n\t\tFound: \t".basename($file['path'])."\n";
+			echo "\t\tmtime: \t".date("r", $file['modtime'])."\n";
+			echo "\t\thash: \t".$file['md5']."\n";
+
 			if ($this->dump_too_new($file)) {
 				continue;
 			}

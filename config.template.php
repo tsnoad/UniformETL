@@ -27,7 +27,7 @@ class Conf {
 
 	//extract_launcher.php
 	public $server = "user@remote.server.com";
-	public $identity = "/home/user/.ssh/id_rsa_foxrep";
+	public $identity = "/home/user/.ssh/id_rsa_something";
 	public $dumps_path = '/data01/datadump/*.tgz';
 	public $dump_path_check_regex = "/^\/data01\/datadump\/FoxtrotTableDump[0-9]{8,8}\.tgz$/";
 
@@ -40,6 +40,8 @@ class Conf {
 	public $member_confluence_statuses_ldapbasedn = "dc=my-domain,dc=com";
 	public $member_confluence_statuses_ldapuser = "";
 	public $member_confluence_statuses_ldappass = "";
+
+	public $api_key = "3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2";
 }
 
 ?>

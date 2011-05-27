@@ -13,8 +13,8 @@ Class Users {
 				break;
 
 			case "POST":
-				header("HTTP/1.1 400 Bad Request");
-				die("HTTP/1.1 400 Bad Request");
+				header("HTTP/1.1 405 Method Not Allowed");
+				die("HTTP/1.1 405 Method Not Allowed");
 				break;
 
 			case "PUT":
@@ -23,8 +23,8 @@ Class Users {
 
 			case "DELETE":
 			default:
-				header("HTTP/1.1 400 Bad Request");
-				die("HTTP/1.1 400 Bad Request");
+				header("HTTP/1.1 405 Method Not Allowed");
+				die("HTTP/1.1 405 Method Not Allowed");
 				break;
 		}
 	}

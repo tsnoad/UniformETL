@@ -5,10 +5,11 @@ Background
 Up until now, the ETLs that we've used have been slow, unstable and indecipherably written - in short hard to maintain, and impossible to expand. The reasoning behind UETL is to create a lightweight ETL, that can be modified as required, tested till it bleeds, and installed on almost any hardware, anywhere.
 
 
-How It Works
-------------
+Objectives
+----------
+The objective is to create an ETL that is:
 
-1. Intelligent
+1. Intelligent: smart enough to know when there's now data to process
 
 2. Modular
 
@@ -22,6 +23,20 @@ The Bits
 
 1. Extract
 
+	Daemon		extract_daemon.php
+	Watcher		process_watcher.php
+	Launcher	extract_launcher.php
+	Extract Script		extract.sh
+	Database Script		extract.php
+
 2. Transform
+
+	Daemon		transform_daemon.php
+	Watcher		transform_watcher.php
+	Launcher	transform_launcher.php
+	Transform	transform.php
+	Model Boss	transform_models.php
+	Models		transform_models/member_ids.php, transform_models/member_emails.php, etc.
+	
 
 3. API

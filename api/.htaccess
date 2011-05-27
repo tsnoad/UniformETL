@@ -1,5 +1,14 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+	#Force HTTPS
+	RewriteCond %{SERVER_PORT} !443
+	RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R,L]
+
+	#The rest api will receive requests like server.name/member/member_id
+	#We need to turn them into server.name/index.php?url=/member/member_id
+	#But requests might already have GET variable in the URL like server.name/member/member_id?api_key=blahblahblah
+	#So, we need to use the QSA option
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(.*)$ /index.php?url=$1 [QSA,L]

@@ -9,40 +9,13 @@ require_once("/etc/uniformetl/api/model_user.php");
 require_once("/etc/uniformetl/api/model_userlogin.php");
 require_once("/etc/uniformetl/api/model_teapot.php");
 
-/*
-function returnXMLData($data) {
-	header("HTTP/1.1 200 OK");
-	echo "<?xml version=\"1.0\"?>\n";
-	echo "<user>\n";
-
-	foreach ($data as $data_element_name => $data_element) {
-		if (is_array($data_element)) {
-			echo "\t<{$data_element_name}>\n";
-
-			foreach ($data_element as $data_group) {
-				echo "\t\t<".substr($data_element_name, 0, -1).">\n";
-
-				foreach ($data_group as $data_group_element_name => $data_group_element) {
-					echo "\t\t\t<{$data_group_element_name}>{$data_group_element}</{$data_group_element_name}>\n";
-				}
-
-				echo "\t\t</".substr($data_element_name, 0, -1).">\n";
-			}
-
-			echo "\t</{$data_element_name}>\n";
-		} else {
-			echo "\t<{$data_element_name}>{$data_element}</{$data_element_name}>\n";
-		}
-	}
-
-	echo "</user>\n";
-}
-*/
-
 // Place where things happen: the API class works out what needs to be done, and which model it needs to use to do it.
 Class API {
 	// Thunderbirds are go!
 	function init() {
+		//check that we're protected by SSL, and that the request has used a valid api key
+		$this->check_auth();
+
 		//call all the models that we might need
 		$this->init_models();
 
@@ -57,6 +30,21 @@ Class API {
 
 		//use the model to do stuff
 		$model->what_do_i_do();
+	}
+
+	// Check that we're protected by SSL, and that the request has used a valid api key
+	function check_auth() {
+		//make sure that we're protected by SSL
+		if (empty($_SERVER['HTTPS'])) {
+			header("HTTP/1.1 401 Unauthorized");
+			die("HTTP/1.1 401 Unauthorized");
+		}
+
+		//make sure that the request has used a valid api key
+		if (empty($_REQUEST['api_key']) || $_REQUEST['api_key'] != $this->conf->api_key) {
+			header("HTTP/1.1 401 Unauthorized");
+			die("HTTP/1.1 401 Unauthorized");
+		}
 	}
 
 	// Calls all the models that we might need
@@ -96,6 +84,8 @@ Class API {
 }
 
 $api = New API;
+$conf = New Conf;
+$api->conf = $conf;
 $api->init();
 
 ?>

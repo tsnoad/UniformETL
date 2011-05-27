@@ -1,6 +1,5 @@
 <?php
 
-
 require_once("/etc/uniformetl/config.php");
 $conf = New Conf();
 
