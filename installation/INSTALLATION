@@ -36,6 +36,10 @@ cat ~/.ssh/id_rsa_something.pub | ssh remote.server.com "cat >> ~/.ssh/authorize
 #UETL Transform Daemon: waits for extract to finish, starts transform, monitors progress.
 * * * * * su - tsnoad -c '/home/uetl/transform/transform_daemon.php >> /home/uetl/logs/transformdaemonlog'
 
+10. Add cleanup scripts to root's crontab
+#Periodically run VACUUM and ANALYZE to keep the database uncluttered
+0 6 * * * su - tsnoad -c 'psql hotel -c "VACUUM;"; psql hotel -c "ANALYZE;"'
+
 10. Wait for Daemon to find data and start extracting...
 
 
