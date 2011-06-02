@@ -140,7 +140,7 @@ echo `date`
 echo '--------'
 
 cd $extractdir
-$scriptdir/extract/extract.php "$1" >> $extractdir/dump.sql
+$scriptdir/extract/extractors/full/create_sql.php "$1" >> $extractdir/dump.sql
 
 echo '========'
 echo 'importing to psql'

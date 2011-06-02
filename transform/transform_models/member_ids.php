@@ -55,8 +55,10 @@ Class MemberIds {
 
 			if (empty($dst_member)) {
 				$members_add[$member_id] = $member_id;
+			} else if ($dst_member != $src_member) {
+				$data_update[] = $src_data_member;
 			} else {
-				$members_update[$member_id] = $member_id;
+/* 				$members_update[$member_id] = $member_id; */
 			}
 
 			unset($members_delete[$member_id]);

@@ -38,6 +38,10 @@ class Watcher {
 	}
 
 	function check_already_extracting() {
+		if (trim(shell_exec("ps h -C extract_launcher.php o pid | wc -l")) > 1) {
+			die("extract launcher is currently running");
+		}
+
 		$already_extracting = runq("SELECT count(*) FROM extract_processes WHERE finished=FALSE;");
 
 		if ($already_extracting[0]['count'] > 0) {
@@ -182,7 +186,7 @@ class Watcher {
 	
 		runq("INSERT INTO processes (process_id) VALUES ('".pg_escape_string($process_id)."');");
 
-		shell_exec($this->conf->software_path."extract/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".$this->conf->software_path."logs/extractlog 2>".$this->conf->software_path."logs/extractlog & echo $!");
+		shell_exec($this->conf->software_path."extract/extractors/full/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".$this->conf->software_path."logs/extractlog 2>".$this->conf->software_path."logs/extractlog & echo $!");
 
 		die("dump started");
 	}
