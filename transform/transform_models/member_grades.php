@@ -51,6 +51,10 @@ Class MemberGrades {
 
 		return $transform->transform($src_data_by_members, $dst_data_by_members);
 	}
+
+	function hook_api_get_member($data) {
+		return array("g.grade", "LEFT JOIN grades g ON (g.member_id=m.member_id)");
+	}
 }
 
 ?>

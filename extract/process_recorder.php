@@ -36,7 +36,9 @@ switch ($event) {
 			die("extract_pid is not valid");
 		}
 
-		runq("INSERT INTO extract_processes (process_id, source_path, source_timestamp, source_md5, extract_pid) VALUES ('".pg_escape_string($process_id)."', '".pg_escape_string($source_path)."', '".pg_escape_string($source_timestamp)."', '".pg_escape_string($source_md5)."', '".pg_escape_string($extract_pid)."');");
+		runq("INSERT INTO extract_processes (process_id, extractor, extract_pid) VALUES ('".pg_escape_string($process_id)."', 'full', '".pg_escape_string($extract_pid)."');");
+
+		runq("INSERT INTO extract_full (process_id, source_path, source_timestamp, source_md5) VALUES ('".pg_escape_string($process_id)."', '".pg_escape_string($source_path)."', '".pg_escape_string($source_timestamp)."', '".pg_escape_string($source_md5)."');");
 
 		if (false) {
 			die();

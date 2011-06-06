@@ -50,6 +50,10 @@ Class MemberEcpdStatuses {
 
 		return $transform->transform($src_data_by_members, $dst_data_by_members);
 	}
+
+	function hook_api_get_member($data) {
+		return array("e.member_id=m.member_id as ecpd_status", "LEFT JOIN ecpd_statuses e ON (e.member_id=m.member_id)");
+	}
 }
 
 ?>

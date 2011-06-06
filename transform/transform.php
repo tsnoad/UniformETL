@@ -3,11 +3,8 @@
 
 require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/database.php");
+require_once("/etc/uniformetl/autoload.php");
 
-require_once("/etc/uniformetl/transform/singletransforms.php");
-require_once("/etc/uniformetl/transform/pluraltransforms.php");
-require_once("/etc/uniformetl/transform/chunks.php");
-require_once("/etc/uniformetl/transform/globaltiming.php");
 require_once("/etc/uniformetl/transform/transform_models.php");
 
 class Recorder {
@@ -31,11 +28,15 @@ Class Transform {
 
 	public $process_id;
 	public $chunk_ids;
+	public $extract_process;
 
 	function init_transform() {
 		if (empty($this->process_id)) {
 			die("extract process id has not been supplied");
 		}
+
+		$extract_process_query = runq("SELECT * FROM extract_processes WHERE process_id='".pg_escape_string($this->process_id)."' LIMIT 1;");
+		$this->extract_process = $extract_process_query[0];
 
 		$this->recorder = New Recorder;
 		$this->recorder->process_id = $this->process_id;
@@ -48,7 +49,6 @@ Class Transform {
 		$this->chunks->process_id = $this->process_id;
 
 		$this->global_timing = New GlobalTiming;
-		$this->global_timing->chunk_count = count($this->chunk_ids);
 
 		$this->start_transform();
 
@@ -59,6 +59,8 @@ Class Transform {
 
 	function deleted_members() {
 		$deleted_members_query = runq("SELECT m.* FROM member_ids m LEFT OUTER JOIN dump_cpgcustomer c ON (m.member_id=c.customerid::BIGINT) WHERE c.customerid::BIGINT IS NULL;");
+
+		list($deleted_members_query) = Plugins::hook("transform_deleted-members-query", array($deleted_members_query));
 
 		if (!empty($deleted_members_query)) {
 			foreach ($deleted_members_query as $deleted_member) {
@@ -71,6 +73,8 @@ Class Transform {
 		$this->recorder->record_start();
 
 		$this->chunk_ids = $this->chunks->create_chunks();
+
+		$this->global_timing->chunk_count = count($this->chunk_ids);
 
 		$this->deleted_members();
 
@@ -99,9 +103,34 @@ Class Transform {
 
 	function start_chunk($chunk_id) {
 		$this->global_timing->chunk_started();
+
+		echo str_pad("Transform", 15, " ")."|";
+		echo str_pad("Add", 7, " ")."|";
+		echo str_pad("No Chan", 7, " ")."|";
+		echo str_pad("Update", 7, " ")."|";
+		echo str_pad("Delete", 7, " ")."|";
+		echo str_pad("", 8, " ");
+		echo "\n";
+		echo str_pad("", 15, "-")."+";
+		echo str_pad("", 7, "-")."+";
+		echo str_pad("", 7, "-")."+";
+		echo str_pad("", 7, "-")."+";
+		echo str_pad("", 7, "-")."+";
+		echo str_pad("", 8, "-");
+		echo "\n";
 	}
 
 	function finish_chunk($chunk_id) {
+/*
+		echo str_pad("", 15, "-")."+";
+		echo str_pad("", 7, "-")."+";
+		echo str_pad("", 7, "-")."+";
+		echo str_pad("", 7, "-")."+";
+		echo str_pad("", 7, "-")."+";
+		echo str_pad("", 8, "-");
+		echo "\n";
+*/
+
 		$this->global_timing->chunk_completed();
 		$this->global_timing->eta_report();
 	}
@@ -147,12 +176,13 @@ Class Transform {
 			}
 		}
 
-		echo str_pad(substr(ucwords($transform).":", 0, 12), 12)."\t".
-		str_pad(count($data_add)." Added;", 8 + strlen(" Added;"), " ", STR_PAD_LEFT)."\t".
-		str_pad(count($data_nochange)." Not Changed;", 8 + strlen(" Not Changed;"), " ", STR_PAD_LEFT)."\t".
-		str_pad(count($data_update)." Updated;", 8 + strlen(" Updated;"), " ", STR_PAD_LEFT)."\t".
-		str_pad($data_delete_count." Deleted;", 8 + strlen(" Deleted;"), " ", STR_PAD_LEFT)."\t".
-		round(microtime(true) - $transform_timer, 3)."s\n";
+		echo str_pad(ucwords($transform), 15, " ")."|";
+		echo str_pad(count($data_add), 7, " ", STR_PAD_LEFT)."|";
+		echo str_pad(count($data_nochange), 7, " ", STR_PAD_LEFT)."|";
+		echo str_pad(count($data_update), 7, " ", STR_PAD_LEFT)."|";
+		echo str_pad($data_delete_count, 7, " ", STR_PAD_LEFT)."|";
+		echo str_pad($this->global_timing->transform_completed(), 8, " ", STR_PAD_LEFT);
+		echo "\n";
 
 		$total['add'][$transform] += count($data_add);
 		$total['nochange'][$transform] += count($data_nochange);
@@ -163,10 +193,48 @@ Class Transform {
 	}
 
 	function start_model($chunk_id, $transform) {
-		$transform_timer = microtime(true);
+		$this->global_timing->transform_started();
 	}
 
 	function finish_model($chunk_id, $transform) {
+	}
+
+	function hook_transform_deleted_members_query($data) {
+		list($deleted_members_query) = $data;
+
+		print_r($this->extract_process);
+		var_dump($this->extract_process['extractor']);
+
+		var_dump($this->extract_process['member_ids']);
+
+		if ($this->extract_process['extractor'] == "latest") {
+
+		} else if ($this->extract_process['extractor'] == "full") {
+			$previous_transform_query = runq("SELECT max(t.process_id) FROM extract_processes e INNER JOIN transform_processes t ON (t.process_id=e.process_id) WHERE e.extractor='full' AND t.finished=TRUE AND t.failed=FALSE AND t.process_id!='".pg_escape_string($this->process_id)."';");
+			$previous_transform = $previous_transform_query[0]['max'];
+
+			if (!empty($previous_transform)) {
+				$and_later_than = "AND process_id>'".pg_escape_string($previous_transform)."'";
+			} else {
+				$and_later_than = "";
+			}
+
+			unset($extracted_member_ids);
+
+			foreach (runq("SELECT * FROM extract_latest WHERE process_id<'".pg_escape_string($this->process_id)."' {$and_later_than};") as $previous_extract) {
+				$extracted_member_ids_tmp = explode(",", trim($previous_extract['member_ids'], "{}"));
+
+				$extracted_member_ids = array_merge((array)$extracted_member_ids, (array)$extracted_member_ids_tmp);
+			}
+
+			if (!empty($deleted_members_query)) {
+				foreach ($deleted_members_query as $deleted_member) {
+					if (in_array($deleted_member['member_id'], $extracted_member_ids)) {
+						print_r("Not deleting Member: ".$deleted_member['member_id']."\n");
+					}
+				}
+			}
+		}
 	}
 }
 

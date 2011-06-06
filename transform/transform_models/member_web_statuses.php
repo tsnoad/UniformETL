@@ -50,6 +50,10 @@ Class MemberWebStatuses {
 
 		return $transform->transform($src_data_by_members, $dst_data_by_members);
 	}
+
+	function hook_api_get_member($data) {
+		return array("w.member_id=m.member_id as web_status", "LEFT JOIN web_statuses w ON (w.member_id=m.member_id)");
+	}
 }
 
 ?>

@@ -51,6 +51,10 @@ Class MemberDivisions {
 
 		return $transform->transform($src_data_by_members, $dst_data_by_members);
 	}
+
+	function hook_api_get_member($data) {
+		return array("d.division", "LEFT JOIN divisions d ON (d.member_id=m.member_id)");
+	}
 }
 
 ?>

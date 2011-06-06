@@ -43,6 +43,14 @@ class GlobalTiming {
 
 		echo "\n\n";
 	}
+
+	function transform_started() {
+		$this->transform_start_time = microtime(true);
+	}
+
+	function transform_completed() {
+		return round(microtime(true) - $this->transform_start_time, 3)."s";
+	}
 }
 
 ?>

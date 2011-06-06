@@ -34,7 +34,7 @@ echo "OK\n";
 shell_exec($conf->software_path."extract/process_watcher.php >> ".$conf->software_path."logs/extractdaemonlog");
 
 //start the launcher to check if there's any new data for us to process
-/* shell_exec($conf->software_path."extract/extractors/full/extract_launcher.php >> ".$conf->software_path."logs/extractdaemonlog"); */
+shell_exec($conf->software_path."extract/extractors/full/extract_launcher.php >> ".$conf->software_path."logs/extractdaemonlog");
 
 //helpful log message
 echo str_pad(" Extract Daemon Complete ", 80, "-", STR_PAD_BOTH)."\n";

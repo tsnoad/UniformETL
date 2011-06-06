@@ -2,12 +2,8 @@
 
 require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/database.php");
+require_once("/etc/uniformetl/autoload.php");
 require_once("/etc/uniformetl/transform/transform_models.php");
-
-require_once("/etc/uniformetl/api/model_users.php");
-require_once("/etc/uniformetl/api/model_user.php");
-require_once("/etc/uniformetl/api/model_userlogin.php");
-require_once("/etc/uniformetl/api/model_teapot.php");
 
 // Place where things happen: the API class works out what needs to be done, and which model it needs to use to do it.
 Class API {
@@ -50,10 +46,10 @@ Class API {
 	// Calls all the models that we might need
 	function init_models() {
 		//call all the models
-		$this->users_model = New Users;
-		$this->user_model = New User;
-		$this->userlogin_model = New UserLogin;
-		$this->teapot_model = New Teapot;
+		$this->users_model = New APIModelUsers;
+		$this->user_model = New APIModelUser;
+		$this->userlogin_model = New APIModelUserLogin;
+		$this->teapot_model = New APIModelTeapot;
 	
 		//add all the models to an array, so that we can loop through them
 		$this->models = array(

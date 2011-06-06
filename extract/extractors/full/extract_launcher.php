@@ -159,7 +159,7 @@ class Watcher {
 	}
 
 	function dump_already_processed($file) {
-		$already_processed_query = runq("SELECT count(*) FROM extract_processes WHERE source_md5='".pg_escape_string($file['md5'])."' OR source_timestamp='".pg_escape_string(date("c", $file['modtime']))."';");
+		$already_processed_query = runq("SELECT count(*) FROM extract_processes p INNER JOIN extract_full f ON (f.process_id=p.process_id) WHERE f.source_md5='".pg_escape_string($file['md5'])."' OR f.source_timestamp='".pg_escape_string(date("c", $file['modtime']))."';");
 		$already_processed_count = $already_processed_query[0]['count'];
 	
 		if ($already_processed_count > 0) {
@@ -169,7 +169,7 @@ class Watcher {
 	}
 
 	function dump_too_old($file) {
-		$newest_process_query = runq("SELECT max(source_timestamp) FROM extract_processes;");
+		$newest_process_query = runq("SELECT max(source_timestamp) FROM extract_full;");
 		$newest_process_timestamp = $newest_process_query[0]['max'];
 	
 		if ($file['modtime'] <= strtotime($newest_process_timestamp)) {

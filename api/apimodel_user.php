@@ -1,6 +1,6 @@
 <?php
 
-Class User {
+Class APIModelUser {
 	function who_me() {
 		return preg_match("/^users\/[0-9]+\/?$/", $_GET['url']);
 	}
@@ -36,16 +36,43 @@ Class User {
 		//get the member id
 		$member_id = $this->get_member_id();
 
-		//get the member's information
+		$get_user_plugins = Plugins::hook("api_get-users_singles", array());
+
+		if (empty($get_user_plugins['MemberIds'])) {
+			header("HTTP/1.1 500 Internal Server Error");
+			die("HTTP/1.1 500 Internal Server Error");
+		}
+
+		$get_user_member_ids = $get_user_plugins['MemberIds'];
+		unset($get_user_plugins['MemberIds']);
+
+		foreach ($get_user_plugins as $get_user_plugin) {
+			$get_user_plugins_selects[] = $get_user_plugin[0];
+			$get_user_plugins_froms[] = $get_user_plugin[1];
+		}
+
+		$user_query = runq("SELECT ".$get_user_member_ids[0].", ".implode(", ", $get_user_plugins_selects)." FROM ".$get_user_member_ids[1]." ".implode(" ", $get_user_plugins_froms)." WHERE m.member_id='".pg_escape_string($member_id)."' LIMIT 1;");
+		$user = $user_query[0];
+
+		/*
+//get the member's information
 		$user_query = runq("SELECT m.member_id, w.member_id=m.member_id as web_status, e.member_id=m.member_id as ecpd_status FROM member_ids m LEFT JOIN web_statuses w ON (w.member_id=m.member_id) LEFT JOIN ecpd_statuses e ON (e.member_id=m.member_id) WHERE m.member_id='".pg_escape_string($member_id)."' LIMIT 1;");
 		$user = $user_query[0];
+*/
 	
 		//not in database?
 		if (empty($user_query)) {
 			header("HTTP/1.1 404 Not Found");
 			die("HTTP/1.1 404 Not Found");
 		}
+
+		$get_user_plurals_plugins = Plugins::hook("api_get-users_plurals", array($member_id));
+
+		foreach ($get_user_plurals_plugins as $get_user_plurals_plugin) {
+			$user = array_merge((array)$user, (array)$get_user_plurals_plugin);
+		}
 	
+/*
 		//get member's names
 		$names_query = runq("SELECT type, given_names, family_name FROM names n WHERE n.member_id='".pg_escape_string($member_id)."';");
 		foreach ($names_query as $names_query_tmp) {
@@ -54,7 +81,7 @@ Class User {
 		}
 	
 		//get member's email address
-		//ALL email addresses are equal. there is no preffered email address.
+		//ALL email addresses are equal. there is no preferred email address.
 		$emails_query = runq("SELECT email FROM emails e WHERE e.member_id='".pg_escape_string($member_id)."';");
 		foreach ($emails_query as $emails_query_tmp) {
 			//put email addresses in array
@@ -64,6 +91,7 @@ Class User {
 		//get member's addresses
 		$address_query = runq("SELECT type, address, suburb, state, postcode, country FROM addresses a WHERE a.member_id='".pg_escape_string($member_id)."';");
 		$user['addresses'] = $address_query;
+*/
 	
 		//all good
 		header("HTTP/1.1 200 OK");

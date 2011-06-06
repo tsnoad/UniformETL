@@ -1,6 +1,6 @@
 <?php
 
-Class Users {
+Class APIModelUsers {
 	function who_me() {
 		return preg_match("/^users\/?$/", $_GET['url']);
 	}

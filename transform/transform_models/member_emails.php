@@ -59,6 +59,18 @@ Class MemberEmails {
 
 		return $transform->transform($src_data_by_members, $dst_data_by_members);
 	}
+
+	function hook_api_get_member_plurals($data) {
+		list($member_id) = $data;
+
+		$emails_query = runq("SELECT email FROM emails e WHERE e.member_id='".pg_escape_string($member_id)."';");
+		foreach ($emails_query as $emails_query_tmp) {
+			//put email addresses in array
+			$user['emails'][] = $emails_query_tmp['email'];
+		}
+
+		return $user;
+	}
 }
 
 ?>

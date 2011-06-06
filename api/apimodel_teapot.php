@@ -1,7 +1,7 @@
 <?php
 
 // For when someone wants to know if we're a teapot
-Class Teapot {
+Class APIModelTeapot {
 	//can this model process the request
 	function who_me() {
 		return preg_match("/^teapot\/?$/", $_GET['url']);

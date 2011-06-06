@@ -64,6 +64,15 @@ Class MemberAddresses {
 
 		return $transform->transform($src_data_by_members, $dst_data_by_members);
 	}
+
+	function hook_api_get_member_plurals($data) {
+		list($member_id) = $data;
+
+		$address_query = runq("SELECT type, address, suburb, state, postcode, country FROM addresses a WHERE a.member_id='".pg_escape_string($member_id)."';");
+		$user['addresses'] = $address_query;
+
+		return $user;
+	}
 }
 
 ?>

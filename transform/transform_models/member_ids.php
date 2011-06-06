@@ -68,6 +68,10 @@ Class MemberIds {
 
 		return array($members_add, $members_update, $members_delete, $data_delete_count);
 	}
+
+	function hook_api_get_member($data) {
+		return array("m.member_id", "member_ids m");
+	}
 }
 
 ?>

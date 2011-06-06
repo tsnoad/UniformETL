@@ -1,7 +1,7 @@
 <?php
 
 // For when someone wants to use the API to authenticate a member.
-Class UserLogin {
+Class APIModelUserLogin {
 	function who_me() {
 		return preg_match("/^users\/[0-9]+\/login\/?$/", $_GET['url']);
 	}
