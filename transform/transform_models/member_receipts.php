@@ -1,6 +1,10 @@
 <?php
 
 Class MemberReceipts {
+	function hook_models_required_transforms($data) {
+		return array("receipts" => array("member_ids"));
+	}
+
 	function get_src_data($src_member_ids_chunk) {
 		return $this->get_src_members_names($src_member_ids_chunk);
 	}

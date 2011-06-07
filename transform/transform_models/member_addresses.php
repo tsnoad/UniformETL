@@ -1,6 +1,19 @@
 <?php
 
 Class MemberAddresses {
+	function hook_models_required_transforms($data) {
+		return array("addresses" => array("member_ids"));
+	}
+	function hook_models_required_tables($data) {
+		return array("dump_address");
+	}
+	function hook_models_transform_priority($data) {
+		return "secondary";
+	}
+	function hook_models_dump_table_source($data) {
+		return array("dump_address" => "Address");
+	}
+
 	function get_src_data($src_member_ids_chunk) {
 		return $this->get_src_members_addresses($src_member_ids_chunk);
 	}

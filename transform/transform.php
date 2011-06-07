@@ -154,9 +154,13 @@ Class Transform {
 		list($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count) = $transform_class->transform($src_data_by_members, $dst_data_by_members);
 
 		if (!empty($data_add)) {
+/* 			runq("BEGIN;"); */
+
 			foreach ($data_add as $data_add_item) {
 				$transform_class->add_data($data_add_item);
 			}
+
+/* 			runq("COMMIT;"); */
 		}
 
 		if (!empty($data_nochange)) {

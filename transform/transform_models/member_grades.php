@@ -1,6 +1,10 @@
 <?php
 
 Class MemberGrades {
+	function hook_models_required_transforms($data) {
+		return array("grades" => array("member_ids"));
+	}
+
 	function get_src_data($src_member_ids_chunk) {
 		return $this->get_src_members_grades($src_member_ids_chunk);
 	}
@@ -25,7 +29,7 @@ Class MemberGrades {
 	}
 
 	function get_src_members_grades($chunk_id) {
-		$src_member_passwords_query = runq("SELECT DISTINCT g.customerid as member_id, g.gradeid as grade FROM dump_cpgcustomer g INNER JOIN chunk_member_ids ch ON (ch.member_id=g.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
+		$src_member_passwords_query = runq("SELECT DISTINCT g.customerid as member_id, g.gradeid as grade FROM dump_cpgcustomer g INNER JOIN chunk_member_ids ch ON (ch.member_id=g.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND g.cpgid='IEA';");
 
 		return $this->get_members_grades($src_member_passwords_query);
 	}

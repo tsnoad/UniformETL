@@ -1,6 +1,19 @@
 <?php
 
 Class MemberIds {
+	function hook_models_required_transforms($data) {
+		return array("member_ids" => array());
+	}
+	function hook_models_required_tables($data) {
+		return array("dump_customer");
+	}
+	function hook_models_transform_priority($data) {
+		return "primary";
+	}
+	function hook_models_dump_table_source($data) {
+		return array("dump_customer" => "Customer");
+	}
+
 	function get_src_data($src_member_ids_chunk) {
 		return $this->get_src_members($src_member_ids_chunk);
 	}
@@ -21,7 +34,7 @@ Class MemberIds {
 	}
 
 	function get_src_members($chunk_id) {
-		$src_member_query = runq("SELECT DISTINCT c.customerid AS member_id FROM dump_cpgcustomer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE c.cpgid='IEA' AND ch.chunk_id='{$chunk_id}';");
+		$src_member_query = runq("SELECT DISTINCT c.customerid AS member_id FROM dump_customer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members($src_member_query);
 	}

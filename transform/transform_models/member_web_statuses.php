@@ -1,6 +1,10 @@
 <?php
 
 Class MemberWebStatuses {
+	function hook_models_required_transforms($data) {
+		return array("web_statuses" => array("member_ids"));
+	}
+
 	function get_src_data($src_member_ids_chunk) {
 		return $this->get_src_members_web_statuses($src_member_ids_chunk);
 	}
@@ -22,7 +26,7 @@ Class MemberWebStatuses {
 	}
 
 	function get_src_members_web_statuses($chunk_id) {
-		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT c.customerid as member_id FROM dump_cpgcustomer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND c.custstatusid='MEMB';");
+		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT c.customerid as member_id FROM dump_cpgcustomer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND c.cpgid='IEA' AND c.custstatusid='MEMB';");
 
 		return $this->get_members_web_statuses($src_member_ecpd_statuses_query);
 	}

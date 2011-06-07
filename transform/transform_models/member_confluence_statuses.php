@@ -4,6 +4,10 @@ Class MemberConfluenceStatuses {
 	public $ldap;
 	public $base;
 
+	function hook_models_required_transforms($data) {
+		return array("confluence_statuses" => array("member_ids", "names", "emails", "passwords", "web_statuses"));
+	}
+
 	function connect_to_ldap() {
 		if (!empty($this->ldap)) {
 			return;

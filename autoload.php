@@ -14,6 +14,7 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/transform/".strtolower($class_name).".php");
 			break;
 		case "MemberIds":
+		case "MemberPersonals":
 		case "MemberPasswords":
 		case "MemberNames":
 		case "MemberEmails":

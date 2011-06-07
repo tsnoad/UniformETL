@@ -1,6 +1,10 @@
 <?php
 
 Class MemberEcpdStatuses {
+	function hook_models_required_transforms($data) {
+		return array("ecpd_statuses" => array("member_ids"));
+	}
+
 	function get_src_data($src_member_ids_chunk) {
 		return $this->get_src_members_ecpd_statuses($src_member_ids_chunk);
 	}

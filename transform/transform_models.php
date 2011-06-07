@@ -1,22 +1,13 @@
 <?php
 
-require_once("transform_models/member_ids.php");
-require_once("transform_models/member_passwords.php");
-require_once("transform_models/member_names.php");
-require_once("transform_models/member_emails.php");
-require_once("transform_models/member_addresses.php");
-require_once("transform_models/member_web_statuses.php");
-require_once("transform_models/member_ecpd_statuses.php");
-require_once("transform_models/member_confluence_statuses.php");
-require_once("transform_models/member_invoices.php");
-require_once("transform_models/member_receipts.php");
-require_once("transform_models/member_grades.php");
-require_once("transform_models/member_divisions.php");
+require_once("/etc/uniformetl/plugins.php");
+require_once("/etc/uniformetl/autoload.php");
 
 class Models {
 	public $conf;
 
 	public $required_transforms = array(
+/*
 		"addresses" => array("member_ids"),
 		"confluence_statuses" => array("member_ids", "names", "emails", "passwords", "web_statuses"),
 		"ecpd_statuses" => array("member_ids"),
@@ -25,10 +16,12 @@ class Models {
 		"member_ids" => array(),
 		"names" => array("member_ids"),
 		"passwords" => array("member_ids"),
+		"personals" => array("member_ids"),
 		"receipts" => array("member_ids"),
 		"web_statuses" => array("member_ids"),
 		"grades" => array("member_ids"),
 		"divisions" => array("member_ids")
+*/
 	);
 
 	public $required_tables = array(
@@ -37,9 +30,10 @@ class Models {
 		"ecpd_statuses" => array("dump_groupmember"),
 		"emails" => array("dump_email"),
 		"invoices" => array("dump_invoice"),
-		"member_ids" => array("dump_cpgcustomer"),
+		"member_ids" => array("dump_customer"),
 		"names" => array("dump_name"),
 		"passwords" => array(),
+		"personals" => array("dump_customer"),
 		"receipts" => array("dump_receipt"),
 		"web_statuses" => array("dump_cpgcustomer"),
 		"grades" => array("dump_cpgcustomer"),
@@ -55,6 +49,7 @@ class Models {
 		"member_ids" => "primary",
 		"names" => "secondary",
 		"passwords" => "secondary",
+		"personals" => "secondary",
 		"receipts" => "secondary",
 		"web_statuses" => "secondary",
 		"grades" => "secondary",
@@ -64,6 +59,7 @@ class Models {
 	public $dump_table_sources = array(
 		"dump_address" => "Address",
 		"dump_cpgcustomer" => "cpgCustomer",
+		"dump_customer" => "Customer",
 		"dump_email" => "EMail",
 		"dump_invoice" => "Invoice",
 		"dump_groupmember" => "GroupMember",
@@ -83,6 +79,16 @@ class Models {
 	}
 
 	function calculate_requirements() {
+		$required_transforms_query = Plugins::hook("models_required-transforms", array());
+		
+		foreach ($required_transforms_query as $required_transforms_query_tmp) {
+			if (in_array(reset(array_keys($required_transforms_query_tmp)), (array)$this->required_transforms)) {
+				die("OMG");
+			}
+
+			$this->required_transforms = array_merge((array)$this->required_transforms, (array)$required_transforms_query_tmp);
+		}
+
 		foreach ($this->conf->do_transforms as $transform) {
 			$this->add_requirement($transform);
 		
@@ -144,6 +150,9 @@ class Models {
 		switch ($transform) {
 			case "member_ids":
 				$transform_class = New MemberIds;
+				break;
+			case "personals":
+				$transform_class = New MemberPersonals;
 				break;
 			case "passwords":
 				$transform_class = New MemberPasswords;

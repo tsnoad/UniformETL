@@ -7,6 +7,7 @@ class Conf {
 	public $do_transforms = array(
 		"member_ids",
 		"passwords",
+		"personals",
 		"names",
 		"emails",
 		"addresses",
