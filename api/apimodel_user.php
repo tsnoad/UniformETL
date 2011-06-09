@@ -36,29 +36,30 @@ Class APIModelUser {
 		//get the member id
 		$member_id = $this->get_member_id();
 
+		//we rely on the models to know what kind of data to present.
+		//Single information: each model with will give us some SQL that we'll put together
+		//to make a single query.
 		$get_user_plugins = Plugins::hook("api_get-users_singles", array());
 
+		//if we don't get a response from the member_ids model then somethings gone really wrong
 		if (empty($get_user_plugins['MemberIds'])) {
 			header("HTTP/1.1 500 Internal Server Error");
 			die("HTTP/1.1 500 Internal Server Error");
 		}
 
+		//we treat the member_ids model differently - remove it from the array
 		$get_user_member_ids = $get_user_plugins['MemberIds'];
 		unset($get_user_plugins['MemberIds']);
 
+		//seperate the SELECT and FROM sql from each model
 		foreach ($get_user_plugins as $get_user_plugin) {
 			$get_user_plugins_selects[] = $get_user_plugin[0];
 			$get_user_plugins_froms[] = $get_user_plugin[1];
 		}
 
+		//put together the query and run it
 		$user_query = runq("SELECT ".$get_user_member_ids[0].", ".implode(", ", $get_user_plugins_selects)." FROM ".$get_user_member_ids[1]." ".implode(" ", $get_user_plugins_froms)." WHERE m.member_id='".pg_escape_string($member_id)."' LIMIT 1;");
 		$user = $user_query[0];
-
-		/*
-//get the member's information
-		$user_query = runq("SELECT m.member_id, w.member_id=m.member_id as web_status, e.member_id=m.member_id as ecpd_status FROM member_ids m LEFT JOIN web_statuses w ON (w.member_id=m.member_id) LEFT JOIN ecpd_statuses e ON (e.member_id=m.member_id) WHERE m.member_id='".pg_escape_string($member_id)."' LIMIT 1;");
-		$user = $user_query[0];
-*/
 	
 		//not in database?
 		if (empty($user_query)) {
@@ -66,32 +67,13 @@ Class APIModelUser {
 			die("HTTP/1.1 404 Not Found");
 		}
 
+		//Plural information: each model will run it's own query and organise the data into a subarray
 		$get_user_plurals_plugins = Plugins::hook("api_get-users_plurals", array($member_id));
 
+		//add the subarrays into one array
 		foreach ($get_user_plurals_plugins as $get_user_plurals_plugin) {
 			$user = array_merge((array)$user, (array)$get_user_plurals_plugin);
 		}
-	
-/*
-		//get member's names
-		$names_query = runq("SELECT type, given_names, family_name FROM names n WHERE n.member_id='".pg_escape_string($member_id)."';");
-		foreach ($names_query as $names_query_tmp) {
-			//organise names by name type (there's only ever one name per name type)
-			$user['names'][$names_query_tmp['type']] = array("given_names" => $names_query_tmp['given_names'], "family_name" => $names_query_tmp['family_name']);
-		}
-	
-		//get member's email address
-		//ALL email addresses are equal. there is no preferred email address.
-		$emails_query = runq("SELECT email FROM emails e WHERE e.member_id='".pg_escape_string($member_id)."';");
-		foreach ($emails_query as $emails_query_tmp) {
-			//put email addresses in array
-			$user['emails'][] = $emails_query_tmp['email'];
-		}
-	
-		//get member's addresses
-		$address_query = runq("SELECT type, address, suburb, state, postcode, country FROM addresses a WHERE a.member_id='".pg_escape_string($member_id)."';");
-		$user['addresses'] = $address_query;
-*/
 	
 		//all good
 		header("HTTP/1.1 200 OK");
