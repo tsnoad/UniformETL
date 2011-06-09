@@ -67,6 +67,10 @@ unset($personals['date_of_birth']);
 
 		return $transform->transform($src_data_by_members, $dst_data_by_members);
 	}
+
+	function hook_api_get_member($data) {
+		return array("p.gender, p.date_of_birth", "LEFT JOIN personal p ON (p.member_id=m.member_id)");
+	}
 }
 
 ?>

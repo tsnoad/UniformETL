@@ -28,6 +28,7 @@ Class Plugins {
 		array("transform_deleted-members-query", "Transform", "hook_transform_deleted_members_query"),
 
 		array("api_get-users_singles", "MemberIds", "hook_api_get_member"),
+		array("api_get-users_singles", "MemberPersonals", "hook_api_get_member"),
 		array("api_get-users_singles", "MemberWebStatuses", "hook_api_get_member"),
 		array("api_get-users_singles", "MemberEcpdStatuses", "hook_api_get_member"),
 		array("api_get-users_singles", "MemberGrades", "hook_api_get_member"),
