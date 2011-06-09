@@ -48,7 +48,15 @@ Class Plugins {
 
 /* 				var_dump(method_exists($plugin[1], $plugin[1])); */
 
-				$plugin_return[$plugin[1]] = call_user_func_array($plugin[1]."::".$plugin[2], array($data));
+				$version = explode(".", phpversion());
+
+				if ($version[0] == "5" && $version[1] >= "3") {
+					$plugin_return[$plugin[1]] = call_user_func_array($plugin[1]."::".$plugin[2], array($data));
+
+				} else {
+/* 					$model = New $plugin[1]; */
+					$plugin_return[$plugin[1]] = call_user_func_array(array($plugin[1], $plugin[2]), array($data));
+				}
 
 				if ($location == "transform_deleted-members-query") break;
 			}
