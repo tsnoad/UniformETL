@@ -7,7 +7,7 @@ class MemberDivisionsGetSrcTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
 		$this->model = new MemberDivisions;
 
-		runq("INSERT INTO dump_cpgcustomer (customerid, divisionid) VALUES ('10000000', 'Some Division');");
+		runq("INSERT INTO dump_cpgcustomer (customerid, cpgid, divisionid) VALUES ('10000000', 'IEA', 'Some Division');");
 
 		$process_id_query = runq("SELECT nextval('processes_process_id_seq');");
 		$this->process_id = $process_id_query[0]['nextval'];

@@ -54,7 +54,7 @@ Class MemberIds {
 	}
 
 	function delete_data($data_delete_item) {
-/* 		runq("DELETE FROM member_ids WHERE member_id='".pg_escape_string($data_delete_item)."';"); */
+		runq("DELETE FROM member_ids WHERE member_id='".pg_escape_string($data_delete_item)."';");
 	}
 
 	function transform($src_members, $dst_members) {

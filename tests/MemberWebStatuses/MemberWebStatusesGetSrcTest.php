@@ -7,7 +7,7 @@ class MemberWebStatusesGetSrcTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
 		$this->model = new MemberWebStatuses;
 
-		runq("INSERT INTO dump_cpgcustomer (customerid, custstatusid) VALUES ('10000000', 'MEMB');");
+		runq("INSERT INTO dump_cpgcustomer (customerid, cpgid, custstatusid) VALUES ('10000000', 'IEA', 'MEMB');");
 
 		$process_id_query = runq("SELECT nextval('processes_process_id_seq');");
 		$this->process_id = $process_id_query[0]['nextval'];

@@ -7,7 +7,7 @@ class MemberGradesGetSrcTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
 		$this->model = new MemberGrades;
 
-		runq("INSERT INTO dump_cpgcustomer (customerid, gradeid) VALUES ('10000000', 'Some Grade');");
+		runq("INSERT INTO dump_cpgcustomer (customerid, cpgid, gradeid) VALUES ('10000000', 'IEA', 'Some Grade');");
 
 		$process_id_query = runq("SELECT nextval('processes_process_id_seq');");
 		$this->process_id = $process_id_query[0]['nextval'];

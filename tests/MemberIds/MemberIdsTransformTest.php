@@ -8,7 +8,7 @@ class MemberIdsTransformTest extends PHPUnit_Framework_TestCase {
 		$this->model = new MemberIds;
 
 		$this->model->add_data("10000000");
-		runq("INSERT INTO dump_cpgcustomer (customerid, cpgid) VALUES ('10000000', 'IEA');");
+		runq("INSERT INTO dump_customer (customerid) VALUES ('10000000');");
 
 		$process_id_query = runq("SELECT nextval('processes_process_id_seq');");
 		$this->process_id = $process_id_query[0]['nextval'];
@@ -21,9 +21,8 @@ class MemberIdsTransformTest extends PHPUnit_Framework_TestCase {
 	}
 
 	protected function tearDown() {
-/* 		$this->user_model->delete_data("10000000"); */
-		runq("DELETE FROM member_ids WHERE member_id='10000000';");
-		runq("DELETE FROM dump_cpgcustomer WHERE customerid='10000000';");
+		$this->model->delete_data("10000000");
+		runq("DELETE FROM dump_customer WHERE customerid='10000000';");
 		runq("DELETE FROM processes WHERE process_id='".pg_escape_string($this->process_id)."';");
 	}
 	

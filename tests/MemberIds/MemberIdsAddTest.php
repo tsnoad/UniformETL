@@ -9,8 +9,7 @@ class MemberIdsAddTest extends PHPUnit_Framework_TestCase {
 	}
 
 	protected function tearDown() {
-/* 		$this->user_model->delete_data("10000000"); */
-		runq("DELETE FROM member_ids WHERE member_id='10000000';");
+		$this->model->delete_data("10000000");
 	}
 	
 	public function testadd_data() {

@@ -121,16 +121,6 @@ Class Transform {
 	}
 
 	function finish_chunk($chunk_id) {
-/*
-		echo str_pad("", 15, "-")."+";
-		echo str_pad("", 7, "-")."+";
-		echo str_pad("", 7, "-")."+";
-		echo str_pad("", 7, "-")."+";
-		echo str_pad("", 7, "-")."+";
-		echo str_pad("", 8, "-");
-		echo "\n";
-*/
-
 		$this->global_timing->chunk_completed();
 		$this->global_timing->eta_report();
 	}
@@ -175,7 +165,9 @@ Class Transform {
 		if (!empty($data_delete)) {
 			foreach ($data_delete as $data_delete_item) {
 				if (!empty($data_delete_item)) {
+if ($transform != "member_ids") {
 					$transform_class->delete_data($data_delete_item);
+}
 				}
 			}
 		}

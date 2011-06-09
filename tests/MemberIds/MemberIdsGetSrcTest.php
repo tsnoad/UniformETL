@@ -7,7 +7,7 @@ class MemberIdsGetSrcTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
 		$this->model = new MemberIds;
 
-		runq("INSERT INTO dump_cpgcustomer (customerid, cpgid) VALUES ('10000000', 'IEA');");
+		runq("INSERT INTO dump_customer (customerid) VALUES ('10000000');");
 
 		$process_id_query = runq("SELECT nextval('processes_process_id_seq');");
 		$this->process_id = $process_id_query[0]['nextval'];
@@ -20,7 +20,7 @@ class MemberIdsGetSrcTest extends PHPUnit_Framework_TestCase {
 	}
 
 	protected function tearDown() {
-		runq("DELETE FROM dump_cpgcustomer WHERE customerid='10000000';");
+		runq("DELETE FROM dump_customer WHERE customerid='10000000';");
 		runq("DELETE FROM processes WHERE process_id='".pg_escape_string($this->process_id)."';");
 	}
 	
