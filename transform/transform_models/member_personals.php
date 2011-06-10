@@ -2,7 +2,7 @@
 
 Class MemberPersonals {
 	function hook_models_required_transforms($data) {
-		return array("personals" => array("member_ids"));
+		return array("MemberPersonals" => array("MemberIds"));
 	}
 
 	function get_src_data($src_member_ids_chunk) {
@@ -28,10 +28,6 @@ Class MemberPersonals {
 				$personals['gender'] = "";
 			}
 
-/* var_dump($personals['date_of_birth']); */
-
-unset($personals['date_of_birth']);
-
 			$members_personals[$member_id] = $personals;
 		}
 
@@ -39,7 +35,7 @@ unset($personals['date_of_birth']);
 	}
 
 	function get_src_members_personals($chunk_id) {
-		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT c.customerid as member_id, c.sex as gender, c.dob as date_of_birth FROM dump_customer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
+		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT c.customerid AS member_id, c.sex AS gender, CASE WHEN dob IS NOT NULL AND dob!='' THEN to_timestamp(dob, 'Mon DD YYYY HH:MI:SS:MSPM') ELSE NULL END AS date_of_birth FROM dump_customer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members_personals($src_member_ecpd_statuses_query);
 	}
@@ -51,11 +47,11 @@ unset($personals['date_of_birth']);
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO personals (member_id, gender) VALUES ('".pg_escape_string($data_add_item['member_id'])."', ".(!empty($data_add_item['gender']) ? "'".pg_escape_string($data_add_item['gender'])."'" : "NULL").");");
+		runq("INSERT INTO personals (member_id, gender, date_of_birth) VALUES ('".pg_escape_string($data_add_item['member_id'])."', ".(!empty($data_add_item['gender']) ? "'".pg_escape_string($data_add_item['gender'])."'" : "NULL").", ".(!empty($data_add_item['date_of_birth']) ? "'".pg_escape_string($data_add_item['date_of_birth'])."'" : "NULL").");");
 	}
 
 	function update_data($data_update_item) {
-		//needs to be coded
+		runq("UPDATE personals SET gender=".(!empty($data_update_item['gender']) ? "'".pg_escape_string($data_update_item['gender'])."'" : "NULL").", date_of_birth=".(!empty($data_update_item['date_of_birth']) ? "'".pg_escape_string($data_update_item['date_of_birth'])."'" : "NULL")." WHERE member_id='".pg_escape_string($data_update_item['member_id'])."';");
 	}
 
 	function delete_data($data_delete_item) {

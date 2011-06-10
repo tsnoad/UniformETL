@@ -2,7 +2,7 @@
 
 Class MemberIds {
 	function hook_models_required_transforms($data) {
-		return array("member_ids" => array());
+		return array("MemberIds" => array());
 	}
 	function hook_models_required_tables($data) {
 		return array("dump_customer");

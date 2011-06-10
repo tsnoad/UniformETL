@@ -5,19 +5,19 @@ class Conf {
 	public $model_path = "/home/uetl/transform/transform_models/";
 
 	public $do_transforms = array(
-		"member_ids",
-		"passwords",
-		"personals",
-		"names",
-		"emails",
-		"addresses",
-		"web_statuses",
-		"ecpd_statuses",
-		"confluence_statuses",
-		"invoices",
-		"receipts",
-		"grades",
-		"divisions"
+		"MemberIds",
+		"MemberPasswords",
+		"MemberPersonals",
+		"MemberNames",
+		"MemberEmails",
+		"MemberAddresses",
+		"MemberWebStatuses",
+		"MemberEcpdStatuses",
+		"MemberConfluenceStatuses",
+		"MemberInvoices",
+		"MemberReceipts",
+		"MemberGrades",
+		"MemberDivisions"
 	);
 
 	//database.php

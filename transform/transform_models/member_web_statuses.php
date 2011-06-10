@@ -2,7 +2,7 @@
 
 Class MemberWebStatuses {
 	function hook_models_required_transforms($data) {
-		return array("web_statuses" => array("member_ids"));
+		return array("MemberWebStatuses" => array("MemberIds"));
 	}
 
 	function get_src_data($src_member_ids_chunk) {

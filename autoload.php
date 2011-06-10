@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * Autoload Function
+ *
+ * Loads classes automatically, instead of us having to call include().
+ * Not used everywhere yet...
+ *
+ */
+
 function __autoload($class_name) {
 	switch ($class_name) {
 		case "Plugins":

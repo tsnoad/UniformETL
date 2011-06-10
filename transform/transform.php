@@ -165,7 +165,7 @@ Class Transform {
 		if (!empty($data_delete)) {
 			foreach ($data_delete as $data_delete_item) {
 				if (!empty($data_delete_item)) {
-if ($transform != "member_ids") {
+if ($transform != "MemberIds") {
 					$transform_class->delete_data($data_delete_item);
 }
 				}
@@ -217,13 +217,17 @@ if ($transform != "member_ids") {
 
 			unset($extracted_member_ids);
 
-			foreach (runq("SELECT * FROM extract_latest WHERE process_id<'".pg_escape_string($this->process_id)."' {$and_later_than};") as $previous_extract) {
-				$extracted_member_ids_tmp = explode(",", trim($previous_extract['member_ids'], "{}"));
+			$extracted_member_ids_query = runq("SELECT * FROM extract_latest WHERE process_id<'".pg_escape_string($this->process_id)."' {$and_later_than};");
 
-				$extracted_member_ids = array_merge((array)$extracted_member_ids, (array)$extracted_member_ids_tmp);
+			if (!empty($extracted_member_ids_query)) {
+				foreach ($extracted_member_ids_query as $previous_extract) {
+					$extracted_member_ids_tmp = explode(",", trim($previous_extract['member_ids'], "{}"));
+	
+					$extracted_member_ids = array_merge((array)$extracted_member_ids, (array)$extracted_member_ids_tmp);
+				}
 			}
 
-			if (!empty($deleted_members_query)) {
+			if (!empty($deleted_members_query) && !empty($extracted_member_ids)) {
 				foreach ($deleted_members_query as $deleted_member) {
 					if (in_array($deleted_member['member_id'], $extracted_member_ids)) {
 						print_r("Not deleting Member: ".$deleted_member['member_id']."\n");

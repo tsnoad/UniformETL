@@ -2,7 +2,7 @@
 
 Class MemberDivisions {
 	function hook_models_required_transforms($data) {
-		return array("divisions" => array("member_ids"));
+		return array("MemberDivisions" => array("MemberIds"));
 	}
 
 	function get_src_data($src_member_ids_chunk) {

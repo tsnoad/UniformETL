@@ -2,7 +2,7 @@
 
 Class MemberEcpdStatuses {
 	function hook_models_required_transforms($data) {
-		return array("ecpd_statuses" => array("member_ids"));
+		return array("MemberEcpdStatuses" => array("MemberIds"));
 	}
 
 	function get_src_data($src_member_ids_chunk) {

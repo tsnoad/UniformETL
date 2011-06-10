@@ -2,7 +2,7 @@
 
 Class MemberInvoices {
 	function hook_models_required_transforms($data) {
-		return array("invoices" => array("member_ids"));
+		return array("MemberInvoices" => array("MemberIds"));
 	}
 
 	function get_src_data($src_member_ids_chunk) {

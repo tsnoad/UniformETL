@@ -6,54 +6,38 @@ require_once("/etc/uniformetl/autoload.php");
 class Models {
 	public $conf;
 
-	public $required_transforms = array(
-/*
-		"addresses" => array("member_ids"),
-		"confluence_statuses" => array("member_ids", "names", "emails", "passwords", "web_statuses"),
-		"ecpd_statuses" => array("member_ids"),
-		"emails" => array("member_ids"),
-		"invoices" => array("member_ids"),
-		"member_ids" => array(),
-		"names" => array("member_ids"),
-		"passwords" => array("member_ids"),
-		"personals" => array("member_ids"),
-		"receipts" => array("member_ids"),
-		"web_statuses" => array("member_ids"),
-		"grades" => array("member_ids"),
-		"divisions" => array("member_ids")
-*/
-	);
+	public $required_transforms;
 
 	public $required_tables = array(
-		"addresses" => array("dump_address"),
-		"confluence_statuses" => array(),
-		"ecpd_statuses" => array("dump_groupmember"),
-		"emails" => array("dump_email"),
-		"invoices" => array("dump_invoice"),
-		"member_ids" => array("dump_customer"),
-		"names" => array("dump_name"),
-		"passwords" => array(),
-		"personals" => array("dump_customer"),
-		"receipts" => array("dump_receipt"),
-		"web_statuses" => array("dump_cpgcustomer"),
-		"grades" => array("dump_cpgcustomer"),
-		"divisions" => array("dump_cpgcustomer")
+		"MemberAddresses" => array("dump_address"),
+		"MemberConfluenceStatuses" => array(),
+		"MemberDivisions" => array("dump_cpgcustomer"),
+		"MemberEcpdStatuses" => array("dump_groupmember"),
+		"MemberEmails" => array("dump_email"),
+		"MemberGrades" => array("dump_cpgcustomer"),
+		"MemberInvoices" => array("dump_invoice"),
+		"MemberIds" => array("dump_customer"),
+		"MemberNames" => array("dump_name"),
+		"MemberPasswords" => array(),
+		"MemberPersonals" => array("dump_customer"),
+		"MemberReceipts" => array("dump_receipt"),
+		"MemberWebStatuses" => array("dump_cpgcustomer")
 	);
 	
 	public $transform_priority = array(
-		"addresses" => "secondary",
-		"confluence_statuses" => "tertiary",
-		"ecpd_statuses" => "secondary",
-		"emails" => "secondary",
-		"invoices" => "secondary",
-		"member_ids" => "primary",
-		"names" => "secondary",
-		"passwords" => "secondary",
-		"personals" => "secondary",
-		"receipts" => "secondary",
-		"web_statuses" => "secondary",
-		"grades" => "secondary",
-		"divisions" => "secondary"
+		"MemberAddresses" => "secondary",
+		"MemberConfluenceStatuses" => "tertiary",
+		"MemberDivisions" => "secondary",
+		"MemberEcpdStatuses" => "secondary",
+		"MemberEmails" => "secondary",
+		"MemberGrades" => "secondary",
+		"MemberInvoices" => "secondary",
+		"MemberIds" => "primary",
+		"MemberNames" => "secondary",
+		"MemberPasswords" => "secondary",
+		"MemberPersonals" => "secondary",
+		"MemberReceipts" => "secondary",
+		"MemberWebStatuses" => "secondary"
 	);
 	
 	public $dump_table_sources = array(
@@ -61,8 +45,8 @@ class Models {
 		"dump_cpgcustomer" => "cpgCustomer",
 		"dump_customer" => "Customer",
 		"dump_email" => "EMail",
-		"dump_invoice" => "Invoice",
 		"dump_groupmember" => "GroupMember",
+		"dump_invoice" => "Invoice",
 		"dump_name" => "Name",
 		"dump_receipt" => "Receipt"
 	);
@@ -73,29 +57,45 @@ class Models {
 	public $sources;
 
 	function start() {
+		$this->gather_transform_requirements();
+
 		$this->calculate_requirements();
 		$this->get_all_tables();
 		$this->get_all_source_tables();
 	}
 
-	function calculate_requirements() {
+	function gather_transform_requirements() {
+		//ask each transform what other transforms it depends upon
 		$required_transforms_query = Plugins::hook("models_required-transforms", array());
 		
+		//loop through the response from each transform
 		foreach ($required_transforms_query as $required_transforms_query_tmp) {
+			//each transform should return an array that looks like this:
+			//array("transform_name" => array("first_requrement", "second_requirement"))
+			//check to make sure that we haven't recieved "transform_name" before
 			if (in_array(reset(array_keys($required_transforms_query_tmp)), (array)$this->required_transforms)) {
 				die("OMG");
 			}
 
+			//squash all the responses together
 			$this->required_transforms = array_merge((array)$this->required_transforms, (array)$required_transforms_query_tmp);
 		}
+	}
 
+	function calculate_requirements() {
+		//loop through all the enabled transforms
 		foreach ($this->conf->do_transforms as $transform) {
+			//add it as a required transform
 			$this->add_requirement($transform);
 		
+			//add any other transforms that it requires
 			$this->get_subrequirements($transform);
 		}
 
+		//now we've got an array of transforms sorted by priority
+		//loop through each priority...
 		foreach ($this->requirements as $priority => $requirements_priorities) {
+			//and weed out any duplicates
 			$this->requirements[$priority] = array_unique($requirements_priorities);
 		}
 
@@ -103,27 +103,38 @@ class Models {
 	}
 
 	function add_requirement($transform) {
+		//what's the priority of this transform
 		$priority = $this->transform_priority[$transform];
 
+		//put it in the right sub-array
 		$this->requirements[$priority][] = $transform;
 	}
 
 	function get_subrequirements($transform) {
+		//loop though all the required child transforms for this parent
 		foreach ($this->required_transforms[$transform] as $required_transform) {
+			//what's the priority of the parent transform
 			$transform_priority = $this->transform_priority[$transform];
+			//what's the priority of the child transform
 			$subtransform_priority = $this->transform_priority[$required_transform];
 
+			//assign numbers to priority names: it'll make comparisons easier
 			$priorities = array("primary" => 3, "secondary" => 2, "tertiary" => 1);
 
+			//parent priority
 			$transform_priority = $priorities[$transform_priority];
+			//child priority
 			$subtransform_priority = $priorities[$subtransform_priority];
 
+			//child's priority can't be higher) than (or the same as parent's priority
 			if ($subtransform_priority <= $transform_priority) {
 				die("priorities are messed up");
 			}
 
+			//add the child as a required transform
 			$this->add_requirement($required_transform);
 
+			//as
 			if ($this->transform_priority[$required_transform] != "primary") {
 				$this->get_subrequirements($required_transform);
 			}
@@ -147,47 +158,9 @@ class Models {
 	}
 
 	function init_class($transform) {
-		switch ($transform) {
-			case "member_ids":
-				$transform_class = New MemberIds;
-				break;
-			case "personals":
-				$transform_class = New MemberPersonals;
-				break;
-			case "passwords":
-				$transform_class = New MemberPasswords;
-				break;
-			case "names":
-				$transform_class = New MemberNames;
-				break;
-			case "emails":
-				$transform_class = New MemberEmails;
-				break;
-			case "addresses":
-				$transform_class = New MemberAddresses;
-				break;
-			case "web_statuses":
-				$transform_class = New MemberWebStatuses;
-				break;
-			case "ecpd_statuses":
-				$transform_class = New MemberEcpdStatuses;
-				break;
-			case "confluence_statuses":
-				$transform_class = New MemberConfluenceStatuses;
-				break;
-			case "invoices":
-				$transform_class = New MemberInvoices;
-				break;
-			case "receipts":
-				$transform_class = New MemberReceipts;
-				break;
-			case "grades":
-				$transform_class = New MemberGrades;
-				break;
-			case "divisions":
-				$transform_class = New MemberDivisions;
-				break;
-		}
+		var_dump(class_exists($transform));
+
+		$transform_class = New $transform;
 
 		$transform_class->conf = $this->conf;
 

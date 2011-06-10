@@ -10,11 +10,8 @@ Objectives
 The objective is to create an ETL that is:
 
 1. Intelligent: smart enough to know when there's now data to process
-
 2. Modular
-
 3. Testable
-
 4. Expandable
 
 

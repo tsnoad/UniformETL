@@ -2,7 +2,7 @@
 
 Class MemberNames {
 	function hook_models_required_transforms($data) {
-		return array("names" => array("member_ids"));
+		return array("MemberNames" => array("MemberIds"));
 	}
 
 	function get_src_data($src_member_ids_chunk) {
