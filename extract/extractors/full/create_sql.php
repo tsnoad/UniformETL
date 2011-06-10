@@ -126,7 +126,9 @@ class Extractor {
 	}
 
 	function output_indexes() {
-		$dump_sql = "CREATE INDEX dump_cpgcustomer_cpgid ON dump_cpgcustomer (cpgid) WHERE (cpgid='IEA');\n";
+		$dump_sql = "CREATE INDEX dump_customer_customerid ON dump_customer (cast(customerid AS BIGINT));\n";
+
+		$dump_sql .= "CREATE INDEX dump_cpgcustomer_cpgid ON dump_cpgcustomer (cpgid) WHERE (cpgid='IEA');\n";
 		$dump_sql .= "CREATE INDEX dump_cpgcustomer_customerid ON dump_cpgcustomer (cast(customerid AS BIGINT)) WHERE (cpgid='IEA');\n";
 		$dump_sql .= "CREATE INDEX dump_cpgcustomer_custstatusid ON dump_cpgcustomer (custstatusid) WHERE (custstatusid='MEMB');\n";
 		
