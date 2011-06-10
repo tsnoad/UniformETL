@@ -18,11 +18,26 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/".strtolower($class_name).".php");
 			break;
 
+		case "ExtractFullLauncher":
+		    require_once("/etc/uniformetl/extract/extractors/full/extract_launcher.php");
+			break;
+		case "ExtractFullPlugins":
+		    require_once("/etc/uniformetl/extract/extractors/full/extract_full_plugins.php");
+			break;
+
+		case "ExtractLatestPlugins":
+		    require_once("/etc/uniformetl/extract/extractors/latest/extract_latest_plugins.php");
+			break;
+
 		case "SingleTransforms":
 		case "PluralTransforms":
 		case "Chunks":
 		case "GlobalTiming":
 		    require_once("/etc/uniformetl/transform/".strtolower($class_name).".php");
+			break;
+
+		case "Models":
+		    require_once("/etc/uniformetl/transform/transform_models.php");
 			break;
 
 		case "MemberIds":

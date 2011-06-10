@@ -18,14 +18,36 @@ Class Plugins {
 
 		array("models_required-tables", "MemberIds", "hook_models_required_tables"),
 		array("models_required-tables", "MemberAddresses", "hook_models_required_tables"),
+		array("models_required-tables", "MemberConfluenceStatuses", "hook_models_required_tables"),
+		array("models_required-tables", "MemberDivisions", "hook_models_required_tables"),
+		array("models_required-tables", "MemberEcpdStatuses", "hook_models_required_tables"),
+		array("models_required-tables", "MemberEmails", "hook_models_required_tables"),
+		array("models_required-tables", "MemberGrades", "hook_models_required_tables"),
+		array("models_required-tables", "MemberInvoices", "hook_models_required_tables"),
+		array("models_required-tables", "MemberNames", "hook_models_required_tables"),
+		array("models_required-tables", "MemberPasswords", "hook_models_required_tables"),
+		array("models_required-tables", "MemberPersonals", "hook_models_required_tables"),
+		array("models_required-tables", "MemberReceipts", "hook_models_required_tables"),
+		array("models_required-tables", "MemberWebStatuses", "hook_models_required_tables"),
 
 		array("models_transform-priority", "MemberIds", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberAddresses", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberConfluenceStatuses", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberDivisions", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberEcpdStatuses", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberEmails", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberGrades", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberInvoices", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberNames", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberPasswords", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberPersonals", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberReceipts", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberWebStatuses", "hook_models_transform_priority"),
 
-		array("models_dump-table-source", "MemberIds", "hook_models_dump_table_source"),
-		array("models_dump-table-source", "MemberAddresses", "hook_models_dump_table_source"),
+		array("transform_deleted-members-query", "ExtractFullPlugins", "hook_transform_deleted_members_query"),
+		array("transform_deleted-members-query", "ExtractLatestPlugins", "hook_transform_deleted_members_query"),
 
-		array("transform_deleted-members-query", "Transform", "hook_transform_deleted_members_query"),
+/* 		array("extract-daemon", "ExtractFullLauncher", "start"), */
 
 		array("api_get-users_singles", "MemberIds", "hook_api_get_member"),
 		array("api_get-users_singles", "MemberPersonals", "hook_api_get_member"),
@@ -45,7 +67,6 @@ Class Plugins {
 		foreach (self::$plugins as $plugin) {
 			if ($plugin[0] == $location) {
 /* 				var_dump(class_exists($plugin[1])); */
-
 /* 				var_dump(method_exists($plugin[1], $plugin[1])); */
 
 				$version = explode(".", phpversion());
@@ -53,12 +74,14 @@ Class Plugins {
 				if ($version[0] == "5" && $version[1] >= "3") {
 					$plugin_return[$plugin[1]] = call_user_func_array($plugin[1]."::".$plugin[2], array($data));
 
+				//PHP < 5.3 mode
 				} else {
-/* 					$model = New $plugin[1]; */
 					$plugin_return[$plugin[1]] = call_user_func_array(array($plugin[1], $plugin[2]), array($data));
 				}
 
-				if ($location == "transform_deleted-members-query") break;
+				if ($location == "transform_deleted-members-query") {
+					$data = $plugin_return[$plugin[1]];
+				}
 			}
 		}
 

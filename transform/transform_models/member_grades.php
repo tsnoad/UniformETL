@@ -2,7 +2,13 @@
 
 Class MemberGrades {
 	function hook_models_required_transforms($data) {
-		return array("MemberGrades" => array("MemberIds"));
+		return array("MemberIds");
+	}
+	function hook_models_required_tables($data) {
+		return array("dump_cpgcustomer");
+	}
+	function hook_models_transform_priority($data) {
+		return "secondary";
 	}
 
 	function get_src_data($src_member_ids_chunk) {

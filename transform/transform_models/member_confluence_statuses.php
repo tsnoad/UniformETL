@@ -5,7 +5,13 @@ Class MemberConfluenceStatuses {
 	public $base;
 
 	function hook_models_required_transforms($data) {
-		return array("MemberConfluenceStatuses" => array("MemberIds", "MemberNames", "MemberEmails", "MemberPasswords", "MemberWebStatuses"));
+		return array("MemberIds", "MemberNames", "MemberEmails", "MemberPasswords", "MemberWebStatuses");
+	}
+	function hook_models_required_tables($data) {
+		return array();
+	}
+	function hook_models_transform_priority($data) {
+		return "tertiary";
 	}
 
 	function connect_to_ldap() {

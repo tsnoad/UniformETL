@@ -2,16 +2,13 @@
 
 Class MemberAddresses {
 	function hook_models_required_transforms($data) {
-		return array("MemberAddresses" => array("MemberIds"));
+		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
 		return array("dump_address");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
-	}
-	function hook_models_dump_table_source($data) {
-		return array("dump_address" => "Address");
 	}
 
 	function get_src_data($src_member_ids_chunk) {

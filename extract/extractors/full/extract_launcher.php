@@ -15,7 +15,7 @@
 require_once("/etc/uniformetl/autoload.php");
 require_once("/etc/uniformetl/database.php");
 
-class Watcher {
+class ExtractFullLauncher {
 	function start() {
 		echo "Starting Launcher...\n";
 
@@ -188,8 +188,8 @@ class Watcher {
 	}
 }
 
-$watcher = New Watcher;
-$watcher->start();
+$launcher = New ExtractFullLauncher;
+$launcher->start();
 
 
 ?>

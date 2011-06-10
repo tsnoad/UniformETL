@@ -2,38 +2,42 @@
 
 class Chunks {
 	function create_chunks() {
-		echo "creating chunks:";
+		//helpful message
+		echo "Creating Chunks:"."\n";
 
-		$global_timer = microtime(true);
+		//start a timer
+		$timer = microtime(true);
 
-		$chunk_size = 10000;
+		//how many members are there?
+		$members_count_query = runq("select count(DISTINCT customerid::BIGINT) FROM dump_customer WHERE customerid::BIGINT IS NOT NULL;");
+		$members_count = $members_count_query[0]['count'];
 
-		$chunk_offset = 0;
-		$chunking_complete = false;
-		
-		while (!$chunking_complete) {
+		//helpful message
+		echo str_pad("", ceil($members_count / Conf::$chunk_size), ".")." ".ceil($members_count / Conf::$chunk_size)." Chunks to create"."\n";
+
+		//for as many chunks as we need
+		for ($chunk_offset = 0; $chunk_offset < $members_count; $chunk_offset += Conf::$chunk_size) {
+			//get the next available chunk id
 			$chunk_id_query = runq("SELECT nextval('chunks_chunk_id_seq');");
 			$chunk_id = $chunk_id_query[0]['nextval'];
-		
+
+			//keep a record of all the chunks we've created
 			$chunk_ids[] = $chunk_id;
-		
+
+			//create the chunk
 			runq("INSERT INTO chunks (chunk_id, process_id) VALUES ('".pg_escape_string($chunk_id)."', '".pg_escape_string($this->process_id)."');");
-		
-			runq("INSERT INTO chunk_member_ids SELECT DISTINCT '".pg_escape_string($chunk_id)."'::BIGINT AS chunk_id, customerid::BIGINT AS member_id FROM dump_cpgcustomer WHERE cpgid='IEA' ORDER BY customerid::BIGINT ASC LIMIT '".pg_escape_string($chunk_size)."' OFFSET '".pg_escape_string($chunk_offset)."';");
-		
-			$chunk_members_query = runq("SELECT count(*) FROM chunk_member_ids WHERE chunk_id='".pg_escape_string($chunk_id)."';");
-		
-			if ($chunk_members_query[0]['count'] < $chunk_size) {
-				$chunking_complete = true;
-			}
-		
-			$chunk_offset += $chunk_size;
-		
+
+			//add a chunk's worth of member ids to the chunk
+			runq("INSERT INTO chunk_member_ids SELECT DISTINCT '".pg_escape_string($chunk_id)."'::BIGINT AS chunk_id, customerid::BIGINT AS member_id FROM dump_customer ORDER BY customerid::BIGINT ASC LIMIT '".pg_escape_string(Conf::$chunk_size)."' OFFSET '".pg_escape_string($chunk_offset)."';");
+
+			//print a dot for each chunk we've created
 			echo ".";
 		}
 		
-		echo "\nchunks created. time elapsed ".round(microtime(true) - $global_timer)."s\n\n";
+		//helpful message
+		echo " ".count($chunk_ids)." Chunks created. time elapsed ".round(microtime(true) - $timer)."s\n\n";
 
+		//return the array with all the id s of the chunks we've just created
 		return $chunk_ids;
 	}
 }

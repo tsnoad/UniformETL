@@ -185,3 +185,7 @@ CREATE TABLE extract_latest (
 	process_id BIGINT REFERENCES processes ON UPDATE CASCADE ON DELETE CASCADE,
 	member_ids BIGINT ARRAY
 );
+CREATE TABLE transform_stats (
+	process_id BIGINT REFERENCES processes ON UPDATE CASCADE ON DELETE CASCADE,
+	stats TEXT
+);

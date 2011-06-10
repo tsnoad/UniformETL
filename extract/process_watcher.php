@@ -12,7 +12,7 @@
 
 //get config settings and database
 require_once("/etc/uniformetl/autoload.php");
-require_once("/etc/uniformetl/database.php");;
+require_once("/etc/uniformetl/database.php");
 
 //helpful log message
 echo "Starting Watcher...\n";

@@ -2,16 +2,13 @@
 
 Class MemberIds {
 	function hook_models_required_transforms($data) {
-		return array("MemberIds" => array());
+		return array();
 	}
 	function hook_models_required_tables($data) {
 		return array("dump_customer");
 	}
 	function hook_models_transform_priority($data) {
 		return "primary";
-	}
-	function hook_models_dump_table_source($data) {
-		return array("dump_customer" => "Customer");
 	}
 
 	function get_src_data($src_member_ids_chunk) {
@@ -59,9 +56,8 @@ Class MemberIds {
 
 	function transform($src_members, $dst_members) {
 		$members_add = array();
-		$members_update = array();
-		$members_delete = $dst_members;
-		$data_delete_count = 0;
+		$data_nochange = array();
+/* 		$members_update = array(); */
 
 		foreach ($src_members as $member_id => $src_member) {
 			$dst_member = $dst_members[$member_id];
@@ -69,17 +65,18 @@ Class MemberIds {
 			if (empty($dst_member)) {
 				$members_add[$member_id] = $member_id;
 			} else if ($dst_member != $src_member) {
-				$data_update[] = $src_data_member;
+/* 				$data_update[] = $src_data_member; */
 			} else {
-/* 				$members_update[$member_id] = $member_id; */
+				$data_nochange[] = $src_data_member;
 			}
-
-			unset($members_delete[$member_id]);
 		}
 
-		$data_delete_count = count($data_delete);
 
-		return array($members_add, $members_update, $members_delete, $data_delete_count);
+		$members_update = array();
+		$data_delete = array();
+		$data_delete_count = 0;
+
+		return array($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count);
 	}
 
 	function hook_api_get_member($data) {

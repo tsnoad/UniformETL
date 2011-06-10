@@ -2,7 +2,13 @@
 
 Class MemberEcpdStatuses {
 	function hook_models_required_transforms($data) {
-		return array("MemberEcpdStatuses" => array("MemberIds"));
+		return array("MemberIds");
+	}
+	function hook_models_required_tables($data) {
+		return array("dump_groupmember");
+	}
+	function hook_models_transform_priority($data) {
+		return "secondary";
 	}
 
 	function get_src_data($src_member_ids_chunk) {

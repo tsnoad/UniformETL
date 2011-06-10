@@ -1,42 +1,11 @@
 <?php
 
-require_once("/etc/uniformetl/plugins.php");
 require_once("/etc/uniformetl/autoload.php");
 
 class Models {
 	public $required_transforms;
-
-	public $required_tables = array(
-		"MemberAddresses" => array("dump_address"),
-		"MemberConfluenceStatuses" => array(),
-		"MemberDivisions" => array("dump_cpgcustomer"),
-		"MemberEcpdStatuses" => array("dump_groupmember"),
-		"MemberEmails" => array("dump_email"),
-		"MemberGrades" => array("dump_cpgcustomer"),
-		"MemberInvoices" => array("dump_invoice"),
-		"MemberIds" => array("dump_customer"),
-		"MemberNames" => array("dump_name"),
-		"MemberPasswords" => array(),
-		"MemberPersonals" => array("dump_customer"),
-		"MemberReceipts" => array("dump_receipt"),
-		"MemberWebStatuses" => array("dump_cpgcustomer")
-	);
-	
-	public $transform_priority = array(
-		"MemberAddresses" => "secondary",
-		"MemberConfluenceStatuses" => "tertiary",
-		"MemberDivisions" => "secondary",
-		"MemberEcpdStatuses" => "secondary",
-		"MemberEmails" => "secondary",
-		"MemberGrades" => "secondary",
-		"MemberInvoices" => "secondary",
-		"MemberIds" => "primary",
-		"MemberNames" => "secondary",
-		"MemberPasswords" => "secondary",
-		"MemberPersonals" => "secondary",
-		"MemberReceipts" => "secondary",
-		"MemberWebStatuses" => "secondary"
-	);
+	public $required_tables;
+	public $transform_priority;
 	
 	public $dump_table_sources = array(
 		"dump_address" => "Address",
@@ -55,29 +24,16 @@ class Models {
 	public $sources;
 
 	function start() {
-		$this->gather_transform_requirements();
+		//ask each transform what other transforms it depends upon
+		$this->required_transforms = Plugins::hook("models_required-transforms", array());
+
+		$this->required_tables = Plugins::hook("models_required-tables", array());
+
+		$this->transform_priority = Plugins::hook("models_transform-priority", array());
 
 		$this->calculate_requirements();
 		$this->get_all_tables();
 		$this->get_all_source_tables();
-	}
-
-	function gather_transform_requirements() {
-		//ask each transform what other transforms it depends upon
-		$required_transforms_query = Plugins::hook("models_required-transforms", array());
-		
-		//loop through the response from each transform
-		foreach ($required_transforms_query as $required_transforms_query_tmp) {
-			//each transform should return an array that looks like this:
-			//array("transform_name" => array("first_requrement", "second_requirement"))
-			//check to make sure that we haven't recieved "transform_name" before
-			if (in_array(reset(array_keys($required_transforms_query_tmp)), (array)$this->required_transforms)) {
-				die("OMG");
-			}
-
-			//squash all the responses together
-			$this->required_transforms = array_merge((array)$this->required_transforms, (array)$required_transforms_query_tmp);
-		}
 	}
 
 	function calculate_requirements() {

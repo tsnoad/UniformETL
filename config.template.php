@@ -32,6 +32,9 @@ class Conf {
 	public static $dumps_path = '/data01/datadump/*.tgz';
 	public static $dump_path_check_regex = "/^\/data01\/datadump\/FoxtrotTableDump[0-9]{8,8}\.tgz$/";
 
+	//chunks.php
+	public static $chunk_size = 10000;
+
 	public static $member_passwords_dbhost = "";
 	public static $member_passwords_dbname = "";
 	public static $member_passwords_dbuser = "";

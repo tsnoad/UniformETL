@@ -4,13 +4,13 @@
 require_once("/etc/uniformetl/database.php");
 require_once("/etc/uniformetl/autoload.php");
 
-require_once("/etc/uniformetl/transform/transform_models.php");
-
 class Recorder {
 	public $process_id;
 
 	function record_start() {
 		runq("INSERT INTO transform_processes (process_id, transform_pid) VALUES ('".pg_escape_string($this->process_id)."', '".pg_escape_string(getmypid())."');");
+
+		runq("INSERT INTO transform_stats (process_id) VALUES ('".pg_escape_string($this->process_id)."');");
 	}
 
 	function record_finish() {
@@ -28,12 +28,14 @@ Class Transform {
 	public $chunk_ids;
 	public $extract_process;
 
+	public $stats;
+
 	function init_transform() {
 		if (empty($this->process_id)) {
 			die("extract process id has not been supplied");
 		}
 
-		$extract_process_query = runq("SELECT * FROM extract_processes WHERE process_id='".pg_escape_string($this->process_id)."' LIMIT 1;");
+		$extract_process_query = runq("SELECT * FROM extract_processes e LEFT OUTER JOIN extract_full ef ON (ef.process_id=e.process_id) WHERE e.process_id='".pg_escape_string($this->process_id)."' LIMIT 1;");
 		$this->extract_process = $extract_process_query[0];
 
 		$this->recorder = New Recorder;
@@ -57,12 +59,16 @@ Class Transform {
 	function deleted_members() {
 		$deleted_members_query = runq("SELECT m.* FROM member_ids m LEFT OUTER JOIN dump_cpgcustomer c ON (m.member_id=c.customerid::BIGINT) WHERE c.customerid::BIGINT IS NULL;");
 
-		list($deleted_members_query) = Plugins::hook("transform_deleted-members-query", array($deleted_members_query));
+		list($deleted_members_query) = Plugins::hook("transform_deleted-members-query", array($deleted_members_query, $this->process_id, $this->extract_process));
 
 		if (!empty($deleted_members_query)) {
 			foreach ($deleted_members_query as $deleted_member) {
-				print_r("Deleted Member: ".$deleted_member['member_id']."\n");
+				print_r("Deleted Member (not enabled): ".$deleted_member['member_id']."\n");
 			}
+
+			print_r(count($deleted_members_query)." members deleted (not enabled)\n\n");
+		} else {
+			print_r("No members to delete\n\n");
 		}
 	}
 
@@ -141,13 +147,9 @@ Class Transform {
 		list($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count) = $transform_class->transform($src_data_by_members, $dst_data_by_members);
 
 		if (!empty($data_add)) {
-/* 			runq("BEGIN;"); */
-
 			foreach ($data_add as $data_add_item) {
 				$transform_class->add_data($data_add_item);
 			}
-
-/* 			runq("COMMIT;"); */
 		}
 
 		if (!empty($data_nochange)) {
@@ -162,14 +164,12 @@ Class Transform {
 		if (!empty($data_delete)) {
 			foreach ($data_delete as $data_delete_item) {
 				if (!empty($data_delete_item)) {
-if ($transform != "MemberIds") {
 					$transform_class->delete_data($data_delete_item);
-}
 				}
 			}
 		}
 
-		echo str_pad(ucwords($transform), 15, " ")."|";
+		echo str_pad(substr(ucwords($transform), 0, 15), 15, " ")."|";
 		echo str_pad(count($data_add), 7, " ", STR_PAD_LEFT)."|";
 		echo str_pad(count($data_nochange), 7, " ", STR_PAD_LEFT)."|";
 		echo str_pad(count($data_update), 7, " ", STR_PAD_LEFT)."|";
@@ -177,10 +177,19 @@ if ($transform != "MemberIds") {
 		echo str_pad($this->global_timing->transform_completed(), 8, " ", STR_PAD_LEFT);
 		echo "\n";
 
-		$total['add'][$transform] += count($data_add);
-		$total['nochange'][$transform] += count($data_nochange);
-		$total['update'][$transform] += count($data_update);
-		$total['delete'][$transform] += $data_delete_count;
+		$this->stats[$transform]['add'] += count($data_add);
+		$this->stats[$transform]['nochange'] += count($data_nochange);
+		$this->stats[$transform]['update'] += count($data_update);
+		$this->stats[$transform]['delete'] += $data_delete_count;
+		$this->stats[$transform]['total'] += count($data_add) + count($data_nochange) + count($data_update) + $data_delete_count;
+
+		$this->stats['total']['add'] += count($data_add);
+		$this->stats['total']['nochange'] += count($data_nochange);
+		$this->stats['total']['update'] += count($data_update);
+		$this->stats['total']['delete'] += $data_delete_count;
+		$this->stats['total']['total'] += count($data_add) + count($data_nochange) + count($data_update) + $data_delete_count;
+
+		runq("UPDATE transform_stats SET stats='".pg_escape_string(json_encode($this->stats))."' WHERE process_id='".pg_escape_string($this->process_id)."';");
 
 		$this->finish_model($chunk_id, $transform);
 	}
@@ -190,48 +199,6 @@ if ($transform != "MemberIds") {
 	}
 
 	function finish_model($chunk_id, $transform) {
-	}
-
-	function hook_transform_deleted_members_query($data) {
-		list($deleted_members_query) = $data;
-
-		print_r($this->extract_process);
-		var_dump($this->extract_process['extractor']);
-
-		var_dump($this->extract_process['member_ids']);
-
-		if ($this->extract_process['extractor'] == "latest") {
-
-		} else if ($this->extract_process['extractor'] == "full") {
-			$previous_transform_query = runq("SELECT max(t.process_id) FROM extract_processes e INNER JOIN transform_processes t ON (t.process_id=e.process_id) WHERE e.extractor='full' AND t.finished=TRUE AND t.failed=FALSE AND t.process_id!='".pg_escape_string($this->process_id)."';");
-			$previous_transform = $previous_transform_query[0]['max'];
-
-			if (!empty($previous_transform)) {
-				$and_later_than = "AND process_id>'".pg_escape_string($previous_transform)."'";
-			} else {
-				$and_later_than = "";
-			}
-
-			unset($extracted_member_ids);
-
-			$extracted_member_ids_query = runq("SELECT * FROM extract_latest WHERE process_id<'".pg_escape_string($this->process_id)."' {$and_later_than};");
-
-			if (!empty($extracted_member_ids_query)) {
-				foreach ($extracted_member_ids_query as $previous_extract) {
-					$extracted_member_ids_tmp = explode(",", trim($previous_extract['member_ids'], "{}"));
-	
-					$extracted_member_ids = array_merge((array)$extracted_member_ids, (array)$extracted_member_ids_tmp);
-				}
-			}
-
-			if (!empty($deleted_members_query) && !empty($extracted_member_ids)) {
-				foreach ($deleted_members_query as $deleted_member) {
-					if (in_array($deleted_member['member_id'], $extracted_member_ids)) {
-						print_r("Not deleting Member: ".$deleted_member['member_id']."\n");
-					}
-				}
-			}
-		}
 	}
 }
 
