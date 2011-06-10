@@ -1,7 +1,6 @@
 #!/usr/bin/php5
 <?php
 
-require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/database.php");
 require_once("/etc/uniformetl/autoload.php");
 
@@ -20,7 +19,6 @@ class Recorder {
 }
 
 Class Transform {
-	public $conf;
 	public $recorder;
 	public $models;
 	public $chunks;
@@ -42,7 +40,6 @@ Class Transform {
 		$this->recorder->process_id = $this->process_id;
 
 		$this->models = New Models;
-		$this->models->conf = $this->conf;
 		$this->models->start();
 
 		$this->chunks = New Chunks;
@@ -240,8 +237,6 @@ if ($transform != "MemberIds") {
 
 $transform = New Transform;
 $transform->process_id = $_SERVER['argv'][1];
-$conf = New Conf;
-$transform->conf = $conf;
 $transform->init_transform();
 
 ?>

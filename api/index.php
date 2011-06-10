@@ -1,6 +1,5 @@
 <?php
 
-require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/database.php");
 require_once("/etc/uniformetl/autoload.php");
 require_once("/etc/uniformetl/transform/transform_models.php");
@@ -37,7 +36,7 @@ Class API {
 		}
 
 		//make sure that the request has used a valid api key
-		if (empty($_REQUEST['api_key']) || $_REQUEST['api_key'] != $this->conf->api_key) {
+		if (empty($_REQUEST['api_key']) || $_REQUEST['api_key'] != Conf::$api_key) {
 			header("HTTP/1.1 401 Unauthorized");
 			die("HTTP/1.1 401 Unauthorized");
 		}
@@ -80,8 +79,6 @@ Class API {
 }
 
 $api = New API;
-$conf = New Conf;
-$api->conf = $conf;
 $api->init();
 
 ?>

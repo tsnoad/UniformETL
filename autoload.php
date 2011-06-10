@@ -10,6 +10,10 @@
 
 function __autoload($class_name) {
 	switch ($class_name) {
+		case "Conf":
+		    require_once("/etc/uniformetl/config.php");
+			break;
+
 		case "Plugins":
 		    require_once("/etc/uniformetl/".strtolower($class_name).".php");
 			break;

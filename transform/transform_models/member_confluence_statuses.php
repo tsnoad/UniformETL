@@ -13,10 +13,10 @@ Class MemberConfluenceStatuses {
 			return;
 		}
 
-		$ldaphost = $this->conf->member_confluence_statuses_ldaphost;
-		$ldapbasedn = $this->conf->member_confluence_statuses_ldapbasedn;
-		$ldapuser = $this->conf->member_confluence_statuses_ldapuser;
-		$ldappass = $this->conf->member_confluence_statuses_ldappass;
+		$ldaphost = Conf::$member_confluence_statuses_ldaphost;
+		$ldapbasedn = Conf::$member_confluence_statuses_ldapbasedn;
+		$ldapuser = Conf::$member_confluence_statuses_ldapuser;
+		$ldappass = Conf::$member_confluence_statuses_ldappass;
 
 		$this->base = $ldapbasedn;
 

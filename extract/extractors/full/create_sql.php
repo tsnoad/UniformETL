@@ -1,26 +1,22 @@
 #!/usr/bin/php5
 <?php
 
-require_once("/etc/uniformetl/config.php");
+require_once("/etc/uniformetl/autoload.php");
 require_once("/etc/uniformetl/transform/transform_models.php");
 
 class Extractor {
-	public $conf;
 	public $process_id;
 	public $columnsref;
 	public $sql_file;
 
 	function start() {
-		$this->conf = New Conf;
-
 		$this->foobar = New Models;
-		$this->foobar->conf = $this->conf;
 		$this->foobar->start();
 
 		$this->check_process_id();
 
 		//where are the dump files
-		$this->dump_path = $this->conf->software_path."extract/extract_processes/".$this->process_id;
+		$this->dump_path = Conf::$software_path."extract/extract_processes/".$this->process_id;
 
 		$this->check_dump_path();
 

@@ -1,12 +1,9 @@
 <?php
 
-require_once("/etc/uniformetl/config.php");
-$conf = New Conf();
+require_once("/etc/uniformetl/autoload.php");
 
 function runq($query) {
-	global $conf;
-
-	$conn = pg_connect("host=".$conf->dbhost." port=5432 dbname=".$conf->dbname." user=".$conf->dbuser." password=".$conf->dbpass."");
+	$conn = pg_connect("host=".Conf::$dbhost." port=5432 dbname=".Conf::$dbname." user=".Conf::$dbuser." password=".Conf::$dbpass."");
 	$result = pg_query($conn, $query);
 
 	if (stripos(trim($query), "insert") === 0) {

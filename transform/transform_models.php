@@ -4,8 +4,6 @@ require_once("/etc/uniformetl/plugins.php");
 require_once("/etc/uniformetl/autoload.php");
 
 class Models {
-	public $conf;
-
 	public $required_transforms;
 
 	public $required_tables = array(
@@ -84,7 +82,7 @@ class Models {
 
 	function calculate_requirements() {
 		//loop through all the enabled transforms
-		foreach ($this->conf->do_transforms as $transform) {
+		foreach (Conf::$do_transforms as $transform) {
 			//add it as a required transform
 			$this->add_requirement($transform);
 		
@@ -161,8 +159,6 @@ class Models {
 /* 		var_dump(class_exists($transform)); */
 
 		$transform_class = New $transform;
-
-		$transform_class->conf = $this->conf;
 
 		return $transform_class;
 	}

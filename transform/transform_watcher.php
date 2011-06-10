@@ -1,10 +1,8 @@
 #!/usr/bin/php5
 <?php
 
-require_once("/etc/uniformetl/config.php");
+require_once("/etc/uniformetl/autoload.php");
 require_once("/etc/uniformetl/database.php");
-
-$conf = New Conf;
 
 echo "########\n";
 echo "########\n";
@@ -63,7 +61,7 @@ foreach ($unfinisheds_query as $unfinished) {
 
 	} else {
 		echo "\t"."failed.\n";
-		shell_exec($conf->software_path."transform/process_recorder.php failed ".escapeshellarg($unfinished['process_id']));
+		shell_exec(Conf::$software_path."transform/process_recorder.php failed ".escapeshellarg($unfinished['process_id']));
 		continue;
 	}
 }

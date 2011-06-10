@@ -12,16 +12,12 @@
  *
  */
 
-require_once("/etc/uniformetl/config.php");
+require_once("/etc/uniformetl/autoload.php");
 require_once("/etc/uniformetl/database.php");
 
 class Watcher {
-	public $conf;
-
 	function start() {
 		echo "Starting Launcher...\n";
-
-		$this->conf = New Conf;
 
 		$this->check_already_extracting();
 		$this->check_already_transforming();
@@ -60,9 +56,9 @@ class Watcher {
 	function list_remote_dumps() {
 		echo "\tSearching for files...\t";
 
-		$remote_command = 'date +%s; for file in '.escapeshellarg($this->conf->dumps_path).' ; do echo $file; stat --format=%Y $file; md5sum $file | cut -d " " -f 1; done';
+		$remote_command = 'date +%s; for file in '.escapeshellarg(Conf::$dumps_path).' ; do echo $file; stat --format=%Y $file; md5sum $file | cut -d " " -f 1; done';
 
-		$dump_query = shell_exec("ssh -i ".escapeshellarg($this->conf->identity)." ".escapeshellarg($this->conf->server)." '".$remote_command."'");
+		$dump_query = shell_exec("ssh -i ".escapeshellarg(Conf::$identity)." ".escapeshellarg(Conf::$server)." '".$remote_command."'");
 
 		$query_result = trim($dump_query);
 		
@@ -98,7 +94,7 @@ class Watcher {
 		foreach ($this->dump_query_rows as $row_count => $dump_query_row) {
 			//1st row
 			if ($row_count % 3 === 0) {
-				if (preg_match($this->conf->dump_path_check_regex, $dump_query_row) !== 1) {
+				if (preg_match(Conf::$dump_path_check_regex, $dump_query_row) !== 1) {
 					die("Y U NO filepath");
 				}
 		
@@ -186,7 +182,7 @@ class Watcher {
 	
 		runq("INSERT INTO processes (process_id) VALUES ('".pg_escape_string($process_id)."');");
 
-		shell_exec($this->conf->software_path."extract/extractors/full/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".$this->conf->software_path."logs/extractlog 2>".$this->conf->software_path."logs/extractlog & echo $!");
+		shell_exec(Conf::$software_path."extract/extractors/full/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog 2>".Conf::$software_path."logs/extractlog & echo $!");
 
 		die("dump started");
 	}

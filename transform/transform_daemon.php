@@ -9,9 +9,7 @@
  *
  */
 
-//get config settings
-require_once("/etc/uniformetl/config.php");
-$conf = New Conf;
+require_once("/etc/uniformetl/autoload.php");
 
 //helpful log message
 echo "\n";
@@ -31,10 +29,10 @@ if (trim(shell_exec("ps h -C transform_daemon.php o pid | wc -l")) > 1) {
 echo "OK\n";
 
 //start the watcher to clean up any old transform processes
-shell_exec($conf->software_path."transform/transform_watcher.php >> ".$conf->software_path."logs/transformdaemonlog");
+shell_exec(Conf::$software_path."transform/transform_watcher.php >> ".Conf::$software_path."logs/transformdaemonlog");
 
 //start the launcher to check if there's any completed extract processes that we can start transforming
-shell_exec($conf->software_path."transform/transform_launcher.php >> ".$conf->software_path."logs/transformdaemonlog");
+shell_exec(Conf::$software_path."transform/transform_launcher.php >> ".Conf::$software_path."logs/transformdaemonlog");
 
 //helpful log message
 echo str_pad(" Transform Daemon Complete ", 80, "-", STR_PAD_BOTH)."\n";

@@ -31,7 +31,7 @@ Class MemberPasswords {
 	}
 
 	function gandalf_runq($query) {
-		$conn = pg_connect("host=".$this->conf->member_passwords_dbhost." dbname=".$this->conf->member_passwords_dbname." user=".$this->conf->member_passwords_dbuser." password=".$this->conf->member_passwords_dbpass."");
+		$conn = pg_connect("host=".Conf::$member_passwords_dbhost." dbname=".Conf::$member_passwords_dbname." user=".Conf::$member_passwords_dbuser." password=".Conf::$member_passwords_dbpass."");
 		$result = pg_query($conn, $query);
 		$return = pg_fetch_all($result);
 		pg_close($conn);

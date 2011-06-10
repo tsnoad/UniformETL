@@ -88,7 +88,6 @@ Class APIModelUser {
 
 		//get the transform models class, so we can access the models
 		$models = New Models;
-		$models->conf = $this->conf;
 
 		//if we have to update the member's password
 		if (isset($_POST['password'])) {
