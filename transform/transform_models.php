@@ -158,7 +158,7 @@ class Models {
 	}
 
 	function init_class($transform) {
-		var_dump(class_exists($transform));
+/* 		var_dump(class_exists($transform)); */
 
 		$transform_class = New $transform;
 
