@@ -55,15 +55,15 @@ Class MemberIds {
 	}
 
 	function transform($src_members, $dst_members) {
-		$members_add = array();
+		$data_add = array();
 		$data_nochange = array();
-/* 		$members_update = array(); */
+/* 		$data_update = array(); */
 
 		foreach ($src_members as $member_id => $src_member) {
 			$dst_member = $dst_members[$member_id];
 
 			if (empty($dst_member)) {
-				$members_add[$member_id] = $member_id;
+				$data_add[$member_id] = $member_id;
 			} else if ($dst_member != $src_member) {
 /* 				$data_update[] = $src_data_member; */
 			} else {
@@ -72,7 +72,7 @@ Class MemberIds {
 		}
 
 
-		$members_update = array();
+		$data_update = array();
 		$data_delete = array();
 		$data_delete_count = 0;
 
