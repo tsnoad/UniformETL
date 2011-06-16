@@ -42,7 +42,7 @@ Class MemberAddresses {
 	}
 
 	function get_src_members_addresses($chunk_id) {
-		$src_member_addresses_query = runq("SELECT DISTINCT a.customerid as member_id, a.addrtypeid as type, a.line1 as address, a.suburb as suburb, a.state as state, a.postcode as postcode, a.countryid as country FROM dump_address a INNER JOIN chunk_member_ids ch ON (ch.member_id=a.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND a.valid='1';");
+		$src_member_addresses_query = runq("SELECT DISTINCT a.customerid as member_id, a.addrtypeid as type, trim(a.line1)||CASE WHEN length(trim(a.line2))>0 THEN E'\n'||trim(a.line2) ELSE '' END||CASE WHEN length(trim(a.line3))>0 THEN E'\n'||trim(a.line3) ELSE '' END as address, a.suburb as suburb, a.state as state, a.postcode as postcode, a.countryid as country FROM dump_address a INNER JOIN chunk_member_ids ch ON (ch.member_id=a.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND a.valid='1';");
 
 		return $this->get_members_addresses($src_member_addresses_query);
 	}
