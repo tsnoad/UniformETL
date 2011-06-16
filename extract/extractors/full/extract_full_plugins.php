@@ -8,7 +8,15 @@ Class ExtractFullPlugins {
 			return $data;
 		}
 
+		if (empty($deleted_members_query)) {
+			return $data;
+		}
+
 		$latest_members_query = runq("SELECT * FROM extract_processes e INNER JOIN extract_latest el ON (el.process_id=e.process_id) WHERE e.finished=TRUE AND e.finish_date>'".date("Y-m-d H:i:s", strtotime("-24hours", strtotime($extract_process['source_timestamp'])))."';");
+
+		if (empty($latest_members_query)) {
+			return $data;
+		}
 
 		$latest_members = array();
 

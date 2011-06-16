@@ -8,8 +8,11 @@ Class ExtractLatestPlugins {
 			return $data;
 		}
 
+		if (empty($deleted_members_query)) {
+			return $data;
+		}
+
 		$deleted_members_query = array();
-var_dump("ohai");
 
 		return array($deleted_members_query, $transform_process_id, $extract_process);
 	}
