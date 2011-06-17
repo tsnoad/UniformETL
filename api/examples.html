@@ -49,6 +49,7 @@
 			}
 			.dotbreak {
 				margin: 20px 0px 40px 0px;
+				padding-left: 12px;
 				color: #eeeeec; font-size: 64px; letter-spacing: 12px; text-align: center;
 				line-height: 20px;
 			}
@@ -68,8 +69,8 @@
 				width: 600px;
 			}
 			pre {
-				margin: -1px 0px;
-				padding: 0px 5px;
+				margin: 20px 0px;
+				padding: 9px 5px;
 				border: 1px solid #d3d7cf;
 				background-color: #eeeeec;
 			}
@@ -83,72 +84,95 @@
 				border: 0px;
 				background-color: transparent;
 			}
+			.prelabel {
+				margin: 0px 0px -20px 0px;
+			}
+			.form {
+				width: 300px;
+				margin: 20px auto;
+				padding: 9px 20px;
+				border: 1px solid #d3d7cf;
+				text-align: center;
+			}
+			form {
+				margin: 0px;
+			}
+			label {
+				width: 100px;
+				float: left;
+				text-align: right;
+			}
+			input[type=text], input[type=password] {
+/* 				width: 200px; */
+			}
+			input[type=submit] {
+				margin: 20px 0px 0px 0px;
+			}
+			ul ul li {
+				list-style-type: disc;
+			}
 		</style>
 	</head>
 	<body>
-<div class="container">
-<ul class="menu">
+		<div class="container">
+			<ul class="menu">
 <!--
-	<li><a href="#">Background</a></li>
-	<li><a href="#">Member Info</a></li>
-	<li><a href="#">Update Password</a></li>
-	<li><a href="#">Login</a></li>
+				<li>
+					<p style="color: rgba(0, 0, 0, 0.25);">Etiam processus dynamicus qui sequitur mutationem consuetudium, lectorum mirum est notare quam littera. Vulputate velit esse molestie consequat vel illum dolore eu feugiat nulla? Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore. Sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam. Per seacula quarta decima et quinta decima eodem modo. Demonstraverunt lectores legere me lius quod ii legunt saepius claritas est. Est notare quam littera gothica quam nunc putamus parum claram anteposuerit. Nisl ut aliquip, ex ea commodo consequat duis autem vel eum iriure. Me lius quod ii legunt saepius claritas est etiam processus? Facilisi nam liber tempor cum soluta nobis eleifend, option congue nihil. Duis dolore te feugait, nulla imperdiet doming id quod mazim. Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue placerat. Claritatem insitam est usus legentis in iis qui facit eorum? Sequitur mutationem consuetudium lectorum mirum litterarum formas humanitatis per seacula quarta decima et quinta decima eodem?</p>
+				</li>
 -->
-<!--
-	<li>
-		<p style="color: rgba(0, 0, 0, 0.25);">Etiam processus dynamicus qui sequitur mutationem consuetudium, lectorum mirum est notare quam littera. Vulputate velit esse molestie consequat vel illum dolore eu feugiat nulla? Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore. Sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam. Per seacula quarta decima et quinta decima eodem modo. Demonstraverunt lectores legere me lius quod ii legunt saepius claritas est. Est notare quam littera gothica quam nunc putamus parum claram anteposuerit. Nisl ut aliquip, ex ea commodo consequat duis autem vel eum iriure. Me lius quod ii legunt saepius claritas est etiam processus? Facilisi nam liber tempor cum soluta nobis eleifend, option congue nihil. Duis dolore te feugait, nulla imperdiet doming id quod mazim. Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue placerat. Claritatem insitam est usus legentis in iis qui facit eorum? Sequitur mutationem consuetudium lectorum mirum litterarum formas humanitatis per seacula quarta decima et quinta decima eodem?</p>
-		<p style="color: rgba(0, 0, 0, 0.25);">Etiam processus dynamicus qui sequitur mutationem consuetudium, lectorum mirum est notare quam littera. Vulputate velit esse molestie consequat vel illum dolore eu feugiat nulla? Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore. Sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam. Per seacula quarta decima et quinta decima eodem modo. Demonstraverunt lectores legere me lius quod ii legunt saepius claritas est. Est notare quam littera gothica quam nunc putamus parum claram anteposuerit. Nisl ut aliquip, ex ea commodo consequat duis autem vel eum iriure. Me lius quod ii legunt saepius claritas est etiam processus? Facilisi nam liber tempor cum soluta nobis eleifend, option congue nihil. Duis dolore te feugait, nulla imperdiet doming id quod mazim. Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue placerat. Claritatem insitam est usus legentis in iis qui facit eorum? Sequitur mutationem consuetudium lectorum mirum litterarum formas humanitatis per seacula quarta decima et quinta decima eodem?</p>
-		<p style="color: rgba(0, 0, 0, 0.25);">Etiam processus dynamicus qui sequitur mutationem consuetudium, lectorum mirum est notare quam littera. Vulputate velit esse molestie consequat vel illum dolore eu feugiat nulla? Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore. Sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam. Per seacula quarta decima et quinta decima eodem modo. Demonstraverunt lectores legere me lius quod ii legunt saepius claritas est. Est notare quam littera gothica quam nunc putamus parum claram anteposuerit. Nisl ut aliquip, ex ea commodo consequat duis autem vel eum iriure. Me lius quod ii legunt saepius claritas est etiam processus? Facilisi nam liber tempor cum soluta nobis eleifend, option congue nihil. Duis dolore te feugait, nulla imperdiet doming id quod mazim. Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue placerat. Claritatem insitam est usus legentis in iis qui facit eorum? Sequitur mutationem consuetudium lectorum mirum litterarum formas humanitatis per seacula quarta decima et quinta decima eodem?</p>
-	</li>
--->
-</ul>
-<div class="content">
-		<h1>API Demo</h1>
-
-		<h2>Background</h2>
-
-		<h3>API Key</h3>
-		<p>All requests must be accompanied by the API key. This key lets the server know that we're an authorised client.</p>
-
-		<h3>HTTPS</h3>
-		<p>Requests to the API must be made via HTTPS, so that the API key remains secret.</p>
-
-		<h3>Request Methods</h3>
-		<p>Different types of requests use different HTTP Request Methods: for example, to request data the GET method is required, or to create a new record the PUT method is required, or to update a new record the POST method is required</p>
-
-		<h3>Response Codes</h3>
-		<p>Depending on success or failure the server will use an appropriate HTTP Response Code: for example when 404 Not Found when a member cannot be found, 401 Unauthorised when a login attempt fails, and 200 OK when a request is successful.</p>
-
-		<h3>Response Data</h3>
-		When data is requested it will be returned in a JSON string. In all other situations the server returns a short text message explaining the HTTP Response Code that has been returned.
-
-		<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
-
-
-
-<!--
-		<h2>All Members</h2>
-
-		<form name="" action="/users" method="GET">
-			<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
-			<input type="submit" />
-		</form>
-
-		<hr />
--->
-
-		<h2>Member Info</h2>
-
-		<p>Get all available information of a single member. Returns a JSON string with member's information.</p>
-
-		<h3>Request</h3>
-		<p>Request URI: <code class="get_url">{api_url}/users/{member_id}</code></p>
-		<p>Request Method: <code>GET</code></p>
-
-		<h3>Response</h3>
-		<p>Status Code: <code>200</code></p>
-		<p>Response Body:</p>
-		<pre><code>{
+			</ul>
+			<div class="content">
+				<h1>API Demo</h1>
+		
+				<h2>Background</h2>
+		
+				<h3>API Key</h3>
+				<p>All requests must be accompanied by the API key. This key lets the server know that we're an authorised client.</p>
+		
+				<h3>HTTPS</h3>
+				<p>Requests to the API must be made via HTTPS, so that the API key remains secret.</p>
+		
+				<h3>Request Methods</h3>
+				<p>Different types of requests use different HTTP Request Methods: for example, to request data the GET method is required, or to create a new record the PUT method is required, or to update a new record the POST method is required</p>
+		
+				<h3>Response Codes</h3>
+				<p>Depending on success or failure the server will use an appropriate HTTP Response Code: for example when 404 Not Found when a member cannot be found, 401 Unauthorised when a login attempt fails, and 200 OK when a request is successful.</p>
+		
+				<h3>Response Data</h3>
+				When data is requested it will be returned in a JSON string. In all other situations the server returns a short text message explaining the HTTP Response Code that has been returned.
+		
+				<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
+		
+		
+		
+		<!--
+				<h2>All Members</h2>
+		
+				<form name="" action="/users" method="GET">
+					<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
+					<input type="submit" />
+				</form>
+		
+				<hr />
+		-->
+		
+				<h2>Member Info</h2>
+		
+				<p>Get all available information of a single member. Returns a JSON string with member's information.</p>
+		
+				<h3>Request</h3>
+				<ul>
+					<li>Request URI: <code class="get_url">{api_url}/users/{member_id}</code></li>
+					<li>Request Method: <code>GET</code></li>
+				</ul>
+		
+				<h3>Response</h3>
+				<ul>
+					<li>Status Code: <code>200</code></li>
+				</ul>
+				<p class="prelabel">Response Body:</p>
+				<pre><code>{
   "member_id":"3359780",
   "gender":"M",
   "date_of_birth":null,
@@ -183,93 +207,97 @@
 }
 </code></pre>
 
-		<h3>Examples</h3>
-		<pre><code class="get_url">curl -k {api_url}/users/{member_id} \
+				<h3>Examples</h3>
+				<pre><code class="get_url">curl {api_url}/users/{member_id} \
   --get --data "api_key=3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2"</code></pre>
 
-		<hr />
-
-		<div class="">
-			<label for="member_id">Member ID</label><input class="member_id" type="text" /><br />
-	
-			<form name="details" action="{api_url}/users/{member_id}" method="GET">
-				<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
-				<input type="submit" />
-			</form>
-		</div>
-
-		<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
-
-		<h2>Update Password</h2>
-
-		<p>Update the password of a single member. returns Response Code 200 OK on success.</p>
-
-		<h3>Request</h3>
-		<p>Request URI: <code class="get_url">{api_url}/users/{member_id}</code></p>
-		<p>Request Method: <code>POST</code></p>
-		<p>Request Data:</p>
-		<pre><code>password: newpassword</code></pre>
-
-		<h3>Response</h3>
-		<p>Status Code: <code>200</code></p>
-		<p>Response Body: *</p>
-		<pre><code>HTTP/1.1 200 OK</code></pre>
-		<p>*</p>
-
-		<h3>Examples</h3>
-		<pre><code class="get_url">curl -k {api_url}/users/{member_id} \
+				<hr />
+		
+				<div class="form">
+					<label for="member_id">Member ID</label><input class="member_id" type="text" /><br />
+			
+					<form name="details" action="{api_url}/users/{member_id}" method="GET">
+						<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
+						<input type="submit" />
+					</form>
+				</div>
+		
+				<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
+		
+				<h2>Update Password</h2>
+		
+				<p>Update the password of a single member. returns Response Code 200 OK on success.</p>
+		
+				<h3>Request</h3>
+				<ul>
+					<li>Request URI: <code class="get_url">{api_url}/users/{member_id}</code></li>
+					<li>Request Method: <code>POST</code></li>
+					<li>Request Data:<ul><li>password: <code>newpassword</code></li></ul></li>
+				</ul>
+		
+				<h3>Response</h3>
+				<ul>
+					<li>Status Code: <code>200</code></li>
+				</ul>
+				<p class="prelabel">Response Body:</p>
+				<pre><code>HTTP/1.1 200 OK</code></pre>
+		
+				<h3>Examples</h3>
+				<pre><code class="get_url">curl {api_url}/users/{member_id} \
   --data "api_key=3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" \
   --data "password=newpassword"</code></pre>
-		<div class="">
-			<label for="member_id">Member ID</label><input class="member_id" type="text" /><br />
-	
-			<form name="update" action="{api_url}/users/{member_id}" method="POST">
-				<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
-	
-				<label for="password">Password</label><input name="password" type="password" /><br />
-				<input type="submit" />
-			</form>
-		</div>
-
-		<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
-
-		<h2>Login</h2>
-
-		<p>Verify a member's password. returns Response Code 200 OK on success.</p>
-
-		<h3>Request</h3>
-		<p>Request URI: <code class="get_url">{api_url}/users/{member_id}/login</code></p>
-		<p>Request Method: <code>POST</code></p>
-		<p>Request Data:</p>
-		<pre><code>password: somepassword</code></pre>
-
-		<h3>Response</h3>
-		<p>Status Code: <code>200</code></p>
-		<p>Response Body: *</p>
-		<pre><code>HTTP/1.1 200 OK</code></pre>
-		<p>*</p>
-
-		<h3>Examples</h3>
-		<pre><code class="get_url">curl -k {api_url}/users/{member_id}/login \
+				<div class="form">
+					<label for="member_id">Member ID</label><input class="member_id" type="text" /><br />
+			
+					<form name="update" action="{api_url}/users/{member_id}" method="POST">
+						<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
+			
+						<label for="password">Password</label><input name="password" type="password" /><br />
+						<input type="submit" />
+					</form>
+				</div>
+		
+				<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
+		
+				<h2>Login</h2>
+		
+				<p>Verify a member's password. returns Response Code 200 OK on success.</p>
+		
+				<h3>Request</h3>
+				<ul>
+					<li>Request URI: <code class="get_url">{api_url}/users/{member_id}/login</code></li>
+					<li>Request Method: <code>POST</code></li>
+					<li>Request Data:<ul><li>password: <code>somepassword</code></li></ul></li>
+				</ul>
+		
+				<h3>Response</h3>
+				<ul>
+					<li>Status Code: <code>200</code></li>
+				</ul>
+				<p class="prelabel">Response Body:</p>
+				<pre><code>HTTP/1.1 200 OK</code></pre>
+		
+				<h3>Examples</h3>
+				<pre><code class="get_url">curl {api_url}/users/{member_id}/login \
   --data "api_key=3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" \
   --data "password=somepassword"</code></pre>
 
-		<hr />
-
-		<div class="">
-			<label for="member_id">Member ID</label><input class="member_id" type="text" /><br />
-	
-			<form name="login" action="{api_url}/users/{member_id}/login" method="POST">
-				<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
-	
-				<label for="password">Password</label><input name="password" type="password" /><br />
-	
-				<input type="submit" />
-			</form>
+				<hr />
+		
+				<div class="form">
+					<label for="member_id">Member ID</label><input class="member_id" type="text" /><br />
+			
+					<form name="login" action="{api_url}/users/{member_id}/login" method="POST">
+						<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
+			
+						<label for="password">Password</label><input name="password" type="password" /><br />
+			
+						<input type="submit" />
+					</form>
+				</div>
+		
+				<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
+			</div>
 		</div>
-
-		<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
-</div>
-</div>
 	</body>
 </html>
