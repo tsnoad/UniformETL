@@ -25,6 +25,9 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/extract/extractors/full/extract_full_plugins.php");
 			break;
 
+		case "ExtractLatest":
+		    require_once("/etc/uniformetl/extract/extractors/latest/extract_launcher.php");
+			break;
 		case "ExtractLatestPlugins":
 		    require_once("/etc/uniformetl/extract/extractors/latest/extract_latest_plugins.php");
 			break;
