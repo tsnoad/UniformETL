@@ -3,16 +3,30 @@
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
 		<script type="text/javascript">
 			$(function() {
-				$("form[name=details]").submit(function () {
-					$(this).attr("action", "/users/"+$("#details_member_id").val());
+				$(".get_url").html(function () {
+					var api_url = window.location.href.substring(0, window.location.href.indexOf("/examples.html"));
+
+					return $(this).html().replace("{api_url}", api_url);
 				});
 
-				$("form[name=update]").submit(function () {
-					$(this).attr("action", "/users/"+$("#update_member_id").val());
+				$("form").submit(function () {
+					var api_url = window.location.href.substring(0, window.location.href.indexOf("/examples.html"));
+
+					var member_id = $(this).siblings("input.member_id").val();
+
+					var new_action = $(this).attr("action").replace("{api_url}", api_url).replace("{member_id}", member_id);
+
+					$(this).attr("action", new_action);
 				});
 
-				$("form[name=login]").submit(function () {
-					$(this).attr("action", "/users/"+$("#login_member_id").val()+"/login");
+				$("h2").html(function () {
+					var heading_id = $(this).html().toLowerCase().replace(" ", "_");
+
+					$(this).attr("id", heading_id);
+
+					$(".menu").append("<li><a href='#"+heading_id+"'>"+$(this).html()+"</a></li>");
+
+					return $(this).html();
 				});
 			});
 		</script>
@@ -26,7 +40,6 @@
 				padding: 19px 0px 0px 0px;
 				border-bottom: 1px solid #eeeeec;
 				line-height: 40px;
-				vertical-align: 100%;
 			}
 			p {
 				margin: 0px;
@@ -48,7 +61,7 @@
 				float: right;
 				margin: 40px 0px 0px 20px;
 				border-left: 1px solid #d3d7cf;
-				padding: 20px 0px 20px 10px;
+				padding: 0px 0px 0px 10px;
 				list-style-type: none;
 			}
 			.content {
@@ -75,17 +88,19 @@
 	<body>
 <div class="container">
 <ul class="menu">
+<!--
 	<li><a href="#">Background</a></li>
 	<li><a href="#">Member Info</a></li>
 	<li><a href="#">Update Password</a></li>
 	<li><a href="#">Login</a></li>
-	<li>
-<!--
-		<p style="color: rgba(0, 0, 0, 0.25);">Etiam processus dynamicus qui sequitur mutationem consuetudium, lectorum mirum est notare quam littera. Vulputate velit esse molestie consequat vel illum dolore eu feugiat nulla? Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore. Sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam. Per seacula quarta decima et quinta decima eodem modo. Demonstraverunt lectores legere me lius quod ii legunt saepius claritas est. Est notare quam littera gothica quam nunc putamus parum claram anteposuerit. Nisl ut aliquip, ex ea commodo consequat duis autem vel eum iriure. Me lius quod ii legunt saepius claritas est etiam processus? Facilisi nam liber tempor cum soluta nobis eleifend, option congue nihil. Duis dolore te feugait, nulla imperdiet doming id quod mazim. Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue placerat. Claritatem insitam est usus legentis in iis qui facit eorum? Sequitur mutationem consuetudium lectorum mirum litterarum formas humanitatis per seacula quarta decima et quinta decima eodem?</p>
-		<p style="color: rgba(0, 0, 0, 0.25);">Etiam processus dynamicus qui sequitur mutationem consuetudium, lectorum mirum est notare quam littera. Vulputate velit esse molestie consequat vel illum dolore eu feugiat nulla? Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore. Sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam. Per seacula quarta decima et quinta decima eodem modo. Demonstraverunt lectores legere me lius quod ii legunt saepius claritas est. Est notare quam littera gothica quam nunc putamus parum claram anteposuerit. Nisl ut aliquip, ex ea commodo consequat duis autem vel eum iriure. Me lius quod ii legunt saepius claritas est etiam processus? Facilisi nam liber tempor cum soluta nobis eleifend, option congue nihil. Duis dolore te feugait, nulla imperdiet doming id quod mazim. Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue placerat. Claritatem insitam est usus legentis in iis qui facit eorum? Sequitur mutationem consuetudium lectorum mirum litterarum formas humanitatis per seacula quarta decima et quinta decima eodem?</p>
-		<p style="color: rgba(0, 0, 0, 0.25);">Etiam processus dynamicus qui sequitur mutationem consuetudium, lectorum mirum est notare quam littera. Vulputate velit esse molestie consequat vel illum dolore eu feugiat nulla? Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore. Sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam. Per seacula quarta decima et quinta decima eodem modo. Demonstraverunt lectores legere me lius quod ii legunt saepius claritas est. Est notare quam littera gothica quam nunc putamus parum claram anteposuerit. Nisl ut aliquip, ex ea commodo consequat duis autem vel eum iriure. Me lius quod ii legunt saepius claritas est etiam processus? Facilisi nam liber tempor cum soluta nobis eleifend, option congue nihil. Duis dolore te feugait, nulla imperdiet doming id quod mazim. Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue placerat. Claritatem insitam est usus legentis in iis qui facit eorum? Sequitur mutationem consuetudium lectorum mirum litterarum formas humanitatis per seacula quarta decima et quinta decima eodem?</p>
 -->
+<!--
+	<li>
+		<p style="color: rgba(0, 0, 0, 0.25);">Etiam processus dynamicus qui sequitur mutationem consuetudium, lectorum mirum est notare quam littera. Vulputate velit esse molestie consequat vel illum dolore eu feugiat nulla? Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore. Sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam. Per seacula quarta decima et quinta decima eodem modo. Demonstraverunt lectores legere me lius quod ii legunt saepius claritas est. Est notare quam littera gothica quam nunc putamus parum claram anteposuerit. Nisl ut aliquip, ex ea commodo consequat duis autem vel eum iriure. Me lius quod ii legunt saepius claritas est etiam processus? Facilisi nam liber tempor cum soluta nobis eleifend, option congue nihil. Duis dolore te feugait, nulla imperdiet doming id quod mazim. Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue placerat. Claritatem insitam est usus legentis in iis qui facit eorum? Sequitur mutationem consuetudium lectorum mirum litterarum formas humanitatis per seacula quarta decima et quinta decima eodem?</p>
+		<p style="color: rgba(0, 0, 0, 0.25);">Etiam processus dynamicus qui sequitur mutationem consuetudium, lectorum mirum est notare quam littera. Vulputate velit esse molestie consequat vel illum dolore eu feugiat nulla? Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore. Sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam. Per seacula quarta decima et quinta decima eodem modo. Demonstraverunt lectores legere me lius quod ii legunt saepius claritas est. Est notare quam littera gothica quam nunc putamus parum claram anteposuerit. Nisl ut aliquip, ex ea commodo consequat duis autem vel eum iriure. Me lius quod ii legunt saepius claritas est etiam processus? Facilisi nam liber tempor cum soluta nobis eleifend, option congue nihil. Duis dolore te feugait, nulla imperdiet doming id quod mazim. Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue placerat. Claritatem insitam est usus legentis in iis qui facit eorum? Sequitur mutationem consuetudium lectorum mirum litterarum formas humanitatis per seacula quarta decima et quinta decima eodem?</p>
+		<p style="color: rgba(0, 0, 0, 0.25);">Etiam processus dynamicus qui sequitur mutationem consuetudium, lectorum mirum est notare quam littera. Vulputate velit esse molestie consequat vel illum dolore eu feugiat nulla? Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore. Sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam. Per seacula quarta decima et quinta decima eodem modo. Demonstraverunt lectores legere me lius quod ii legunt saepius claritas est. Est notare quam littera gothica quam nunc putamus parum claram anteposuerit. Nisl ut aliquip, ex ea commodo consequat duis autem vel eum iriure. Me lius quod ii legunt saepius claritas est etiam processus? Facilisi nam liber tempor cum soluta nobis eleifend, option congue nihil. Duis dolore te feugait, nulla imperdiet doming id quod mazim. Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue placerat. Claritatem insitam est usus legentis in iis qui facit eorum? Sequitur mutationem consuetudium lectorum mirum litterarum formas humanitatis per seacula quarta decima et quinta decima eodem?</p>
 	</li>
+-->
 </ul>
 <div class="content">
 		<h1>API Demo</h1>
@@ -127,7 +142,7 @@
 		<p>Get all available information of a single member. Returns a JSON string with member's information.</p>
 
 		<h3>Request</h3>
-		<p>Request URI: <code>/users/{member_id}</code></p>
+		<p>Request URI: <code class="get_url">{api_url}/users/{member_id}</code></p>
 		<p>Request Method: <code>GET</code></p>
 
 		<h3>Response</h3>
@@ -168,18 +183,20 @@
 }
 </code></pre>
 
-		<h3>Example</h3>
-		<pre><code>curl -k https://192.168.13.205/users/3359780 \
+		<h3>Examples</h3>
+		<pre><code class="get_url">curl -k {api_url}/users/{member_id} \
   --get --data "api_key=3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2"</code></pre>
 
 		<hr />
 
-		<label for="member_id">Member ID</label><input id="details_member_id" type="text" /><br />
-
-		<form name="details" action="" method="GET">
-			<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
-			<input type="submit" />
-		</form>
+		<div class="">
+			<label for="member_id">Member ID</label><input class="member_id" type="text" /><br />
+	
+			<form name="details" action="{api_url}/users/{member_id}" method="GET">
+				<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
+				<input type="submit" />
+			</form>
+		</div>
 
 		<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
 
@@ -187,17 +204,32 @@
 
 		<p>Update the password of a single member. returns Response Code 200 OK on success.</p>
 
-		<p>Request URI: /users/{member_id}<br />
-		Request Method: POST</p>
+		<h3>Request</h3>
+		<p>Request URI: <code class="get_url">{api_url}/users/{member_id}</code></p>
+		<p>Request Method: <code>POST</code></p>
+		<p>Request Data:</p>
+		<pre><code>password: newpassword</code></pre>
 
-		<label for="member_id">Member ID</label><input id="update_member_id" type="text" /><br />
+		<h3>Response</h3>
+		<p>Status Code: <code>200</code></p>
+		<p>Response Body: *</p>
+		<pre><code>HTTP/1.1 200 OK</code></pre>
+		<p>*</p>
 
-		<form name="update" action="" method="POST">
-			<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
-
-			<label for="password">Password</label><input name="password" type="password" /><br />
-			<input type="submit" />
-		</form>
+		<h3>Examples</h3>
+		<pre><code class="get_url">curl -k {api_url}/users/{member_id} \
+  --data "api_key=3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" \
+  --data "password=newpassword"</code></pre>
+		<div class="">
+			<label for="member_id">Member ID</label><input class="member_id" type="text" /><br />
+	
+			<form name="update" action="{api_url}/users/{member_id}" method="POST">
+				<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
+	
+				<label for="password">Password</label><input name="password" type="password" /><br />
+				<input type="submit" />
+			</form>
+		</div>
 
 		<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
 
@@ -206,33 +238,35 @@
 		<p>Verify a member's password. returns Response Code 200 OK on success.</p>
 
 		<h3>Request</h3>
-		<p>Request URI: <code>/users/{member_id}/login</code></p>
+		<p>Request URI: <code class="get_url">{api_url}/users/{member_id}/login</code></p>
 		<p>Request Method: <code>POST</code></p>
 		<p>Request Data:</p>
-		<pre><code>password: password99</code></pre>
+		<pre><code>password: somepassword</code></pre>
 
 		<h3>Response</h3>
 		<p>Status Code: <code>200</code></p>
 		<p>Response Body: *</p>
 		<pre><code>HTTP/1.1 200 OK</code></pre>
-
-		<h3>Example</h3>
-		<pre><code>curl -k https://192.168.13.205/users/3359780/login \
-  --data "api_key=3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" \
-  --data "password=password99"</code></pre>
-
 		<p>*</p>
 
+		<h3>Examples</h3>
+		<pre><code class="get_url">curl -k {api_url}/users/{member_id}/login \
+  --data "api_key=3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" \
+  --data "password=somepassword"</code></pre>
+
 		<hr />
-		<label for="member_id">Member ID</label><input id="login_member_id" type="text" /><br />
 
-		<form name="login" action="" method="POST">
-			<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
-
-			<label for="password">Password</label><input name="password" type="password" /><br />
-
-			<input type="submit" />
-		</form>
+		<div class="">
+			<label for="member_id">Member ID</label><input class="member_id" type="text" /><br />
+	
+			<form name="login" action="{api_url}/users/{member_id}/login" method="POST">
+				<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
+	
+				<label for="password">Password</label><input name="password" type="password" /><br />
+	
+				<input type="submit" />
+			</form>
+		</div>
 
 		<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
 </div>
