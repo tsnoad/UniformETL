@@ -11,7 +11,7 @@ echo `date`
 echo '--------'
 
 if [ ! "$1" ]; then
-	echo "extract process id has not been supplied"
+	echo "extract id has not been supplied"
 	exit 1
 fi
 

@@ -155,7 +155,7 @@ class ExtractFullLauncher {
 	}
 
 	function dump_already_processed($file) {
-		$already_processed_query = runq("SELECT count(*) FROM extract_processes p INNER JOIN extract_full f ON (f.process_id=p.process_id) WHERE f.source_md5='".pg_escape_string($file['md5'])."' OR f.source_timestamp='".pg_escape_string(date("c", $file['modtime']))."';");
+		$already_processed_query = runq("SELECT count(*) FROM extract_processes p INNER JOIN extract_full f ON (f.extract_id=p.extract_id) WHERE f.source_md5='".pg_escape_string($file['md5'])."' OR f.source_timestamp='".pg_escape_string(date("c", $file['modtime']))."';");
 		$already_processed_count = $already_processed_query[0]['count'];
 	
 		if ($already_processed_count > 0) {
@@ -177,12 +177,12 @@ class ExtractFullLauncher {
 	function start_extract($file) {
 		var_dump("jackpot");
 	
-		$process_id_query = runq("SELECT nextval('processes_process_id_seq');");
-		$process_id = $process_id_query[0]['nextval'];
-	
-		runq("INSERT INTO processes (process_id) VALUES ('".pg_escape_string($process_id)."');");
+		$extract_id_query = runq("SELECT nextval('extract_processes_extract_id_seq');");
+		$extract_id = $extract_id_query[0]['nextval'];
 
-		shell_exec(Conf::$software_path."extract/extractors/full/extract.sh ".escapeshellarg($process_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog 2>".Conf::$software_path."logs/extractlog & echo $!");
+		//insert into extract_processes is done by process_recorder.php, called by extract.sh
+
+		shell_exec(Conf::$software_path."extract/extractors/full/extract.sh ".escapeshellarg($extract_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog 2>".Conf::$software_path."logs/extractlog & echo $!");
 
 		die("dump started");
 	}

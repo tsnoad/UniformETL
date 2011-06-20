@@ -120,31 +120,47 @@ CREATE VIEW member_balance AS (
 
 
 
-/*
 CREATE TABLE extract_processes (
-	extract_id BIGSERIAL PRIMARY KEY
+	extract_id BIGSERIAL PRIMARY KEY,
+	start_date TIMESTAMP NOT NULL DEFAULT now(),
+	finished BOOLEAN DEFAULT FALSE,
+	finish_date TIMESTAMP,
+	failed BOOLEAN DEFAULT FALSE,
+	extractor TEXT NOT NULL,
+	extract_pid TEXT NOT NULL
 );
 CREATE TABLE extract_full (
-	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE
+	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,
+	source_path TEXT NOT NULL,
+	source_timestamp TIMESTAMP NOT NULL,
+	source_md5 TEXT NOT NULL
 );
 CREATE TABLE extract_latest (
-	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE
+	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,
+	member_ids BIGINT ARRAY
 );
 CREATE TABLE transform_processes (
 	transform_id BIGSERIAL PRIMARY KEY,
-	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE
+	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,
+	start_date TIMESTAMP NOT NULL DEFAULT now(),
+	finished BOOLEAN DEFAULT FALSE,
+	finish_date TIMESTAMP,
+	failed BOOLEAN DEFAULT FALSE,
+	transform_pid TEXT NOT NULL
 );
 CREATE TABLE chunks (
 	chunk_id BIGSERIAL PRIMARY KEY,
 	transform_id BIGINT REFERENCES transform_processes ON UPDATE CASCADE ON DELETE CASCADE
 );
 CREATE TABLE chunk_member_ids (
-	chunk_id BIGINT REFERENCES chunks ON UPDATE CASCADE ON DELETE CASCADE
+	chunk_id BIGINT REFERENCES chunks ON UPDATE CASCADE ON DELETE CASCADE,
+	member_id BIGINT
 );
-*/
+CREATE INDEX chunk_member_ids_member_id ON chunk_member_ids (member_id);
 	
 
 
+/*
 CREATE TABLE processes (
 	process_id BIGSERIAL PRIMARY KEY
 );
@@ -189,3 +205,4 @@ CREATE TABLE transform_stats (
 	process_id BIGINT REFERENCES processes ON UPDATE CASCADE ON DELETE CASCADE,
 	stats TEXT
 );
+*/

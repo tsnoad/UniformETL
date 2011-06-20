@@ -62,7 +62,7 @@ foreach ($unfinisheds_query as $unfinished) {
 	sleep(5);
 
 	//check if the process has been marked as finished 
-	$status_query = runq("SELECT * FROM extract_processes WHERE process_id='".pg_escape_string($unfinished['process_id'])."' LIMIT 1;");
+	$status_query = runq("SELECT * FROM extract_processes WHERE extract_id='".pg_escape_string($unfinished['extract_id'])."' LIMIT 1;");
 
 	if ($status_query[0]['finished'] == 't') {
 		//process has completed normally
@@ -71,7 +71,7 @@ foreach ($unfinisheds_query as $unfinished) {
 
 	} else {
 		echo "\t"."failed.\n";
-		shell_exec(Conf::$software_path."extract/process_recorder.php failed ".escapeshellarg($unfinished['process_id']));
+		shell_exec(Conf::$software_path."extract/process_recorder.php failed ".escapeshellarg($unfinished['extract_id']));
 		continue;
 	}
 }
