@@ -5,7 +5,7 @@ Class MemberEmails {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_email");
+		return array("dump_email" => "EMail");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";

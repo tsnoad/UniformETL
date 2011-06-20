@@ -5,7 +5,7 @@ Class MemberInvoices {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_invoice");
+		return array("dump_invoice" => "Invoice");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";

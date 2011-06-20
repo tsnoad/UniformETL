@@ -5,7 +5,7 @@ Class MemberEcpdStatuses {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_groupmember");
+		return array("dump_groupmember" => "GroupMember");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";

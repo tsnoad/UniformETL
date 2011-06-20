@@ -5,7 +5,7 @@ Class MemberAddresses {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_address");
+		return array("dump_address" => "Address");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";

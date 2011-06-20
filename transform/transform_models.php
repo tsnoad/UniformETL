@@ -1,114 +1,122 @@
 <?php
 
+/* php -r 'require("/etc/uniformetl/transform/transform_models.php"); $models = New Models; $models->start();' */
+
 require_once("/etc/uniformetl/autoload.php");
 
 class Models {
-	public $required_transforms;
-	public $required_tables;
-	public $transform_priority;
-	
-	public $dump_table_sources = array(
-		"dump_address" => "Address",
-		"dump_cpgcustomer" => "cpgCustomer",
-		"dump_customer" => "Customer",
-		"dump_email" => "EMail",
-		"dump_groupmember" => "GroupMember",
-		"dump_invoice" => "Invoice",
-		"dump_name" => "Name",
-		"dump_receipt" => "Receipt"
-	);
-
 	public $transforms;
-	public $requirements;
 	public $tables;
 	public $sources;
 
 	function start() {
-		//ask each transform what other transforms it depends upon
-		$this->required_transforms = Plugins::hook("models_required-transforms", array());
+		//ask each model what other models it depends upon
+		$required_transforms = Plugins::hook("models_required-transforms", array());
 
-		$this->required_tables = Plugins::hook("models_required-tables", array());
+		//make sure that every required model is enabled in the config file
+		$this->check_required_models(Conf::$do_transforms, $required_transforms);
 
-		$this->transform_priority = Plugins::hook("models_transform-priority", array());
+		//ask each model what tables it depends upon
+		$required_tables = Plugins::hook("models_required-tables", array());
 
-		$this->calculate_requirements();
-		$this->get_all_tables();
-		$this->get_all_source_tables();
+		//create arrays of source tables and extract tables that can be used by the extractors
+		list($this->tables, $this->sources) = $this->define_tables(Conf::$do_transforms, $required_tables);
+
+		//ask each model how important it is
+		$transform_priority = Plugins::hook("models_transform-priority", array());
+
+		//create an array of models, sorted by priority, so that more important models get run first
+		$this->transforms = $this->define_models(Conf::$do_transforms, $transform_priority);
 	}
 
-	function calculate_requirements() {
-		//loop through all the enabled transforms
-		foreach (Conf::$do_transforms as $transform) {
-			//add it as a required transform
-			$this->add_requirement($transform);
-		
-			//add any other transforms that it requires
-			$this->get_subrequirements($transform);
-		}
-
-		//now we've got an array of transforms sorted by priority
-		//loop through each priority...
-		foreach ($this->requirements as $priority => $requirements_priorities) {
-			//and weed out any duplicates
-			$this->requirements[$priority] = array_unique($requirements_priorities);
-		}
-
-		$this->transforms = array_merge((array)$this->requirements['primary'], (array)$this->requirements['secondary'], (array)$this->requirements['tertiary']);
-	}
-
-	function add_requirement($transform) {
-		//what's the priority of this transform
-		$priority = $this->transform_priority[$transform];
-
-		//put it in the right sub-array
-		$this->requirements[$priority][] = $transform;
-	}
-
-	function get_subrequirements($transform) {
-		//loop though all the required child transforms for this parent
-		foreach ($this->required_transforms[$transform] as $required_transform) {
-			//what's the priority of the parent transform
-			$transform_priority = $this->transform_priority[$transform];
-			//what's the priority of the child transform
-			$subtransform_priority = $this->transform_priority[$required_transform];
-
-			//assign numbers to priority names: it'll make comparisons easier
-			$priorities = array("primary" => 3, "secondary" => 2, "tertiary" => 1);
-
-			//parent priority
-			$transform_priority = $priorities[$transform_priority];
-			//child priority
-			$subtransform_priority = $priorities[$subtransform_priority];
-
-			//child's priority can't be higher) than (or the same as parent's priority
-			if ($subtransform_priority <= $transform_priority) {
-				die("priorities are messed up");
-			}
-
-			//add the child as a required transform
-			$this->add_requirement($required_transform);
-
-			//as
-			if ($this->transform_priority[$required_transform] != "primary") {
-				$this->get_subrequirements($required_transform);
+	/*
+	 * make sure that every required model is enabled in the config file
+	 */
+	function check_required_models($models, $requirements) {
+		//loop through all the enabled models
+		foreach ($models as $model) {
+			//if this model has requirements
+			if (!empty($requirements[$model])) {
+				//loop though the models that are required
+				foreach ($requirements[$model] as $required_model) {
+					//if the required model isn't defined in config...
+					if (!in_array($required_model, $models)) {
+						//tell the user that they have to enable it
+						die("Model {$model} requires {$required_model}. It must be enabled in config.php");
+					}
+				}
 			}
 		}
+
+		//if we got to here then all the required models are enabled
+		return;
 	}
 
-	function get_all_tables() {
-		foreach ($this->transforms as $transform) {
-			foreach ($this->required_tables[$transform] as $required_table) {
-				$this->tables[] = $required_table;
+	/*
+	 * create arrays of source tables and extract tables that can be used by the extractors
+	 */
+	function define_tables($models, $requirements) {
+		//loop through all the enabled models
+		foreach ($models as $model) {
+			//if this model has required tables
+			if (!empty($requirements[$model])) {
+				//loop though the tables that are required
+				//each model will return an array that looks like this array("dump_cpgcustomer" => "cpgCustomer")
+				//"cpgCustomer" is the source table that exists on the data source
+				//"dump_cpgcustomer" is the extract table where we put data extracted from the source
+				foreach ($requirements[$model] as $required_extract_table => $required_source_table) {
+					//make sure the requried table (the key) is valid
+					if (empty($required_extract_table) || !is_string($required_extract_table)) {
+						die("required extract table '{$required_extract_table}' does not appear to be valid for model {$model}.");
+					}
+					//make sure the requried source table (the value) is valid
+					if (empty($required_source_table) || !is_string($required_source_table)) {
+						die("required source table '{$required_source_table}' does not appear to be valid for model {$model}.");
+					}
+
+					//create an array of tables
+					//there may be duplicates, but we'll take care of that later
+					$extract_tables[] = $required_extract_table;
+					$source_tables[] = $required_source_table;
+				}
 			}
 		}
-		
-		$this->tables = array_unique($this->tables);
+
+		//clean up any duplicate tables
+		$extract_tables = array_unique($extract_tables);
+		$source_tables = array_unique($source_tables);
+
+		//return both arrays
+		return array($extract_tables, $source_tables);
 	}
 
-	function get_all_source_tables() {
-		foreach ($this->tables as $table) {
-			$this->sources[] = $this->dump_table_sources[$table];
+	/*
+	 * create an array of models, sorted by priority, so that more important models get run first
+	 */
+	function define_models($models, $model_priorities) {
+		//loop through all the enabled models
+		foreach ($models as $model) {
+			//all models must have a priority that's either primary, secondary or tertiary
+			//these priority names we can sort alphabetcally, which is handy
+			if (empty($model_priorities[$model]) || !in_array($model_priorities[$model], array("primary", "secondary", "tertiary"))) {
+				die("Model {$model} does not have a correctly defined priority.");
+			}
+
+			//create an array of priorities.
+			//the priorities in this array will line up models in $models
+			$priorities[] = $model_priorities[$model];
 		}
+
+		//sort the models by priority
+		$sort_success = array_multisort($priorities, $models);
+
+		//array_multisort will fail if the arrays don't have the same number of elements
+		if (!$sort_success) {
+			die("failed to sort models by priority.");
+		}
+
+		//return the sorted array of models
+		return $models;
 	}
 
 	function init_class($transform) {

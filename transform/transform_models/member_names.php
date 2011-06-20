@@ -5,7 +5,7 @@ Class MemberNames {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_name");
+		return array("dump_name" => "Name");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";

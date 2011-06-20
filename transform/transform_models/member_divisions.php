@@ -5,7 +5,7 @@ Class MemberDivisions {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_cpgcustomer");
+		return array("dump_cpgcustomer" => "cpgCustomer");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";

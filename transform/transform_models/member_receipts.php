@@ -5,7 +5,7 @@ Class MemberReceipts {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_receipt");
+		return array("dump_receipt" => "Receipt");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";

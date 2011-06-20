@@ -5,7 +5,7 @@ Class MemberIds {
 		return array();
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_customer");
+		return array("dump_customer" => "Customer");
 	}
 	function hook_models_transform_priority($data) {
 		return "primary";
