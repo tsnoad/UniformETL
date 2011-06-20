@@ -2,7 +2,7 @@
 
 Class ExtractFullPlugins {
 	function hook_transform_deleted_members_query($data) {
-		list($deleted_members_query, $transform_process_id, $extract_process) = $data;
+		list($deleted_members_query, $extract_process) = $data;
 
 		if ($extract_process['extractor'] != "full") {
 			return $data;
@@ -12,7 +12,7 @@ Class ExtractFullPlugins {
 			return $data;
 		}
 
-		$latest_members_query = runq("SELECT * FROM extract_processes e INNER JOIN extract_latest el ON (el.process_id=e.process_id) WHERE e.finished=TRUE AND e.finish_date>'".date("Y-m-d H:i:s", strtotime("-24hours", strtotime($extract_process['source_timestamp'])))."';");
+		$latest_members_query = runq("SELECT * FROM extract_processes e INNER JOIN extract_latest el ON (el.extract_id=e.extract_id) WHERE e.finished=TRUE AND e.finish_date>'".date("Y-m-d H:i:s", strtotime("-24hours", strtotime($extract_process['source_timestamp'])))."';");
 
 		if (empty($latest_members_query)) {
 			return $data;
@@ -33,7 +33,7 @@ Class ExtractFullPlugins {
 			}
 		}
 
-		return array($deleted_members_query, $transform_process_id, $extract_process);
+		return array($deleted_members_query, $extract_process);
 	}
 }
 

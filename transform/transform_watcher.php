@@ -52,7 +52,7 @@ foreach ($unfinisheds_query as $unfinished) {
 
 	sleep(5);
 
-	$status_query = runq("SELECT * FROM transform_processes WHERE process_id='".pg_escape_string($unfinished['process_id'])."' LIMIT 1;");
+	$status_query = runq("SELECT * FROM transform_processes WHERE transform_id='".pg_escape_string($unfinished['transform_id'])."' LIMIT 1;");
 
 	if ($status_query[0]['finished'] == 't') {
 		//process has completed normally
@@ -61,7 +61,7 @@ foreach ($unfinisheds_query as $unfinished) {
 
 	} else {
 		echo "\t"."failed.\n";
-		shell_exec(Conf::$software_path."transform/process_recorder.php failed ".escapeshellarg($unfinished['process_id']));
+		shell_exec(Conf::$software_path."transform/process_recorder.php failed ".escapeshellarg($unfinished['transform_id']));
 		continue;
 	}
 }

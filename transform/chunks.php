@@ -1,6 +1,8 @@
 <?php
 
 class Chunks {
+	public $transform_id;
+
 	function create_chunks() {
 		//helpful message
 		echo "Creating Chunks:"."\n";
@@ -25,7 +27,7 @@ class Chunks {
 			$chunk_ids[] = $chunk_id;
 
 			//create the chunk
-			runq("INSERT INTO chunks (chunk_id, process_id) VALUES ('".pg_escape_string($chunk_id)."', '".pg_escape_string($this->process_id)."');");
+			runq("INSERT INTO chunks (chunk_id, transform_id) VALUES ('".pg_escape_string($chunk_id)."', '".pg_escape_string($this->transform_id)."');");
 
 			//add a chunk's worth of member ids to the chunk
 			runq("INSERT INTO chunk_member_ids SELECT DISTINCT '".pg_escape_string($chunk_id)."'::BIGINT AS chunk_id, customerid::BIGINT AS member_id FROM dump_customer ORDER BY customerid::BIGINT ASC LIMIT '".pg_escape_string(Conf::$chunk_size)."' OFFSET '".pg_escape_string($chunk_offset)."';");

@@ -67,7 +67,7 @@ Class MemberIds {
 			} else if ($dst_member != $src_member) {
 /* 				$data_update[] = $src_data_member; */
 			} else {
-				$data_nochange[] = $src_data_member;
+				$data_nochange[] = $src_member;
 			}
 		}
 

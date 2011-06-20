@@ -16,13 +16,13 @@ switch ($event) {
 		//Handled by transform.php
 		break;
 	case "failed":
-		$process_id = $_SERVER["argv"][2];
+		$transform_id = $_SERVER["argv"][2];
 
-		if (preg_match("/^[0-9]+$/", $process_id) < 1) {
-			die("process_id is not valid");
+		if (preg_match("/^[0-9]+$/", $transform_id) < 1) {
+			die("transform_id is not valid");
 		}
 
-		runq("UPDATE transform_processes SET finished=TRUE, finish_date=now(), failed=TRUE WHERE process_id='".pg_escape_string($process_id)."';");
+		runq("UPDATE transform_processes SET finished=TRUE, finish_date=now(), failed=TRUE WHERE transform_id='".pg_escape_string($transform_id)."';");
 
 		break;
 }
