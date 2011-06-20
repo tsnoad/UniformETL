@@ -1,6 +1,7 @@
 <?php
 
 /* php -r 'require("/etc/uniformetl/transform/transform_models.php"); $models = New Models; $models->start();' */
+/* php -r 'require("/etc/uniformetl/transform/transform_models.php"); $models = New Models; $models->check_required_models(array("one", "two"), array("one" => array("two")));' */
 
 require_once("/etc/uniformetl/autoload.php");
 
@@ -42,7 +43,7 @@ class Models {
 					//if the required model isn't defined in config...
 					if (!in_array($required_model, $models)) {
 						//tell the user that they have to enable it
-						die("Model {$model} requires {$required_model}. It must be enabled in config.php");
+						throw new Exception("Model {$model} requires {$required_model}. It must be enabled in config.php");
 					}
 				}
 			}
@@ -67,11 +68,11 @@ class Models {
 				foreach ($requirements[$model] as $required_extract_table => $required_source_table) {
 					//make sure the requried table (the key) is valid
 					if (empty($required_extract_table) || !is_string($required_extract_table)) {
-						die("required extract table '{$required_extract_table}' does not appear to be valid for model {$model}.");
+						throw new Exception("required extract table '{$required_extract_table}' does not appear to be valid for model {$model}.");
 					}
 					//make sure the requried source table (the value) is valid
 					if (empty($required_source_table) || !is_string($required_source_table)) {
-						die("required source table '{$required_source_table}' does not appear to be valid for model {$model}.");
+						throw new Exception("required source table '{$required_source_table}' does not appear to be valid for model {$model}.");
 					}
 
 					//create an array of tables
@@ -99,7 +100,7 @@ class Models {
 			//all models must have a priority that's either primary, secondary or tertiary
 			//these priority names we can sort alphabetcally, which is handy
 			if (empty($model_priorities[$model]) || !in_array($model_priorities[$model], array("primary", "secondary", "tertiary"))) {
-				die("Model {$model} does not have a correctly defined priority.");
+				throw new Exception("Model {$model} does not have a correctly defined priority.");
 			}
 
 			//create an array of priorities.
@@ -112,7 +113,7 @@ class Models {
 
 		//array_multisort will fail if the arrays don't have the same number of elements
 		if (!$sort_success) {
-			die("failed to sort models by priority.");
+			throw new Exception("failed to sort models by priority.");
 		}
 
 		//return the sorted array of models
