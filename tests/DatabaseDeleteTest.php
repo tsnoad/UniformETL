@@ -3,10 +3,11 @@
 require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/database.php");
 
-class DatabaseInsertTest extends PHPUnit_Framework_TestCase {
+class DatabaseDeleteTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
 		error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
 		PHPUnit_Framework_Error_Warning::$enabled = FALSE;
+		runq("INSERT INTO member_ids (member_id) VALUES ('10000000');");
 	}
 
 	protected function tearDown() {
@@ -16,33 +17,22 @@ class DatabaseInsertTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function testSuccess() {
-		$query = runq("INSERT INTO member_ids (member_id) VALUES ('10000000');");
+		$query = runq("DELETE FROM member_ids WHERE member_id='10000000';");
 		$this->assertTrue($query);
 
 		$query = runq("SELECT * FROM member_ids WHERE member_id='10000000';");
-		$this->assertNotEmpty($query);
-		$this->assertNotEmpty($query[0]);
-		$this->assertEquals("10000000", $query[0]['member_id']);
+		$this->assertEmpty($query);
+		$this->assertEmpty($query[0]);
+	}
+
+	public function testNotFound() {
+		$query = runq("DELETE FROM member_ids WHERE member_id='11000000';");
+		$this->assertTrue($query);
 	}
 
 	public function testSyntaxError() {
 		try {
-			$query = runq("INSERT INTO member_ids (member_id) VALUES ('wsfgl10000000');");
-		} catch (Exception $e) {
-/* 			var_dump($e->getMessage()); */
-
-			return;
-		}
-
-		$this->fail('An expected exception has not been raised.');
-	}
-
-	public function testDuplicateError() {
-		$query = runq("INSERT INTO member_ids (member_id) VALUES ('10000000');");
-		$this->assertTrue($query);
-
-		try {
-			$query = runq("INSERT INTO member_ids (member_id) VALUES ('10000000');");
+			$query = runq("DELETE FROM member_ids WHERE quizblorg='10000000';");
 		} catch (Exception $e) {
 /* 			var_dump($e->getMessage()); */
 

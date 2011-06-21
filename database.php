@@ -6,14 +6,16 @@ function runq($query) {
 	$conn = pg_connect("host=".Conf::$dbhost." port=5432 dbname=".Conf::$dbname." user=".Conf::$dbuser." password=".Conf::$dbpass."");
 	$result = pg_query($conn, $query);
 
-	if (stripos(trim($query), "insert") === 0) {
-		return ($result != false);
+	if ($result === false) {
+		throw new Exception(pg_last_error($conn));
+	}
 
-	} else if ($result === false) {
-		return false; 
+	if (stripos(trim($query), "select") !== 0) {
+		return true;
 	}
 
 	$return = pg_fetch_all($result);
+
 	pg_close($conn);
 
 	return $return;

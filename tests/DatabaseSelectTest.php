@@ -1,13 +1,18 @@
 <?php
 
+require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/database.php");
 
 class DatabaseSelectTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
+		error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
+		PHPUnit_Framework_Error_Warning::$enabled = FALSE;
 		runq("INSERT INTO member_ids (member_id) VALUES ('10000000');");
 	}
 
 	protected function tearDown() {
+		error_reporting(E_ALL ^ E_NOTICE);
+		PHPUnit_Framework_Error_Warning::$enabled = TRUE;
 		runq("DELETE FROM member_ids WHERE member_id='10000000';");
 	}
 
@@ -23,26 +28,28 @@ class DatabaseSelectTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse($query);
 	}
 
-	public function testSyntaxError() {
-		PHPUnit_Framework_Error_Warning::$enabled = FALSE;
-
-		$query = runq("SELECT * FROM member_ids WHERE quizblorg='10000000';");
-		$this->assertFalse($query);
-
-		PHPUnit_Framework_Error_Warning::$enabled = TRUE;
-
-/*
+	public function testColumnSyntaxError() {
 		try {
 			$query = runq("SELECT * FROM member_ids WHERE quizblorg='10000000';");
-		} catch (PHPUnit_Framework_Error $e) {
-			var_dump($query);
-			$this->assertFalse($query);
+		} catch (Exception $e) {
+/* 			var_dump($e->getMessage()); */
 
 			return;
 		}
 
 		$this->fail('An expected exception has not been raised.');
-*/
+	}
+
+	public function testTableSyntaxError() {
+		try {
+			$query = runq("SELECT * FROM quizblorg WHERE member_id='10000000';");
+		} catch (Exception $e) {
+/* 			var_dump($e->getMessage()); */
+
+			return;
+		}
+
+		$this->fail('An expected exception has not been raised.');
 	}
 }
 

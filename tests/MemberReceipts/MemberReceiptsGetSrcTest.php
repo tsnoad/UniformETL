@@ -7,6 +7,10 @@ class MemberReceiptsGetSrcTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
 		$this->model = new MemberReceipts;
 
+		try {
+			runq("CREATE TABLE dump_receipt (customerid TEXT, batchid TEXT, batchposition TEXT, receipttypeid TEXT, receiptstatusid TEXT, amount TEXT);");
+		} catch (PHPUnit_Framework_Error $e) {
+		}
 		runq("INSERT INTO dump_receipt (customerid, batchid, batchposition, receipttypeid, receiptstatusid, amount) VALUES ('10000000', 'something', '1234', 'SING', 'PROC', '3.14');");
 
 		$extract_id_query = runq("SELECT nextval('extract_processes_extract_id_seq');");

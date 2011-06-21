@@ -8,6 +8,10 @@ class MemberInvoicesGetSrcTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
 		$this->model = new MemberInvoices;
 
+		try {
+			runq("CREATE TABLE dump_invoice (customerid TEXT, batchid TEXT, batchposition TEXT, invoicetypeid TEXT, invoicestatusid TEXT, amount TEXT);");
+		} catch (PHPUnit_Framework_Error $e) {
+		}
 		runq("INSERT INTO dump_invoice (customerid, batchid, batchposition, invoicetypeid, invoicestatusid, amount) VALUES ('10000000', 'something', '1234', 'INV', 'ACQU', '3.14');");
 
 		$extract_id_query = runq("SELECT nextval('extract_processes_extract_id_seq');");
