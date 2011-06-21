@@ -9,13 +9,21 @@ class Recorder {
 	public $transform_id;
 
 	function record_start() {
-		runq("INSERT INTO transform_processes (transform_id, extract_id, transform_pid) VALUES ('".pg_escape_string($this->transform_id)."', '".pg_escape_string($this->extract_id)."', '".pg_escape_string(getmypid())."');");
+		try {
+			runq("INSERT INTO transform_processes (transform_id, extract_id, transform_pid) VALUES ('".pg_escape_string($this->transform_id)."', '".pg_escape_string($this->extract_id)."', '".pg_escape_string(getmypid())."');");
 
-/* 		runq("INSERT INTO transform_stats (transform_id) VALUES ('".pg_escape_string($this->transform_id)."');"); */
+	/* 		runq("INSERT INTO transform_stats (transform_id) VALUES ('".pg_escape_string($this->transform_id)."');"); */
+		} catch (Exception $e) {
+			die("could not create process in database");
+		}
 	}
 
 	function record_finish() {
-		runq("UPDATE transform_processes SET finished=TRUE, finish_date=now() WHERE transform_id='".pg_escape_string($this->transform_id)."';");
+		try {
+			runq("UPDATE transform_processes SET finished=TRUE, finish_date=now() WHERE transform_id='".pg_escape_string($this->transform_id)."';");
+		} catch (Exception $e) {
+			die("could not update process in database");
+		}
 	}
 }
 
@@ -37,8 +45,12 @@ Class Transform {
 			die("extract id has not been supplied");
 		}
 
-		$transform_id_query = runq("SELECT nextval('transform_processes_transform_id_seq');");
-		$this->transform_id = $transform_id_query[0]['nextval'];
+		try {
+			$transform_id_query = runq("SELECT nextval('transform_processes_transform_id_seq');");
+			$this->transform_id = $transform_id_query[0]['nextval'];
+		} catch (Exception $e) {
+			die("could not create process in database");
+		}
 
 		$extract_process_query = runq("SELECT * FROM extract_processes e LEFT OUTER JOIN extract_full ef ON (ef.extract_id=e.extract_id) WHERE e.extract_id='".pg_escape_string($this->extract_id)."' LIMIT 1;");
 		$this->extract_process = $extract_process_query[0];
@@ -146,15 +158,23 @@ Class Transform {
 		$transform_class = $this->models->init_class($transform);
 
 		unset($src_data_by_members, $dst_data_by_members);
-		$src_data_by_members = $transform_class->get_src_data($chunk_id);
-		$dst_data_by_members = $transform_class->get_dst_data($chunk_id);
+		try {
+			$src_data_by_members = $transform_class->get_src_data($chunk_id);
+			$dst_data_by_members = $transform_class->get_dst_data($chunk_id);
+		} catch (Exception $e) {
+			die($e->getMessage());
+		}
 
 		unset($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count);
 		list($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count) = $transform_class->transform($src_data_by_members, $dst_data_by_members);
 
 		if (!empty($data_add)) {
 			foreach ($data_add as $data_add_item) {
-				$transform_class->add_data($data_add_item);
+				try {
+					$transform_class->add_data($data_add_item);
+				} catch (Exception $e) {
+					print_r($e->getMessage());
+				}
 			}
 		}
 
@@ -163,14 +183,24 @@ Class Transform {
 
 		if (!empty($data_update)) {
 			foreach ($data_update as $data_update_item) {
-				$transform_class->update_data($data_update_item);
+				try {
+					$transform_class->update_data($data_update_item);
+				} catch (Exception $e) {
+					print_r($e->getMessage());
+					continue;
+				}
 			}
 		}
 
 		if (!empty($data_delete)) {
 			foreach ($data_delete as $data_delete_item) {
 				if (!empty($data_delete_item)) {
-					$transform_class->delete_data($data_delete_item);
+					try {
+						$transform_class->delete_data($data_delete_item);
+					} catch (Exception $e) {
+						print_r($e->getMessage);
+						continue;
+					}
 				}
 			}
 		}
@@ -195,7 +225,12 @@ Class Transform {
 		$this->stats['total']['delete'] += $data_delete_count;
 		$this->stats['total']['total'] += count($data_add) + count($data_nochange) + count($data_update) + $data_delete_count;
 
-/* 		runq("UPDATE transform_stats SET stats='".pg_escape_string(json_encode($this->stats))."' WHERE transform_id='".pg_escape_string($this->transform_id)."';"); */
+/*
+		try {
+			runq("UPDATE transform_stats SET stats='".pg_escape_string(json_encode($this->stats))."' WHERE transform_id='".pg_escape_string($this->transform_id)."';");
+		} catch (Exception $e) {
+		}
+*/
 
 		$this->finish_model($chunk_id, $transform);
 	}
