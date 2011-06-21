@@ -4,46 +4,38 @@
 require_once("/etc/uniformetl/autoload.php");
 require_once("/etc/uniformetl/database.php");
 
-echo "########\n";
-echo "########\n";
+//helpful log message
+echo "Starting Watcher...\n";
 
-echo "starting transform process watcher\n";
-echo date("r")."\n";
-
-echo "========\n";
-echo "checking environment\n";
-echo date("r")."\n";
-echo "--------\n";
+//helpful log message
+echo "\tChecking environment...\t";
 
 if (trim(shell_exec("ps h -C transform_watcher.php o pid | wc -l")) > 1) {
-	die("watcher is already running");
+	die("watcher is already running\n");
 }
 
-echo "========\n";
-echo "searching for unfinished processes\n";
-echo date("r")."\n";
-echo "--------\n";
+//helpful log message
+echo "OK\n";
+
+//helpful log message
+echo "\tSearching for unfinished processes...";
 
 $unfinisheds_query = runq("SELECT * FROM transform_processes WHERE finished=FALSE;");
 
 if (empty($unfinisheds_query)) {
-	die("no active transform processes");
+	die("\tno active transform processes\n");
 }
 
-echo "Found ".count($unfinisheds_query)." processes\n";
-
-echo "========\n";
-/* echo "searching for unfinished processes\n"; */
-echo date("r")."\n";
-echo "--------\n";
+echo "\t".count($unfinisheds_query)." process".(count($unfinisheds_query) === 1 ? "" : "es")." found\n";
 
 foreach ($unfinisheds_query as $unfinished) {
-	echo "Checking process:\n";
+	echo "\t\t"."transform #{$unfinished['transform_id']} ({$unfinished['transform_pid']}):";
+
 	$unfinished_status = shell_exec("ps h p ".escapeshellarg($unfinished['transform_pid'])." o pid | wc -l");
 
 	if (trim($unfinished_status) > 0) {
 		//process is running, all is well
-		echo "\t"."running\n";
+		echo "\t"."active\n";
 		continue;
 	}
 

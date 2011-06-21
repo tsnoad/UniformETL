@@ -19,8 +19,13 @@ class ExtractFullLauncher {
 	function start() {
 		echo "Starting Launcher...\n";
 
+		echo "\tChecking environment...\t";
+
 		$this->check_already_extracting();
 		$this->check_already_transforming();
+
+		//helpful log message
+		echo "OK\n";
 
 		$this->list_remote_dumps();
 
@@ -41,7 +46,7 @@ class ExtractFullLauncher {
 		$already_extracting = runq("SELECT count(*) FROM extract_processes WHERE finished=FALSE;");
 
 		if ($already_extracting[0]['count'] > 0) {
-			die("extract is currently running");
+			die("extract is currently running\n");
 		}
 	}
 
@@ -49,7 +54,7 @@ class ExtractFullLauncher {
 		$already_transforming = runq("SELECT count(*) FROM transform_processes WHERE finished=FALSE;");
 
 		if ($already_transforming[0]['count'] > 0) {
-			die("transform is currently running");
+			die("transform is currently running\n");
 		}
 	}
 
