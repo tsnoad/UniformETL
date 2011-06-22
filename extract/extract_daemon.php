@@ -32,7 +32,7 @@ echo "OK\n";
 shell_exec(Conf::$software_path."extract/process_watcher.php >> ".Conf::$software_path."logs/extractdaemonlog");
 
 //start the launcher to check if there's any new data for us to process
-shell_exec(Conf::$software_path."extract/extractors/full/extract_launcher.php >> ".Conf::$software_path."logs/extractdaemonlog");
+shell_exec(Conf::$software_path."extract/extractors/full/run_extract_launcher.php >> ".Conf::$software_path."logs/extractdaemonlog");
 
 /* Plugins::hook("extract-daemon", array()); */
 

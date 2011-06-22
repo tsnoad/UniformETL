@@ -150,6 +150,13 @@ echo '--------'
 psql hotel < $extractdir/dump.sql
 
 echo '========'
+echo 'deleting files'
+echo `date`
+echo '--------'
+
+rm -r $extractuntardir
+
+echo '========'
 echo 'recording finish'
 echo `date`
 echo '--------'

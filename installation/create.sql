@@ -120,12 +120,13 @@ CREATE VIEW member_balance AS (
 
 CREATE TABLE extract_processes (
 	extract_id BIGSERIAL PRIMARY KEY,
+	extract_pid TEXT NOT NULL,
 	start_date TIMESTAMP NOT NULL DEFAULT now(),
 	finished BOOLEAN DEFAULT FALSE,
 	finish_date TIMESTAMP,
 	failed BOOLEAN DEFAULT FALSE,
 	extractor TEXT NOT NULL,
-	extract_pid TEXT NOT NULL
+	models TEXT ARRAY
 );
 CREATE TABLE extract_full (
 	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,
@@ -139,12 +140,12 @@ CREATE TABLE extract_latest (
 );
 CREATE TABLE transform_processes (
 	transform_id BIGSERIAL PRIMARY KEY,
-	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,
+	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,,
+	transform_pid TEXT NOT NULL,
 	start_date TIMESTAMP NOT NULL DEFAULT now(),
 	finished BOOLEAN DEFAULT FALSE,
 	finish_date TIMESTAMP,
-	failed BOOLEAN DEFAULT FALSE,
-	transform_pid TEXT NOT NULL
+	failed BOOLEAN DEFAULT FALSE
 );
 CREATE TABLE chunks (
 	chunk_id BIGSERIAL PRIMARY KEY,
