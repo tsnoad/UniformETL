@@ -10,6 +10,13 @@ Class MemberDivisions {
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}
+	function hook_extract_index_sql($data) {
+		return array(
+			"CREATE INDEX dump_cpgcustomer_cpgid ON dump_cpgcustomer (cpgid) WHERE (cpgid='IEA');",
+			"CREATE INDEX dump_cpgcustomer_customerid ON dump_cpgcustomer (cast(customerid AS BIGINT)) WHERE (cpgid='IEA');",
+			"CREATE INDEX dump_cpgcustomer_custstatusid ON dump_cpgcustomer (custstatusid) WHERE (custstatusid='MEMB');"
+		);
+	}
 
 	function get_src_data($src_member_ids_chunk) {
 		return $this->get_src_members_grades($src_member_ids_chunk);

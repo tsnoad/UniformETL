@@ -13,6 +13,9 @@ Class MemberConfluenceStatuses {
 	function hook_models_transform_priority($data) {
 		return "tertiary";
 	}
+	function hook_extract_index_sql($data) {
+		return array();
+	}
 
 	function connect_to_ldap() {
 		if (!empty($this->ldap)) {

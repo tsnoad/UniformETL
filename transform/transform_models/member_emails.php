@@ -10,6 +10,12 @@ Class MemberEmails {
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}
+	function hook_extract_index_sql($data) {
+		return array(
+			"CREATE INDEX dump_email_emailtypeid ON dump_email (emailtypeid) WHERE (emailtypeid='INET');",
+			"CREATE INDEX dump_email_customerid ON dump_email (cast(customerid AS BIGINT)) WHERE (emailtypeid='INET');"
+		);
+	}
 
 	function get_src_data($src_member_ids_chunk) {
 		return $this->get_src_members_emails($src_member_ids_chunk);

@@ -10,6 +10,9 @@ Class MemberIds {
 	function hook_models_transform_priority($data) {
 		return "primary";
 	}
+	function hook_extract_index_sql($data) {
+		return array("CREATE INDEX dump_customer_customerid ON dump_customer (cast(customerid AS BIGINT));");
+	}
 
 	function get_src_data($src_member_ids_chunk) {
 		return $this->get_src_members($src_member_ids_chunk);

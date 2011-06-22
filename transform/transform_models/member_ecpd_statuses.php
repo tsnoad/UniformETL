@@ -10,6 +10,12 @@ Class MemberEcpdStatuses {
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}
+	function hook_extract_index_sql($data) {
+		return array(
+			"CREATE INDEX dump_groupmember_groupid ON dump_groupmember (groupid) WHERE (groupid='6052');",
+			"CREATE INDEX dump_groupmember_customerid ON dump_groupmember (cast(customerid AS BIGINT)) WHERE (groupid='6052');"
+		);
+	}
 
 	function get_src_data($src_member_ids_chunk) {
 		return $this->get_src_members_ecpd_statuses($src_member_ids_chunk);

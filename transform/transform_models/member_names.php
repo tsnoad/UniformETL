@@ -10,6 +10,9 @@ Class MemberNames {
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}
+	function hook_extract_index_sql($data) {
+		return array("CREATE INDEX dump_name_customerid ON dump_name (cast(customerid AS BIGINT));");
+	}
 
 	function get_src_data($src_member_ids_chunk) {
 		return $this->get_src_members_names($src_member_ids_chunk);
