@@ -5,13 +5,13 @@ Class MemberAddresses {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_address" => "Address");
+		return array("dump_%{extract_id}_address" => "Address");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}
 	function hook_extract_index_sql($data) {
-		return array("CREATE INDEX dump_address_customerid ON dump_address (cast(customerid AS BIGINT));");
+		return array("CREATE INDEX dump_%{extract_id}_address_customerid ON dump_%{extract_id}_address (cast(customerid AS BIGINT));");
 	}
 
 	function get_src_data($src_member_ids_chunk) {

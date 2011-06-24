@@ -70,6 +70,10 @@ class Models {
 					if (empty($required_extract_table) || !is_string($required_extract_table)) {
 						throw new Exception("required extract table '{$required_extract_table}' does not appear to be valid for model {$model}.");
 					}
+					//make sure the requried table (the key) has the placeholder for the extract_id
+					if (strpos($required_extract_table, "%{extract_id}") === FALSE) {
+						throw new Exception("required extract table '{$required_extract_table}' does not have a valid extract id placeholder for model {$model}.");
+					}
 					//make sure the requried source table (the value) is valid
 					if (empty($required_source_table) || !is_string($required_source_table)) {
 						throw new Exception("required source table '{$required_source_table}' does not appear to be valid for model {$model}.");

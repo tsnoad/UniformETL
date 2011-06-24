@@ -1,0 +1,182 @@
+<style>
+.block {
+	width: 400px;
+	margin: 10px auto;
+	border: 2px solid #d3d7cf;
+}
+.block div {
+	width: 120px;
+	margin: 10px;
+	padding: 5px;
+	border: 2px solid #d3d7cf;
+	color: black;
+	font-family: Lucida Grande, Sans;
+	font-size: 8pt;
+	text-align: center;
+}
+.decision {
+	float: left;
+}
+.decision_beside {
+	float: left;
+}
+.decision_below {
+	clear: both;
+}
+.decision_yes {
+	width: 30px !important;
+	height: 30px;
+	margin: 10px 60px !important;
+	padding: 0px !important;
+	border: 0px !important;
+	-webkit-border-radius: 15px;
+	background-color: #d3d7cf;
+	line-height: 28px;
+}
+.decision_no {
+	width: 30px !important;
+	height: 30px;
+	margin: 10px 60px !important;
+	padding: 0px !important;
+	border: 0px !important;
+	-webkit-border-radius: 15px;
+	background-color: #d3d7cf;
+	line-height: 28px;
+}
+</style>
+
+<div class="block">
+	<div class="block_label">Extract Daemon</div>
+	<div class="start">start</div>
+	<div class="decision">daemon already running?</div>
+	<div class="decision_yes decision_beside">yes</div>
+	<div class="decision_no decision_below">no</div>
+	<div class="">start watcher</div>
+	<div class="">start launcher</div>
+	<div class="finish">finish</div>
+</div>
+
+<div class="block">
+	<div class="block_label">Extract Watcher</div>
+	<div class="start">start</div>
+	<div class="decision">watcher already running?</div>
+	<div class="decision_yes decision_beside">yes</div>
+	<div class="decision_no decision_below">no</div>
+	<div class="decision">any unfinished extracts in database?</div>
+	<div class="decision_no decision_beside">no</div>
+	<div class="decision_yes decision_below">yes</div>
+	<div class="loop">loop through extracts</div>
+	<div class="decision">is extract running?</div>
+	<div class="decision_yes decision_beside">yes</div>
+	<div class="decision_no decision_below">no</div>
+	<div class="">wait 5 seconds</div>
+	<div class="decision">has extract status been updated in database?</div>
+	<div class="decision_yes decision_beside">yes</div>
+	<div class="decision_no decision_below">no</div>
+	<div class="">mark extracts as cancelled</div>
+	<div class="finish">finish</div>
+</div>
+
+<div class="block">
+	<div class="block_label">Extract Full Launcher</div>
+	<div class="start">start</div>
+	<div class="decision">launcher already running?</div>
+	<div class="decision_yes decision_beside">yes</div>
+	<div class="decision_no decision_below">no</div>
+	<div class="decision">any extracts running?</div>
+	<div class="decision_yes decision_beside">yes</div>
+	<div class="decision_no decision_below">no</div>
+	<div class="decision">any transforms running?</div>
+	<div class="decision_yes decision_beside">yes</div>
+	<div class="decision_no decision_below">no</div>
+
+	<div class="">get timestamp from remote server</div>
+	<div class="">get list of dump files from remote server</div>
+	<div class="">calculate time difference between local and remote servers</div>
+	<div class="">make sure list of remote files makes sense</div>
+	<div class="">convert list of remote files into something more useful</div>
+
+	<div class="loop">loop through listed files</div>
+	<div class="decision">file too new?</div>
+	<div class="decision_yes decision_beside">yes</div>
+	<div class="decision_no decision_below">no</div>
+	<div class="decision">file already processed?</div>
+	<div class="decision_yes decision_beside">yes</div>
+	<div class="decision_no decision_below">no</div>
+	<div class="decision">file too old?</div>
+	<div class="decision_yes decision_beside">yes</div>
+	<div class="decision_no decision_below">no</div>
+
+	<div class="">start extract using file</div>
+
+	<div class="finish">finish</div>
+</div>
+
+<div class="block">
+	<div class="block_label">Transform Launcher</div>
+	<div class="start">start</div>
+	<div class="decision">launcher already running?</div>
+	<div class="decision_yes decision_beside">yes</div>
+	<div class="decision_no decision_below">no</div>
+	<div class="decision">any extracts running?</div>
+	<div class="decision_yes decision_beside">yes</div>
+	<div class="decision_no decision_below">no</div>
+	<div class="decision">any transforms running?</div>
+	<div class="decision_yes decision_beside">yes</div>
+	<div class="decision_no decision_below">no</div>
+
+	<div class="decision">any extracts successfully finished extracts that don't have transforms?</div>
+	<div class="decision_no decision_beside">no</div>
+	<div class="decision_yes decision_below">yes</div>
+
+	<div class="">start transform using extract</div>
+
+	<div class="finish">finish</div>
+</div>
+
+
+<div class="block">
+	<div class="block_label">Transform Launcher</div>
+	<div class="start">start</div>
+
+	<div class="">create transform process in database</div>
+	<div class="">get extract process information</div>
+	<div class="">check model dependancies</div>
+	<div class="">create chunks</div>
+
+	<div class="decision">launcher already running?</div>
+	<div class="decision_no decision_beside">no</div>
+	<div class="decision_yes decision_below">yes</div>
+
+	<div class="">start transform using extract</div>
+
+	<div class="finish">finish</div>
+</div>
+
+<div class="block">
+	<div class="block_label">Create chunks</div>
+	<div class="start">start</div>
+
+	<div class="">how many member ids in import table</div>
+	<div class="">how many member ids per chunk</div>
+	<div class="">how many chunks will we need to create</div>
+
+	<div class="loop"></div>
+	<div class="">create chunk with member ids</div>
+
+	<div class="finish">finish</div>
+</div>
+
+<div class="block">
+	<div class="block_label">Delete members</div>
+	<div class="start">start</div>
+
+	<div class="">find members who exist in database, but not in import table</div>
+	<div class="">how many member ids per chunk</div>
+	<div class="">how many chunks will we need to create</div>
+
+	<div class="loop"></div>
+	<div class="">create chunk with member ids</div>
+
+	<div class="finish">finish</div>
+</div>

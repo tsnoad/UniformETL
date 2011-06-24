@@ -5,15 +5,15 @@ Class MemberEcpdStatuses {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_groupmember" => "GroupMember");
+		return array("dump_%{extract_id}_groupmember" => "GroupMember");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}
 	function hook_extract_index_sql($data) {
 		return array(
-			"CREATE INDEX dump_groupmember_groupid ON dump_groupmember (groupid) WHERE (groupid='6052');",
-			"CREATE INDEX dump_groupmember_customerid ON dump_groupmember (cast(customerid AS BIGINT)) WHERE (groupid='6052');"
+			"CREATE INDEX dump_%{extract_id}_groupmember_groupid ON dump_%{extract_id}_groupmember (groupid) WHERE (groupid='6052');",
+			"CREATE INDEX dump_%{extract_id}_groupmember_customerid ON dump_%{extract_id}_groupmember (cast(customerid AS BIGINT)) WHERE (groupid='6052');"
 		);
 	}
 

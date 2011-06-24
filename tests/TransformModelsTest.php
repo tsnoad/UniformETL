@@ -32,11 +32,11 @@ class TransformModelsTest extends PHPUnit_Framework_TestCase {
 
 	public function testDefineTablesSucceed() {
 		$models = array("one", "two");
-		$requirements = array("one" => array("table1" => "table1source", "table1more" => "table1moresource"), "two" => array("table2" => "table2source"));
+		$requirements = array("one" => array("dump_%{extract_id}_table1" => "table1source", "dump_%{extract_id}_table1more" => "table1moresource"), "two" => array("dump_%{extract_id}_table2" => "table2source"));
 
 		list($extract_tables, $source_tables) = $this->models->define_tables($models, $requirements);
 
-		$this->assertEquals(array("table1", "table1more", "table2"), $extract_tables);
+		$this->assertEquals(array("dump_%{extract_id}_table1", "dump_%{extract_id}_table1more", "dump_%{extract_id}_table2"), $extract_tables);
 		$this->assertEquals(array("table1source", "table1moresource", "table2source"), $source_tables);
 	}
 
@@ -68,7 +68,7 @@ class TransformModelsTest extends PHPUnit_Framework_TestCase {
 
 	public function testDefineTablesSourceEmpty() {
 		$models = array("one");
-		$requirements = array("one" => array("table1" => ""));
+		$requirements = array("one" => array("dump_%{extract_id}_table1" => ""));
 
 		try {
 			list($extract_tables, $source_tables) = $this->models->define_tables($models, $requirements);
@@ -81,7 +81,20 @@ class TransformModelsTest extends PHPUnit_Framework_TestCase {
 
 	public function testDefineTablesSourceNotString() {
 		$models = array("one");
-		$requirements = array("one" => array("table1" => 1234));
+		$requirements = array("one" => array("dump_%{extract_id}_table1" => 1234));
+
+		try {
+			list($extract_tables, $source_tables) = $this->models->define_tables($models, $requirements);
+        } catch (Exception $expected) {
+            return;
+        }
+ 
+        $this->fail('An expected exception has not been raised.');
+	}
+
+	public function testDefineTablesNoExtractId() {
+		$models = array("one");
+		$requirements = array("one" => array("dump_squiggles_table1" => "table1source"));
 
 		try {
 			list($extract_tables, $source_tables) = $this->models->define_tables($models, $requirements);

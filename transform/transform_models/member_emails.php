@@ -5,15 +5,15 @@ Class MemberEmails {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_email" => "EMail");
+		return array("dump_%{extract_id}_email" => "EMail");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}
 	function hook_extract_index_sql($data) {
 		return array(
-			"CREATE INDEX dump_email_emailtypeid ON dump_email (emailtypeid) WHERE (emailtypeid='INET');",
-			"CREATE INDEX dump_email_customerid ON dump_email (cast(customerid AS BIGINT)) WHERE (emailtypeid='INET');"
+			"CREATE INDEX dump_%{extract_id}_email_emailtypeid ON dump_%{extract_id}_email (emailtypeid) WHERE (emailtypeid='INET');",
+			"CREATE INDEX dump_%{extract_id}_email_customerid ON dump_%{extract_id}_email (cast(customerid AS BIGINT)) WHERE (emailtypeid='INET');"
 		);
 	}
 

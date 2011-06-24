@@ -155,6 +155,8 @@ echo `date`
 echo '--------'
 
 rm -r $extractuntardir
+rm -r $extractdir/*.dat
+rm -r $extractdir/*.dat.tmp2
 
 echo '========'
 echo 'recording finish'

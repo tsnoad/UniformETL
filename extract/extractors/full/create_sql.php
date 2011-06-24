@@ -26,7 +26,7 @@ class Extractor {
 
 		//what tables do we need
 		$required_tables = $this->foobar->sources;
-	
+
 		$this->create_column_reference();
 
 		file_put_contents($this->output_file, "\n\n", FILE_APPEND);
@@ -39,10 +39,10 @@ class Extractor {
 			$this->output_create_table($table);
 
 			$this->output_copy_table($table);
-		
+
 			file_put_contents($this->output_file, "\n", FILE_APPEND);
 		}
-		
+
 		$this->output_indexes();
 	}
 
@@ -72,17 +72,17 @@ class Extractor {
 		foreach (explode("\n", $columnsreffile) as $columnsref_column) {
 			//skip empty lines
 			if (empty($columnsref_column)) continue;
-		
+
 			//separate the row
 			$tablecolumns = explode(",", $columnsref_column);
-		
+
 			//get the table name
 			$tablename = array_shift($tablecolumns);
 
 			if ($tablename == "vReceipt") {
 				$tablename = "Receipt";
 			}
-		
+
 			//place the array of column names into an array
 			//and index with the table name
 			$this->columnsref[$tablename] = $tablecolumns;
@@ -99,20 +99,20 @@ class Extractor {
 	function output_create_table($table) {
 		//SQL to create table
 		$dump_sql .= "CREATE TABLE dump_".strtolower($table)." (\n";
-	
+
 		//SQL to create each row for table
 		foreach ($this->columnsref[$table] as $tablecolumn) {
 			$dump_sql .= "  ".strtolower($tablecolumn)." TEXT";
-	
+
 			//column definitions are separated by commas
 			if ($tablecolumn != end($this->columnsref[$table])) {
 				$dump_sql .= ",\n";
 			}
 		}
-	
+
 		//finalise SQL create table definition
 		$dump_sql .= ");\n";
-	
+
 		$dump_sql .= "\n";
 
 		file_put_contents($this->output_file, $dump_sql, FILE_APPEND);
@@ -131,17 +131,17 @@ class Extractor {
 		$dump_sql .= "CREATE INDEX dump_cpgcustomer_cpgid ON dump_cpgcustomer (cpgid) WHERE (cpgid='IEA');\n";
 		$dump_sql .= "CREATE INDEX dump_cpgcustomer_customerid ON dump_cpgcustomer (cast(customerid AS BIGINT)) WHERE (cpgid='IEA');\n";
 		$dump_sql .= "CREATE INDEX dump_cpgcustomer_custstatusid ON dump_cpgcustomer (custstatusid) WHERE (custstatusid='MEMB');\n";
-		
+
 		$dump_sql .= "CREATE INDEX dump_name_customerid ON dump_name (cast(customerid AS BIGINT));\n";
-		
+
 		$dump_sql .= "CREATE INDEX dump_address_customerid ON dump_address (cast(customerid AS BIGINT));\n";
-		
+
 		$dump_sql .= "CREATE INDEX dump_email_emailtypeid ON dump_email (emailtypeid) WHERE (emailtypeid='INET');\n";
 		$dump_sql .= "CREATE INDEX dump_email_customerid ON dump_email (cast(customerid AS BIGINT)) WHERE (emailtypeid='INET');\n";
-		
+
 		$dump_sql .= "CREATE INDEX dump_groupmember_groupid ON dump_groupmember (groupid) WHERE (groupid='6052');\n";
 		$dump_sql .= "CREATE INDEX dump_groupmember_customerid ON dump_groupmember (cast(customerid AS BIGINT)) WHERE (groupid='6052');\n";
-		
+
 		$dump_sql .= "CREATE INDEX dump_invoice_customerid ON dump_invoice (cast(customerid AS BIGINT));\n";
 		$dump_sql .= "CREATE INDEX dump_invoice_batch_hash ON dump_invoice (md5(trim(batchid::TEXT)||trim(batchposition::TEXT)));\n";
 

@@ -5,15 +5,15 @@ Class MemberInvoices {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_invoice" => "Invoice");
+		return array("dump_%{extract_id}_invoice" => "Invoice");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}
 	function hook_extract_index_sql($data) {
 		return array(
-			"CREATE INDEX dump_invoice_customerid ON dump_invoice (cast(customerid AS BIGINT));",
-			"CREATE INDEX dump_invoice_batch_hash ON dump_invoice (md5(trim(batchid::TEXT)||trim(batchposition::TEXT)));"
+			"CREATE INDEX dump_%{extract_id}_invoice_customerid ON dump_%{extract_id}_invoice (cast(customerid AS BIGINT));",
+			"CREATE INDEX dump_%{extract_id}_invoice_batch_hash ON dump_%{extract_id}_invoice (md5(trim(batchid::TEXT)||trim(batchposition::TEXT)));"
 		);
 	}
 

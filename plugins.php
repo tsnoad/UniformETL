@@ -49,6 +49,20 @@ Class Plugins {
 
 /* 		array("extract-daemon", "ExtractFullLauncher", "start"), */
 
+		array("extract_index-sql", "MemberIds", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberAddresses", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberConfluenceStatuses", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberDivisions", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberEcpdStatuses", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberEmails", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberGrades", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberInvoices", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberNames", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberPasswords", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberPersonals", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberReceipts", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberWebStatuses", "hook_extract_index_sql"),
+
 		array("api_get-users_singles", "MemberIds", "hook_api_get_member"),
 		array("api_get-users_singles", "MemberPersonals", "hook_api_get_member"),
 		array("api_get-users_singles", "MemberWebStatuses", "hook_api_get_member"),

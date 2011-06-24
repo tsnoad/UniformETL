@@ -5,15 +5,15 @@ Class MemberReceipts {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_receipt" => "Receipt");
+		return array("dump_%{extract_id}_receipt" => "Receipt");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}
 	function hook_extract_index_sql($data) {
 		return array(
-			"CREATE INDEX dump_receipt_customerid ON dump_receipt (cast(customerid AS BIGINT));",
-			"CREATE INDEX dump_receipt_batch_hash ON dump_receipt (md5(trim(batchid::TEXT)||trim(batchposition::TEXT)));"
+			"CREATE INDEX dump_%{extract_id}_receipt_customerid ON dump_%{extract_id}_receipt (cast(customerid AS BIGINT));",
+			"CREATE INDEX dump_%{extract_id}_receipt_batch_hash ON dump_%{extract_id}_receipt (md5(trim(batchid::TEXT)||trim(batchposition::TEXT)));"
 		);
 	}
 

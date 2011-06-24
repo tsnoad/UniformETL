@@ -5,13 +5,13 @@ Class MemberIds {
 		return array();
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_customer" => "Customer");
+		return array("dump_%{extract_id}_customer" => "Customer");
 	}
 	function hook_models_transform_priority($data) {
 		return "primary";
 	}
 	function hook_extract_index_sql($data) {
-		return array("CREATE INDEX dump_customer_customerid ON dump_customer (cast(customerid AS BIGINT));");
+		return array("CREATE INDEX dump_%{extract_id}_customer_customerid ON dump_%{extract_id}_customer (cast(customerid AS BIGINT));");
 	}
 
 	function get_src_data($src_member_ids_chunk) {
