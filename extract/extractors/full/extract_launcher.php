@@ -273,14 +273,9 @@ class ExtractFullLauncher {
 	function start_extract($file) {
 		//helpful log message
 		var_dump("jackpot");
-	
-		//what's the next available extract id in the database
-		//insert into extract_processes is done by process_recorder.php, called by extract.sh
-		$extract_id_query = runq("SELECT nextval('extract_processes_extract_id_seq');");
-		$extract_id = $extract_id_query[0]['nextval'];
 
 		//start the extract process
-		shell_exec(Conf::$software_path."extract/extractors/full/extract.sh ".escapeshellarg($extract_id)." ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog 2>".Conf::$software_path."logs/extractlog & echo $!");
+		shell_exec(Conf::$software_path."extract/extractors/full/extract.php ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog &");
 	}
 }
 

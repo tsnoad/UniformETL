@@ -1,7 +1,6 @@
 <?php
 
-/* php -r 'require("/etc/uniformetl/transform/transform_models.php"); $models = New Models; $models->start();' */
-/* php -r 'require("/etc/uniformetl/transform/transform_models.php"); $models = New Models; $models->check_required_models(array("one", "two"), array("one" => array("two")));' */
+/* php -r 'require("/etc/uniformetl/transform/transform_models.php"); $models = New Models; $models->start(); print_r($models->tables); print_r($models->sources);' */
 
 require_once("/etc/uniformetl/autoload.php");
 
