@@ -1,5 +1,7 @@
 <?php
 
+require_once("/etc/uniformetl/autoload.php");
+
 class ExtractFullGetColumns {
 	function start($columnsfile, $sources) {
 		if (empty($columnsfile) || !is_file($columnsfile)) {

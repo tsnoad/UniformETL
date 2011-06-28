@@ -1,5 +1,6 @@
 <?php
 
+require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/transform/globaltiming.php");
 
 class GlobalTimingTest extends PHPUnit_Framework_TestCase {

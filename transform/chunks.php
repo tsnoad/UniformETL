@@ -1,5 +1,7 @@
 <?php
 
+require_once("/etc/uniformetl/autoload.php");
+
 class Chunks {
 	public $transform_id;
 	public $extract_id;

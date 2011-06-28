@@ -1,5 +1,6 @@
 <?php
 
+require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/database.php");
 require_once("/etc/uniformetl/transform/transform_models/member_receipts.php");
 

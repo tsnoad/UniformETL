@@ -1,5 +1,7 @@
 <?php
 
+require_once("/etc/uniformetl/autoload.php");
+
 class GlobalTiming {
 	public $chunk_count;
 	public $chunk_durations = array();

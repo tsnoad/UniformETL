@@ -70,22 +70,23 @@ Class Transform {
 
 		$this->recorder->record_start();
 
-		$this->chunk_ids = $this->chunks->create_chunks();
-
-		$this->global_timing->chunk_count = count($this->chunk_ids);
-
 		$this->deleted_members();
+
+		$chunk_ids = $this->chunks->create_chunks();
+		$this->global_timing->chunk_count = count($chunk_ids);
 
 		$this->global_timing->start_timing();
 
-		foreach ($this->chunk_ids as $chunk_count => $chunk_id) {
+		foreach ($chunk_ids as $chunk_id) {
+			$this->global_timing->chunk_started();
 			$this->start_chunk($chunk_id);
 	
 			foreach ($this->models->transforms as $transform) {
 				$this->model($chunk_id, $transform);
 			}
 	
-			$this->finish_chunk($chunk_id);
+			$this->global_timing->chunk_completed();
+			$this->global_timing->eta_report();
 		}
 
 		$this->recorder->record_finish();
@@ -108,8 +109,6 @@ Class Transform {
 	}
 
 	function start_chunk($chunk_id) {
-		$this->global_timing->chunk_started();
-
 		echo str_pad("Transform", 15, " ")."|";
 		echo str_pad("Add", 7, " ")."|";
 		echo str_pad("No Chan", 7, " ")."|";
@@ -124,11 +123,6 @@ Class Transform {
 		echo str_pad("", 7, "-")."+";
 		echo str_pad("", 8, "-");
 		echo "\n";
-	}
-
-	function finish_chunk($chunk_id) {
-		$this->global_timing->chunk_completed();
-		$this->global_timing->eta_report();
 	}
 
 	function model($chunk_id, $transform) {
@@ -158,55 +152,64 @@ Class Transform {
 	}
 
 	function add_data($transform_class, $data_add) {
-		if (!empty($data_add)) {
-			foreach ($data_add as $data_add_item) {
-				try {
-					$transform_class->add_data($data_add_item);
-				} catch (Exception $e) {
-					print_r($e->getMessage());
-					continue;
-				}
-				echo "+";
-			}
-			echo "\n";
+		if (empty($data_add)) {
+			return;
 		}
+
+		foreach ($data_add as $data_add_item) {
+			try {
+				$transform_class->add_data($data_add_item);
+			} catch (Exception $e) {
+				print_r($e->getMessage());
+				continue;
+			}
+			echo "+";
+		}
+		echo "\n";
 	}
 
 	function data_nochange($transform_class, $data_nochange) {
-		if (!empty($data_nochange)) {
+		if (empty($data_nochange)) {
+			return;
 		}
 	}
 
 	function data_update($transform_class, $data_update) {
-		if (!empty($data_update)) {
-			foreach ($data_update as $data_update_item) {
-				try {
-					$transform_class->update_data($data_update_item);
-				} catch (Exception $e) {
-					print_r($e->getMessage());
-					continue;
-				}
-				echo "/";
-			}
-			echo "\n";
+		if (empty($data_update)) {
+			return;
 		}
+
+		foreach ($data_update as $data_update_item) {
+			try {
+				$transform_class->update_data($data_update_item);
+			} catch (Exception $e) {
+				print_r($e->getMessage());
+				continue;
+			}
+			echo "/";
+		}
+		echo "\n";
 	}
 
 	function data_delete($transform_class, $data_delete) {
-		if (!empty($data_delete)) {
-			foreach ($data_delete as $data_delete_item) {
-				if (!empty($data_delete_item)) {
-					try {
-						$transform_class->delete_data($data_delete_item);
-					} catch (Exception $e) {
-						print_r($e->getMessage);
-						continue;
-					}
-					echo "-";
-				}
-			}
-			echo "\n";
+		if (empty($data_delete)) {
+			return;
 		}
+
+		foreach ($data_delete as $data_delete_item) {
+			if (!empty($data_delete_item)) {
+				continue;
+			}
+
+			try {
+				$transform_class->delete_data($data_delete_item);
+			} catch (Exception $e) {
+				print_r($e->getMessage);
+				continue;
+			}
+			echo "-";
+		}
+		echo "\n";
 	}
 
 	function model_stats($transform, $data_add, $data_nochange, $data_update, $data_delete_count) {

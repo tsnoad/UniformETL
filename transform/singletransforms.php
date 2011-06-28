@@ -1,5 +1,7 @@
 <?php
 
+require_once("/etc/uniformetl/autoload.php");
+
 Class SingleTransforms {
 	function transform($src_data_by_members, $dst_data_by_members) {
 /*

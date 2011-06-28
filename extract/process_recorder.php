@@ -2,6 +2,7 @@
 <?php
 
 require_once("/etc/uniformetl/database.php");
+require_once("/etc/uniformetl/autoload.php");
 
 $event = $_SERVER["argv"][1];
 

@@ -1,5 +1,7 @@
 <?php
 
+require_once("/etc/uniformetl/autoload.php");
+
 Class Plugins {
 	public static $plugins = array(
 		array("models_required-transforms", "MemberIds", "hook_models_required_transforms"),

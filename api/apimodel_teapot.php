@@ -1,5 +1,7 @@
 <?php
 
+require_once("/etc/uniformetl/autoload.php");
+
 // For when someone wants to know if we're a teapot
 Class APIModelTeapot {
 	//can this model process the request

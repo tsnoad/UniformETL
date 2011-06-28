@@ -1,5 +1,7 @@
 <?php
 
+require_once("/etc/uniformetl/autoload.php");
+
 Class APIModelUser {
 	function who_me() {
 		return preg_match("/^users\/[0-9]+\/?$/", $_GET['url']);

@@ -1,5 +1,6 @@
 <?php
 
+require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/transform/chunks.php");
 
 class ChunksTest extends PHPUnit_Framework_TestCase {

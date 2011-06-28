@@ -1,5 +1,7 @@
 <?php
 
+require_once("/etc/uniformetl/autoload.php");
+
 Class ExtractFullPlugins {
 	function hook_transform_deleted_members_query($data) {
 		list($deleted_members_query, $extract_process) = $data;

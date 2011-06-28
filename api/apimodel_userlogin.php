@@ -1,5 +1,7 @@
 <?php
 
+require_once("/etc/uniformetl/autoload.php");
+
 // For when someone wants to use the API to authenticate a member.
 Class APIModelUserLogin {
 	function who_me() {
