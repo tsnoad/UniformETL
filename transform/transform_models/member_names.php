@@ -14,8 +14,8 @@ Class MemberNames {
 		return array("CREATE INDEX dump_%{extract_id}_name_customerid ON dump_%{extract_id}_name (cast(customerid AS BIGINT));");
 	}
 
-	function get_src_data($src_member_ids_chunk) {
-		return $this->get_src_members_names($src_member_ids_chunk);
+	function get_src_data($src_member_ids_chunk, $extract_id) {
+		return $this->get_src_members_names($src_member_ids_chunk, $extract_id);
 	}
 
 	function get_dst_data($src_member_ids_chunk) {
@@ -41,8 +41,8 @@ Class MemberNames {
 		return $members_names;
 	}
 
-	function get_src_members_names($chunk_id) {
-		$src_member_names_query = runq("SELECT DISTINCT n.customerid as member_id, n.nametypeid as type, split_part(n.nameline2, ' ', 1) AS given_names, n.nameline1 as family_name FROM dump_name n INNER JOIN chunk_member_ids ch ON (ch.member_id=n.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
+	function get_src_members_names($chunk_id, $extract_id) {
+		$src_member_names_query = runq("SELECT DISTINCT n.customerid as member_id, n.nametypeid as type, split_part(n.nameline2, ' ', 1) AS given_names, n.nameline1 as family_name FROM dump_{$extract_id}_name n INNER JOIN chunk_member_ids ch ON (ch.member_id=n.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members_names($src_member_names_query);
 	}

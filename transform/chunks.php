@@ -2,6 +2,7 @@
 
 class Chunks {
 	public $transform_id;
+	public $extract_id;
 
 	function create_chunks() {
 		//helpful message
@@ -11,7 +12,7 @@ class Chunks {
 		$timer = microtime(true);
 
 		//how many members are there?
-		$members_count_query = runq("select count(DISTINCT customerid::BIGINT) FROM dump_customer WHERE customerid::BIGINT IS NOT NULL;");
+		$members_count_query = runq("select count(DISTINCT customerid::BIGINT) FROM dump_{$this->extract_id}_customer WHERE customerid::BIGINT IS NOT NULL;");
 		$members_count = $members_count_query[0]['count'];
 
 		if (empty($members_count)) {
@@ -35,7 +36,7 @@ class Chunks {
 				runq("INSERT INTO chunks (chunk_id, transform_id) VALUES ('".pg_escape_string($chunk_id)."', '".pg_escape_string($this->transform_id)."');");
 	
 				//add a chunk's worth of member ids to the chunk
-				runq("INSERT INTO chunk_member_ids SELECT DISTINCT '".pg_escape_string($chunk_id)."'::BIGINT AS chunk_id, customerid::BIGINT AS member_id FROM dump_customer ORDER BY customerid::BIGINT ASC LIMIT '".pg_escape_string(Conf::$chunk_size)."' OFFSET '".pg_escape_string($chunk_offset)."';");
+				runq("INSERT INTO chunk_member_ids SELECT DISTINCT '".pg_escape_string($chunk_id)."'::BIGINT AS chunk_id, customerid::BIGINT AS member_id FROM dump_{$this->extract_id}_customer ORDER BY customerid::BIGINT ASC LIMIT '".pg_escape_string(Conf::$chunk_size)."' OFFSET '".pg_escape_string($chunk_offset)."';");
 
 			} catch (Exception $e) {
 				die("could not create chunk");

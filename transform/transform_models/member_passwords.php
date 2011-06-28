@@ -14,7 +14,7 @@ Class MemberPasswords {
 		return array();
 	}
 
-	function get_src_data($src_member_ids_chunk) {
+	function get_src_data($src_member_ids_chunk, $extract_id) {
 		return $this->get_src_members_passwords($src_member_ids_chunk);
 	}
 

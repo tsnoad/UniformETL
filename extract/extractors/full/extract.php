@@ -30,7 +30,7 @@ class ExtractFull {
 		
 		file_put_contents($extractdir."/dump.sql", $sql);
 		
-		var_dump(passthru("psql hotel < {$extractdir}/dump.sql"));
+		var_dump(shell_exec("psql hotel < {$extractdir}/dump.sql"));
 		
 		runq("UPDATE extract_processes SET finished=TRUE, finish_date=now() WHERE extract_id='".pg_escape_string($extract_id)."';");
 		
@@ -108,7 +108,7 @@ class ExtractFull {
 
 	function create_copy_sql($extract_id, $extractdir, $table_columns, $sources, $tables) {
 		foreach ($sources as $i => $source) {
-			$table = str_replace("%{extract_id}", $extract_id, $tables);
+			$table = str_replace("%{extract_id}", $extract_id, $tables[$i]);
 		
 			$sql .= "CREATE TABLE {$table} (\n  ".implode(" TEXT,\n  ", $table_columns[$source])." TEXT\n);\n";
 		
@@ -120,8 +120,10 @@ class ExtractFull {
 
 	function index_sql($extract_id, $models, $model_indexes) {
 		foreach ($models as $model) {
-			foreach ($model_indexes[$model] as $index) {
-				$indexes[] = str_replace("${extract_id}", $extract_id, $index);
+			foreach ($model_indexes[$model] as $index_array) {
+				foreach ($index_array as $index) {
+					$indexes[] = str_replace("${extract_id}", $extract_id, $index);
+				}
 			}
 		}
 		

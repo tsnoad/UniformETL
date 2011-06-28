@@ -35,7 +35,7 @@ Class MemberConfluenceStatuses {
 		ldap_bind($this->ldap, "cn={$ldapuser},".$this->base, $ldappass);	
 	}
 
-	function get_src_data($src_member_ids_chunk) {
+	function get_src_data($src_member_ids_chunk, $extract_id) {
 		return $this->get_src_members_confluence_statuses($src_member_ids_chunk);
 	}
 

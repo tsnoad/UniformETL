@@ -17,8 +17,8 @@ Class MemberReceipts {
 		);
 	}
 
-	function get_src_data($src_member_ids_chunk) {
-		return $this->get_src_members_names($src_member_ids_chunk);
+	function get_src_data($src_member_ids_chunk, $extract_id) {
+		return $this->get_src_members_names($src_member_ids_chunk, $extract_id);
 	}
 
 	function get_dst_data($src_member_ids_chunk) {
@@ -45,8 +45,8 @@ Class MemberReceipts {
 		return $members_names;
 	}
 
-	function get_src_members_names($chunk_id) {
-		$src_member_names_query = runq("SELECT DISTINCT r.customerid as member_id, md5(trim(r.batchid::TEXT)||trim(r.batchposition::TEXT)) as batch_hash, r.receipttypeid as type, r.receiptstatusid as status, r.amount as amount FROM dump_receipt r INNER JOIN chunk_member_ids ch ON (ch.member_id=r.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND r.customerid NOT ILIKE '%+%';");
+	function get_src_members_names($chunk_id, $extract_id) {
+		$src_member_names_query = runq("SELECT DISTINCT r.customerid as member_id, md5(trim(r.batchid::TEXT)||trim(r.batchposition::TEXT)) as batch_hash, r.receipttypeid as type, r.receiptstatusid as status, r.amount as amount FROM dump_{$extract_id}_receipt r INNER JOIN chunk_member_ids ch ON (ch.member_id=r.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND r.customerid NOT ILIKE '%+%';");
 
 		return $this->get_members_names($src_member_names_query);
 	}

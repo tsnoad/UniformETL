@@ -14,8 +14,8 @@ Class MemberPersonals {
 		return array("CREATE INDEX dump_%{extract_id}_customer_customerid ON dump_%{extract_id}_customer (cast(customerid AS BIGINT));");
 	}
 
-	function get_src_data($src_member_ids_chunk) {
-		return $this->get_src_members_personals($src_member_ids_chunk);
+	function get_src_data($src_member_ids_chunk, $extract_id) {
+		return $this->get_src_members_personals($src_member_ids_chunk, $extract_id);
 	}
 
 	function get_dst_data($src_member_ids_chunk) {
@@ -43,8 +43,8 @@ Class MemberPersonals {
 		return $members_personals;
 	}
 
-	function get_src_members_personals($chunk_id) {
-		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT c.customerid AS member_id, c.sex AS gender, CASE WHEN dob IS NOT NULL AND dob!='' THEN cast(to_timestamp(dob, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp) ELSE NULL END AS date_of_birth FROM dump_customer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
+	function get_src_members_personals($chunk_id, $extract_id) {
+		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT c.customerid AS member_id, c.sex AS gender, CASE WHEN dob IS NOT NULL AND dob!='' THEN cast(to_timestamp(dob, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp) ELSE NULL END AS date_of_birth FROM dump_{$extract_id}_customer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members_personals($src_member_ecpd_statuses_query);
 	}

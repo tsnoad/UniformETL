@@ -17,8 +17,8 @@ Class MemberEmails {
 		);
 	}
 
-	function get_src_data($src_member_ids_chunk) {
-		return $this->get_src_members_emails($src_member_ids_chunk);
+	function get_src_data($src_member_ids_chunk, $extract_id) {
+		return $this->get_src_members_emails($src_member_ids_chunk, $extract_id);
 	}
 
 	function get_dst_data($src_member_ids_chunk) {
@@ -42,8 +42,8 @@ Class MemberEmails {
 		return $members_emails;
 	}
 
-	function get_src_members_emails($chunk_id) {
-		$src_member_emails_query = runq("SELECT DISTINCT e.customerid as member_id, e.emailaddress as email FROM dump_email e INNER JOIN chunk_member_ids ch ON (ch.member_id=e.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND e.emailtypeid='INET';");
+	function get_src_members_emails($chunk_id, $extract_id) {
+		$src_member_emails_query = runq("SELECT DISTINCT e.customerid as member_id, e.emailaddress as email FROM dump_{$extract_id}_email e INNER JOIN chunk_member_ids ch ON (ch.member_id=e.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND e.emailtypeid='INET';");
 
 		return $this->get_members_emails($src_member_emails_query);
 	}

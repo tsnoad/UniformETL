@@ -14,8 +14,8 @@ Class MemberIds {
 		return array("CREATE INDEX dump_%{extract_id}_customer_customerid ON dump_%{extract_id}_customer (cast(customerid AS BIGINT));");
 	}
 
-	function get_src_data($src_member_ids_chunk) {
-		return $this->get_src_members($src_member_ids_chunk);
+	function get_src_data($src_member_ids_chunk, $extract_id) {
+		return $this->get_src_members($src_member_ids_chunk, $extract_id);
 	}
 
 	function get_dst_data($src_member_ids_chunk) {
@@ -33,8 +33,8 @@ Class MemberIds {
 		return $members;
 	}
 
-	function get_src_members($chunk_id) {
-		$src_member_query = runq("SELECT DISTINCT c.customerid AS member_id FROM dump_customer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
+	function get_src_members($chunk_id, $extract_id) {
+		$src_member_query = runq("SELECT DISTINCT c.customerid AS member_id FROM dump_{$extract_id}_customer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members($src_member_query);
 	}

@@ -18,8 +18,8 @@ Class MemberDivisions {
 		);
 	}
 
-	function get_src_data($src_member_ids_chunk) {
-		return $this->get_src_members_grades($src_member_ids_chunk);
+	function get_src_data($src_member_ids_chunk, $extract_id) {
+		return $this->get_src_members_grades($src_member_ids_chunk, $extract_id);
 	}
 
 	function get_dst_data($src_member_ids_chunk) {
@@ -41,8 +41,8 @@ Class MemberDivisions {
 		return $members_passwords;
 	}
 
-	function get_src_members_grades($chunk_id) {
-		$src_member_passwords_query = runq("SELECT DISTINCT d.customerid as member_id, d.divisionid as division FROM dump_cpgcustomer d INNER JOIN chunk_member_ids ch ON (ch.member_id=d.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND d.cpgid='IEA';");
+	function get_src_members_grades($chunk_id, $extract_id) {
+		$src_member_passwords_query = runq("SELECT DISTINCT d.customerid as member_id, d.divisionid as division FROM dump_{$extract_id}_cpgcustomer d INNER JOIN chunk_member_ids ch ON (ch.member_id=d.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND d.cpgid='IEA';");
 
 		return $this->get_members_grades($src_member_passwords_query);
 	}

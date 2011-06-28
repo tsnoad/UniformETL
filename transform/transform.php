@@ -64,18 +64,35 @@ Class Transform {
 
 		$this->chunks = New Chunks;
 		$this->chunks->transform_id = $this->transform_id;
+		$this->chunks->extract_id = $this->extract_id;
 
 		$this->global_timing = New GlobalTiming;
 
-		$this->start_transform();
+		$this->recorder->record_start();
 
-		$this->chunks();
+		$this->chunk_ids = $this->chunks->create_chunks();
 
-		$this->finish_transform();
+		$this->global_timing->chunk_count = count($this->chunk_ids);
+
+		$this->deleted_members();
+
+		$this->global_timing->start_timing();
+
+		foreach ($this->chunk_ids as $chunk_count => $chunk_id) {
+			$this->start_chunk($chunk_id);
+	
+			foreach ($this->models->transforms as $transform) {
+				$this->model($chunk_id, $transform);
+			}
+	
+			$this->finish_chunk($chunk_id);
+		}
+
+		$this->recorder->record_finish();
 	}
 
 	function deleted_members() {
-		$deleted_members_query = runq("SELECT m.* FROM member_ids m LEFT OUTER JOIN dump_cpgcustomer c ON (m.member_id=c.customerid::BIGINT) WHERE c.customerid::BIGINT IS NULL;");
+		$deleted_members_query = runq("SELECT m.* FROM member_ids m LEFT OUTER JOIN dump_{$this->extract_id}_cpgcustomer c ON (m.member_id=c.customerid::BIGINT) WHERE c.customerid::BIGINT IS NULL;");
 
 		list($deleted_members_query) = Plugins::hook("transform_deleted-members-query", array($deleted_members_query, $this->extract_process));
 
@@ -88,38 +105,6 @@ Class Transform {
 		} else {
 			print_r("No members to delete\n\n");
 		}
-	}
-
-	function start_transform() {
-		$this->recorder->record_start();
-
-		$this->chunk_ids = $this->chunks->create_chunks();
-
-		$this->global_timing->chunk_count = count($this->chunk_ids);
-
-		$this->deleted_members();
-
-		$this->global_timing->start_timing();
-	}
-
-	function finish_transform() {
-/* 		print_r($total); */
-		
-		$this->recorder->record_finish();
-	}
-
-	function chunks() {
-		foreach ($this->chunk_ids as $chunk_count => $chunk_id) {
-			$this->chunk($chunk_id);
-		}
-	}
-
-	function chunk($chunk_id) {
-		$this->start_chunk($chunk_id);
-
-		$this->models($chunk_id);
-
-		$this->finish_chunk($chunk_id);
 	}
 
 	function start_chunk($chunk_id) {
@@ -146,41 +131,53 @@ Class Transform {
 		$this->global_timing->eta_report();
 	}
 
-	function models($chunk_id) {
-		foreach ($this->models->transforms as $transform) {
-			$this->model($chunk_id, $transform);
-		}
+	function model($chunk_id, $transform) {
+		$this->global_timing->transform_started();
+
+		$transform_class = New $transform;
+		list($src_data_by_members, $dst_data_by_members) = $this->get_src_dst_data($chunk_id, $transform_class);
+		list($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count) = $transform_class->transform($src_data_by_members, $dst_data_by_members);
+
+		$this->add_data($transform_class, $data_add);
+		$this->data_nochange($transform_class, $data_nochange);
+		$this->data_update($transform_class, $data_update);
+		$this->data_delete($transform_class, $data_delete);
+
+		$this->model_stats($transform, $data_add, $data_nochange, $data_update, $data_delete_count);
 	}
 
-	function model($chunk_id, $transform) {
-		$this->start_model($chunk_id, $transform);
-
-		$transform_class = $this->models->init_class($transform);
-
-		unset($src_data_by_members, $dst_data_by_members);
+	function get_src_dst_data($chunk_id, $transform_class) {
 		try {
-			$src_data_by_members = $transform_class->get_src_data($chunk_id);
+			$src_data_by_members = $transform_class->get_src_data($chunk_id, $this->extract_id);
 			$dst_data_by_members = $transform_class->get_dst_data($chunk_id);
 		} catch (Exception $e) {
 			die($e->getMessage());
 		}
 
-		unset($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count);
-		list($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count) = $transform_class->transform($src_data_by_members, $dst_data_by_members);
+		return array($src_data_by_members, $dst_data_by_members);
+	}
 
+	function add_data($transform_class, $data_add) {
 		if (!empty($data_add)) {
 			foreach ($data_add as $data_add_item) {
 				try {
 					$transform_class->add_data($data_add_item);
 				} catch (Exception $e) {
 					print_r($e->getMessage());
+					continue;
 				}
+				echo "+";
 			}
+			echo "\n";
 		}
+	}
 
+	function data_nochange($transform_class, $data_nochange) {
 		if (!empty($data_nochange)) {
 		}
+	}
 
+	function data_update($transform_class, $data_update) {
 		if (!empty($data_update)) {
 			foreach ($data_update as $data_update_item) {
 				try {
@@ -189,9 +186,13 @@ Class Transform {
 					print_r($e->getMessage());
 					continue;
 				}
+				echo "/";
 			}
+			echo "\n";
 		}
+	}
 
+	function data_delete($transform_class, $data_delete) {
 		if (!empty($data_delete)) {
 			foreach ($data_delete as $data_delete_item) {
 				if (!empty($data_delete_item)) {
@@ -201,10 +202,14 @@ Class Transform {
 						print_r($e->getMessage);
 						continue;
 					}
+					echo "-";
 				}
 			}
+			echo "\n";
 		}
+	}
 
+	function model_stats($transform, $data_add, $data_nochange, $data_update, $data_delete_count) {
 		echo str_pad(substr(ucwords($transform), 0, 15), 15, " ")."|";
 		echo str_pad(count($data_add), 7, " ", STR_PAD_LEFT)."|";
 		echo str_pad(count($data_nochange), 7, " ", STR_PAD_LEFT)."|";
@@ -224,22 +229,6 @@ Class Transform {
 		$this->stats['total']['update'] += count($data_update);
 		$this->stats['total']['delete'] += $data_delete_count;
 		$this->stats['total']['total'] += count($data_add) + count($data_nochange) + count($data_update) + $data_delete_count;
-
-/*
-		try {
-			runq("UPDATE transform_stats SET stats='".pg_escape_string(json_encode($this->stats))."' WHERE transform_id='".pg_escape_string($this->transform_id)."';");
-		} catch (Exception $e) {
-		}
-*/
-
-		$this->finish_model($chunk_id, $transform);
-	}
-
-	function start_model($chunk_id, $transform) {
-		$this->global_timing->transform_started();
-	}
-
-	function finish_model($chunk_id, $transform) {
 	}
 }
 

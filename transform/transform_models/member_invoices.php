@@ -17,8 +17,8 @@ Class MemberInvoices {
 		);
 	}
 
-	function get_src_data($src_member_ids_chunk) {
-		return $this->get_src_members_names($src_member_ids_chunk);
+	function get_src_data($src_member_ids_chunk, $extract_id) {
+		return $this->get_src_members_names($src_member_ids_chunk, $extract_id);
 	}
 
 	function get_dst_data($src_member_ids_chunk) {
@@ -45,8 +45,8 @@ Class MemberInvoices {
 		return $members_names;
 	}
 
-	function get_src_members_names($chunk_id) {
-		$src_member_names_query = runq("SELECT DISTINCT i.customerid as member_id, md5(trim(i.batchid::TEXT)||trim(i.batchposition::TEXT)) as batch_hash, i.invoicetypeid as type, i.invoicestatusid as status, i.amount as amount FROM dump_invoice i INNER JOIN chunk_member_ids ch ON (ch.member_id=i.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
+	function get_src_members_names($chunk_id, $extract_id) {
+		$src_member_names_query = runq("SELECT DISTINCT i.customerid as member_id, md5(trim(i.batchid::TEXT)||trim(i.batchposition::TEXT)) as batch_hash, i.invoicetypeid as type, i.invoicestatusid as status, i.amount as amount FROM dump_{$extract_id}_invoice i INNER JOIN chunk_member_ids ch ON (ch.member_id=i.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members_names($src_member_names_query);
 	}

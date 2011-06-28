@@ -14,8 +14,8 @@ Class MemberAddresses {
 		return array("CREATE INDEX dump_%{extract_id}_address_customerid ON dump_%{extract_id}_address (cast(customerid AS BIGINT));");
 	}
 
-	function get_src_data($src_member_ids_chunk) {
-		return $this->get_src_members_addresses($src_member_ids_chunk);
+	function get_src_data($src_member_ids_chunk, $extract_id) {
+		return $this->get_src_members_addresses($src_member_ids_chunk, $extract_id);
 	}
 
 	function get_dst_data($src_member_ids_chunk) {
@@ -44,8 +44,8 @@ Class MemberAddresses {
 		return $members_addresses;
 	}
 
-	function get_src_members_addresses($chunk_id) {
-		$src_member_addresses_query = runq("SELECT DISTINCT a.customerid as member_id, a.addrtypeid as type, trim(a.line1)||CASE WHEN length(trim(a.line2))>0 THEN E'\n'||trim(a.line2) ELSE '' END||CASE WHEN length(trim(a.line3))>0 THEN E'\n'||trim(a.line3) ELSE '' END as address, a.suburb as suburb, a.state as state, a.postcode as postcode, a.countryid as country FROM dump_address a INNER JOIN chunk_member_ids ch ON (ch.member_id=a.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND a.valid='1';");
+	function get_src_members_addresses($chunk_id, $extract_id) {
+		$src_member_addresses_query = runq("SELECT DISTINCT a.customerid as member_id, a.addrtypeid as type, trim(a.line1)||CASE WHEN length(trim(a.line2))>0 THEN E'\n'||trim(a.line2) ELSE '' END||CASE WHEN length(trim(a.line3))>0 THEN E'\n'||trim(a.line3) ELSE '' END as address, a.suburb as suburb, a.state as state, a.postcode as postcode, a.countryid as country FROM dump_{$extract_id}_address a INNER JOIN chunk_member_ids ch ON (ch.member_id=a.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND a.valid='1';");
 
 		return $this->get_members_addresses($src_member_addresses_query);
 	}

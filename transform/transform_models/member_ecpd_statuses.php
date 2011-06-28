@@ -17,8 +17,8 @@ Class MemberEcpdStatuses {
 		);
 	}
 
-	function get_src_data($src_member_ids_chunk) {
-		return $this->get_src_members_ecpd_statuses($src_member_ids_chunk);
+	function get_src_data($src_member_ids_chunk, $extract_id) {
+		return $this->get_src_members_ecpd_statuses($src_member_ids_chunk, $extract_id);
 	}
 
 	function get_dst_data($src_member_ids_chunk) {
@@ -37,8 +37,8 @@ Class MemberEcpdStatuses {
 		return $members_ecpd_statuses;
 	}
 
-	function get_src_members_ecpd_statuses($chunk_id) {
-		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT g.customerid as member_id FROM dump_groupmember g INNER JOIN chunk_member_ids ch ON (ch.member_id=g.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND g.groupid='6052';");
+	function get_src_members_ecpd_statuses($chunk_id, $extract_id) {
+		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT g.customerid as member_id FROM dump_{$extract_id}_groupmember g INNER JOIN chunk_member_ids ch ON (ch.member_id=g.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND g.groupid='6052';");
 
 		return $this->get_members_ecpd_statuses($src_member_ecpd_statuses_query);
 	}
