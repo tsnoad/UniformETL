@@ -18,6 +18,9 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/".strtolower($class_name).".php");
 			break;
 
+		case "ExtractFull":
+		    require_once("/etc/uniformetl/extract/extractors/full/extract.php");
+			break;
 		case "ExtractFullLauncher":
 		    require_once("/etc/uniformetl/extract/extractors/full/extract_launcher.php");
 			break;

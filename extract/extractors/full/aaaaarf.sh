@@ -11,12 +11,12 @@ sed \
   $input \
   | \
   sed \
-  -e 'N;s/\*\$\%\#\r\n/'\''\n'\''/;P;D;' \
+  -e 'N;s/\*\$\%\#\r\n/'\''\n'\''/;P;D;' `: #each row ends with *$%#\r. convert to an quote, and add a quote at the start of the next line ` \
   | \
   sed \
-  -e 's/\*\$\%\#\r/'\''/' \
+  -e 's/\*\$\%\#\r/'\''/' `: #remove *$%#\r from the end of the last line. replace with a quote` \
   | \
-  tr -d '\0' \
+  tr -d '\0' `: #remove unspeakable horrors` \
   | \
-  perl -MEncode -ne 'binmode(STDOUT, ":utf8"); print decode("iso-8859-1", "$_");' \
+  perl -MEncode -ne 'binmode(STDOUT, ":utf8"); print decode("iso-8859-1", "$_");' `: #recode from iso8859 to utf8` \
   > $output

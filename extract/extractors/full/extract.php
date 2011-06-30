@@ -1,145 +1,204 @@
-#!/usr/bin/php5
 <?php
 
 require_once("/etc/uniformetl/database.php");
 require_once("/etc/uniformetl/autoload.php");
 
 class ExtractFull {
+	public $extract_id;
+	public $extractdir;
+	public $extractuntardir;
+
 	function start($source_path, $source_timestamp, $source_md5) {
+		//make sure we were provided with all the arguments that we need
 		$this->check_args($source_path, $source_timestamp, $source_md5);
 
-		$extract_id = $this->get_extract_id($source_path, $source_timestamp, $source_md5);
-		$extractdir = $this->get_extractdir($extract_id);
-		$extractuntardir = $this->get_extractuntardir($extract_id);
+		//reserve an extract id, and create an extract process in the database
+		$this->get_extract_id($source_path, $source_timestamp, $source_md5);
+		//create the folders where we're going to put the files we're working on
+		$this->get_extractdir();
+		$this->get_extractuntardir();
 
+		//find out what tables and table sources we're going to need need
 		$models = New Models;
 		$models->start();
 
-		$this->run_scp($source_path, $extractuntardir);
-		$this->run_tar($models->sources, $extractuntardir);
-		$this->run_convert($models->sources, $extractdir, $extractuntardir);
+		//get the specified source file from the remote server 
+		$this->run_scp($source_path);
+		//untar the files that we'll need from the source tar file
+		$this->run_tar($models->sources);
+		//convert all of the source files into the right format for postgres
+		$this->run_convert($models->sources);
 
+		//get the names of all the columns for the tables we need to create
 		$get_columns = New ExtractFullGetColumns;
-		$table_columns = $get_columns->start($extractuntardir."/taboutUserTableColumns.dat", $models->sources);
+		$table_columns = $get_columns->start($this->extractuntardir."/taboutUserTableColumns.dat", $models->sources);
 
+		//what indexes will we need to create. ask each model
 		$model_indexes = Plugins::hook("extract_index-sql", array());
 
 		$sql = "";
-		$sql .= $this->create_copy_sql($extract_id, $extractdir, $table_columns, $models->sources, $models->tables);
-		$sql .= $this->index_sql($extract_id, $models->transforms, $model_indexes);
+		//generate sql to create tables, and import information from source files
+		$sql .= $this->create_copy_sql($table_columns, $models->sources, $models->tables);
+		//generate sql to create indexes
+		$sql .= $this->index_sql($models->transforms, $model_indexes);
 		
-		file_put_contents($extractdir."/dump.sql", $sql);
+		//write the sql to a file
+		file_put_contents($this->extractdir."/dump.sql", $sql);
 		
-		var_dump(shell_exec("psql hotel < {$extractdir}/dump.sql"));
+		//run the sql file against the database
+		var_dump(shell_exec("psql ".Conf::$dbname." < {$this->extractdir}/dump.sql"));
 		
-		runq("UPDATE extract_processes SET finished=TRUE, finish_date=now() WHERE extract_id='".pg_escape_string($extract_id)."';");
+		//let the database know we've finished the extract
+		runq("UPDATE extract_processes SET finished=TRUE, finish_date=now() WHERE extract_id='".pg_escape_string($this->extract_id)."';");
 		
+		//helpful log message
 		echo "finished\n";
 	}
 
+	/*
+	 * make sure we were provided with all the arguments that we need
+	 */
 	function check_args($source_path, $source_timestamp, $source_md5) {
+		//make sure the source path looks valid
 		if (!is_string($source_path) && substr($source_path, -4, 4) != ".tgz") {
-			die("source_path is not valid");
+			throw new Exception("source_path is not valid");
 		}
 		
+		//make sure the source mtime timestamp looks valid
 		if (!is_string($source_timestamp)) {
-			die("source_timestamp is not valid");
+			throw new Exception("source_timestamp is not valid");
 		}
 		
+		//make sure the source hash looks like a md5 hash
 		if (preg_match("/^[0-9a-zA-Z]{32,32}$/", $source_md5) < 1) {
-			die("source_md5 is not valid");
+			throw new Exception("source_md5 is not valid");
 		}
 	}
 
+	/*
+	 * reserve an extract id, and create an extract process in the database
+	 */
 	function get_extract_id($source_path, $source_timestamp, $source_md5) {
 		try {
-			//create a process in the uetl database
+			//reserve a process id
 			$extract_id_query = runq("SELECT nextval('extract_processes_extract_id_seq');");
 		
-			$extract_id = $extract_id_query[0]['nextval'];
+			//so other method can use it
+			$this->extract_id = $extract_id_query[0]['nextval'];
 		
-			runq("INSERT INTO extract_processes (extract_id, extractor, extract_pid) VALUES ('".pg_escape_string($extract_id)."', 'full', '".pg_escape_string(getmypid())."');");
+			//create a process in the database
+			runq("INSERT INTO extract_processes (extract_id, extractor, extract_pid) VALUES ('".pg_escape_string($this->extract_id)."', 'full', '".pg_escape_string(getmypid())."');");
 		
-			runq("INSERT INTO extract_full (extract_id, source_path, source_timestamp, source_md5) VALUES ('".pg_escape_string($extract_id)."', '".pg_escape_string($source_path)."', '".pg_escape_string($source_timestamp)."', '".pg_escape_string($source_md5)."');");
+			//record information about the source file
+			runq("INSERT INTO extract_full (extract_id, source_path, source_timestamp, source_md5) VALUES ('".pg_escape_string($this->extract_id)."', '".pg_escape_string($source_path)."', '".pg_escape_string($source_timestamp)."', '".pg_escape_string($source_md5)."');");
+
 		} catch (Exception $e) {
+			print_r($e->getMessage());
 			die("could not create process in database");
 		}
-
-		return $extract_id;
 	}
 
-	function get_extractdir($extract_id) {
-		$extractdir = Conf::$software_path."extract/extract_processes/{$extract_id}";
+	/*
+	 * Create a folder where we can put the source files while we work on them
+	 */
+	function get_extractdir() {
+		//so other methods know where the folder is
+		$this->extractdir = Conf::$software_path."extract/extract_processes/{$this->extract_id}";
 
-		if (!mkdir($extractdir)) {
+		//create the folder
+		if (!mkdir($this->extractdir)) {
 			die("could not create dump folder");
 		}
-
-		return $extractdir;
 	}
 
-	function get_extractuntardir($extract_id) {
-		$extractuntardir = Conf::$software_path."extract/extract_processes/{$extract_id}/untar";
+	/*
+	 * Create a folder where we can put the source files while we work on them
+	 */
+	function get_extractuntardir() {
+		//so other methods know where the folder is
+		$this->extractuntardir = Conf::$software_path."extract/extract_processes/{$this->extract_id}/untar";
 
-		if (!mkdir($extractuntardir)) {
+		//create the folder
+		if (!mkdir($this->extractuntardir)) {
 			die("could not create dump untar folder");
 		}
-
-		return $extractuntardir;
 	}
 
-	function run_scp($source_path, $extractuntardir) {
-		passthru("scp -i ".Conf::$identity." ".Conf::$server.":{$source_path} {$extractuntardir} > /etc/uniformetl/logs/extractlog");
+	/*
+	 * get the specified source file from the remote server
+	 */
+	function run_scp($source_path) {
+		passthru("scp -i ".Conf::$identity." ".Conf::$server.":{$source_path} {$this->extractuntardir} > /etc/uniformetl/logs/extractlog");
 	}
 
-	function run_tar($sources, $extractuntardir) {
-		passthru("tar -xvzf {$extractuntardir}/*.tgz -C {$extractuntardir} taboutUserTableColumns.dat tabout".implode(".dat tabout", $sources).".dat");
+	/*
+	 * untar the files that we'll need from the source tar file
+	 */
+	function run_tar($sources) {
+		passthru("tar -xvzf {$this->extractuntardir}/*.tgz -C {$this->extractuntardir} taboutUserTableColumns.dat tabout".implode(".dat tabout", $sources).".dat");
 	}
 
-	function run_convert($sources, $extractdir, $extractuntardir) {
+	/*
+	 * convert all of the source files into the right format for postgres
+	 */
+	function run_convert($sources) {
+		//loop through all the sources we need
 		foreach ($sources as $i => $source) {
+			//GroupMember gets special treatment
 			if ($source == "GroupMember") {
-				passthru("sed -e '/^[^|]*||[^|]*||\ *6052\ *||/!d' -i {$extractuntardir}/tabout{$source}.dat");
+				//delete all the rows that don't contain the string 6052
+				//6052 is the group id of the only group id we care about
+				//doing this shaves a 3.4GB file down to 5MB - saves a lot of processing time
+				passthru("sed -e '/^[^|]*||[^|]*||\ *6052\ *||/!d' -i {$this->extractuntardir}/tabout{$source}.dat");
 			}
 	
-			passthru("/etc/uniformetl/extract/extractors/full/aaaaarf.sh {$extractuntardir}/tabout{$source}.dat {$extractdir}/tabout{$source}.sql");
+			//use the reformat script to reformat each file
+			//so that we can import the whole file into postgres
+			passthru("/etc/uniformetl/extract/extractors/full/aaaaarf.sh {$this->extractuntardir}/tabout{$source}.dat {$this->extractdir}/tabout{$source}.sql");
 		}
 	}
 
-	function create_copy_sql($extract_id, $extractdir, $table_columns, $sources, $tables) {
+	/*
+	 * generate sql to create tables, and import information from source files
+	 */
+	function create_copy_sql($table_columns, $sources, $tables) {
+		//loop through all the sources we need
 		foreach ($sources as $i => $source) {
-			$table = str_replace("%{extract_id}", $extract_id, $tables[$i]);
+			//what's the name of the table we're going to create
+			//table names include the extract id
+			$table = str_replace("%{extract_id}", $this->extract_id, $tables[$i]);
 		
+			//create table
 			$sql .= "CREATE TABLE {$table} (\n  ".implode(" TEXT,\n  ", $table_columns[$source])." TEXT\n);\n";
 		
-			$sql .= "COPY {$table} (".implode(", ", $table_columns[$source]).") FROM '{$extractdir}/tabout{$source}.sql' DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS ".'$$\$$'.";\n\n";
+			//import from source file
+			$sql .= "COPY {$table} (".implode(", ", $table_columns[$source]).") FROM '{$this->extractdir}/tabout{$source}.sql' DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS ".'$$\$$'.";\n\n";
 		}
 
 		return $sql;
 	}
 
-	function index_sql($extract_id, $models, $model_indexes) {
+	/*
+	 * generate sql to create indexes
+	 */
+	function index_sql($models, $model_indexes) {
+		//for each model that's enabled
 		foreach ($models as $model) {
-			foreach ($model_indexes[$model] as $index_array) {
-				foreach ($index_array as $index) {
-					$indexes[] = str_replace("${extract_id}", $extract_id, $index);
-				}
+			//for each index for this model
+			foreach ($model_indexes[$model] as $index) {
+				//add the extract id, and add the index to the array of indexes
+				$indexes[] = str_replace("%{extract_id}", $this->extract_id, $index);
 			}
 		}
 		
+		//multiple models might use the same tables, and have the same indexes defined
+		//remove the duplicates
 		$indexes = array_unique($indexes);
 		
+		//implode to string
 		return implode("\n", $indexes);
 	}
 }
-
-$source_path = $_SERVER["argv"][1];
-$source_timestamp = $_SERVER["argv"][2];
-$source_md5 = $_SERVER["argv"][3];
-
-$extract = New ExtractFull;
-$extract->start($source_path, $source_timestamp, $source_md5);
-
 
 /*
 function doandmonitor($execute, $monitor) {
