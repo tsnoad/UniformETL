@@ -117,7 +117,7 @@ Class MemberConfluenceStatuses {
 			$chunk_member_ids[] = $bar['member_id'];
 		}
 
-		$search = ldap_search($this->ldap, $this->ldapbasedn, "(|(uid=".implode(")(uid=", $chunk_member_ids)."))", array("uid", "cn", "sn", "givenname", "mail", "userpassword"));
+		$search = ldap_search($this->ldap, $this->base, "(|(uid=".implode(")(uid=", $chunk_member_ids)."))", array("uid", "cn", "sn", "givenname", "mail", "userpassword"));
 		$search_results = ldap_get_entries($this->ldap, $search);
 
 		if (empty($search_results)) return null;
@@ -156,7 +156,7 @@ Class MemberConfluenceStatuses {
 		if (empty($add['sn'])) $add['sn'] = " ";
 		if (empty($add['givenname'])) $add['givenname'] = " ";
 
-		ldap_add($this->ldap, "uid={$data_add_item['member_id']},".$this->ldapbasedn, $add);
+		ldap_add($this->ldap, "uid={$data_add_item['member_id']},".$this->base, $add);
 	}
 
 	function delete_data($data_delete_item) {
@@ -183,7 +183,7 @@ Class MemberConfluenceStatuses {
 		if (empty($add['sn'])) $add['sn'] = " ";
 		if (empty($add['givenname'])) $add['givenname'] = " ";
 
-		ldap_modify($this->ldap, "uid={$data_add_item['member_id']},".$this->ldapbasedn, $add);
+		ldap_modify($this->ldap, "uid={$data_add_item['member_id']},".$this->base, $add);
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {

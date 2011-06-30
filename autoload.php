@@ -71,6 +71,10 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/transform/transform_models/member_confluence_statuses.php");
 			break;
 
+		case "PluginHistory":
+		    require_once("/etc/uniformetl/plugins/history.php");
+			break;
+
 		default:
 			if (strpos($class_name, "APIModel") === 0) {
 			    require_once("/etc/uniformetl/api/apimodel_".strtolower(substr($class_name, 8)).".php");

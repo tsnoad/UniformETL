@@ -156,3 +156,10 @@ CREATE TABLE chunk_member_ids (
 	member_id BIGINT
 );
 CREATE INDEX chunk_member_ids_member_id ON chunk_member_ids (member_id);
+
+CREATE TABLE history (
+  id BIGSERIAL PRIMARY KEY,
+  change_date TIMESTAMP NOT NULL DEFAULT now(),
+  data TEXT
+);
+CREATE INDEX history_change_date ON history (change_date);

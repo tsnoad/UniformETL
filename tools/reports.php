@@ -1,39 +1,35 @@
 <?php
 
-function runq($query) {
-	$conn = pg_connect("host=localhost dbname=hotel user=tsnoad password=squibbles");
-	$result = pg_query($conn, $query);
-	$return = pg_fetch_all($result);
-	pg_close($conn);
+require_once("/etc/uniformetl/autoload.php");
+require_once("/etc/uniformetl/database.php");
 
-	return $return;
-}
 
-/*
-$foo = runq("select g.grade, d.division, count(m.member_id) from member_ids m inner join grades g on (g.member_id=m.member_id) inner join divisions d on (d.member_id=m.member_id) group by g.grade, d.division order by g.grade, d.division;");
+
+/* $foo = runq("select d.division as x, g.grade as y, count(m.member_id) as z from member_ids m inner join grades g on (g.member_id=m.member_id) inner join divisions d on (d.member_id=m.member_id) group by g.grade, d.division order by g.grade, d.division;"); */
+/* $foo = runq("select substr(email, strpos(email, '@') + 1) as x, 0 as y, count(email) as z from emails group by substr(email, strpos(email, '@') + 1);"); */
+
+
+$conn = pg_connect("host=".Conf::$dbhost." port=5432 dbname=".Conf::$dbname." user=".Conf::$dbuser." password=".Conf::$dbpass."");
+pg_query($conn, "create temp view member_receipts as select member_id, sum(amount) from receipts group by member_id;");
+pg_query($conn, "create temp view member_invoices as select member_id, sum(amount) from invoices group by member_id;");
+$result = pg_query($conn, "select r.member_id, r.sum-i.sum from member_receipts r, member_invoices i where i.member_id=r.member_id limit 100;");
+$return = pg_fetch_all($result);
+pg_close($conn);
+
+print_r($return);
+
+die();
 
 foreach ($foo as $bar) {
-	$x = $bar['division'];
-	$y = $bar['grade'];
+	$x = $bar['x'];
+	$y = $bar['y'];
 
-	$z = $bar['count'];
+	$z = $bar['z'];
 
 	$x_y[$x][$y] = $z;
 	$y_x[$y][$x] = $z;
 }
-*/
 
-$foo = runq("select substr(email, strpos(email, '@') + 1) as email, count(email) from emails group by substr(email, strpos(email, '@') + 1);");
-
-foreach ($foo as $bar) {
-	$x = $bar['email'];
-	$y = 0;
-
-	$z = $bar['count'];
-
-	$x_y[$x][$y] = $z;
-	$y_x[$y][$x] = $z;
-}
 
 $x_totals = array_map("array_sum", $x_y);
 $y_totals = array_map("array_sum", $y_x);
@@ -41,12 +37,12 @@ $y_totals = array_map("array_sum", $y_x);
 array_multisort($x_totals, $x_y);
 array_multisort($y_totals, $y_x);
 
-$x_y = array_slice($x_y, -10, 10, true);
-$y_x = array_slice($y_x, -10, 10, true);
-
 $total = array_sum(array_map("array_sum", $x_y));
 
 $max = max(array_map("max", $x_y));
+
+$x_y = array_slice($x_y, -10, 10, true);
+$y_x = array_slice($y_x, -10, 10, true);
 
 ?>
 <html>
@@ -139,6 +135,7 @@ div.datarow2 {
 </table>
 <?
 
+/*
 unset($x, $y, $x_y, $y_x, $x_totals, $y_totals, $total, $max);
 
 $scale = 2;
@@ -172,11 +169,13 @@ $max_lat = max(array_keys($y_x));
 
 $lon_range = $max_lon - $min_lon;
 $lat_range = $max_lat - $min_lat;
+*/
 
 ?>
 <div style="width: <?= (($lon_range + 1) * $zoom) ?>px; height: <?= (($lat_range + 1) * $zoom) ?>px; position: relative; border: 1px solid black;">
 <?
 
+/*
 foreach ($foo as $bar) {
 	$lon = $bar['longitude'];
 	$lon -= $min_lon;
@@ -191,6 +190,7 @@ foreach ($foo as $bar) {
 	<div style="width: <?= $zoom / 10 ?>px; height: <?= $zoom / 10 ?>px; position: absolute; left: <?= $lon ?>px; top: <?= $lat ?>px; background-color: rgba(0, 0, 0, <?= ($bar['count'] / $max + .1) ?>);"></div>
 	<?
 }
+*/
 
 ?>
 </div>

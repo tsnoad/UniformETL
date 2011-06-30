@@ -65,6 +65,8 @@ Class Plugins {
 		array("extract_index-sql", "MemberReceipts", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberWebStatuses", "hook_extract_index_sql"),
 
+		array("transform_update", "PluginHistory", "record_update"),
+
 		array("api_get-users_singles", "MemberIds", "hook_api_get_member"),
 		array("api_get-users_singles", "MemberPersonals", "hook_api_get_member"),
 		array("api_get-users_singles", "MemberWebStatuses", "hook_api_get_member"),

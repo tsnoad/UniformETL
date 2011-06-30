@@ -187,6 +187,8 @@ Class Transform {
 				continue;
 			}
 			echo "/";
+
+			Plugins::hook("transform_update", array($transform, $data_update_item));
 		}
 		echo "\n";
 	}
@@ -197,7 +199,7 @@ Class Transform {
 		}
 
 		foreach ($data_delete as $data_delete_item) {
-			if (!empty($data_delete_item)) {
+			if (empty($data_delete_item)) {
 				continue;
 			}
 
