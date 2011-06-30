@@ -60,12 +60,12 @@ class ExtractFull {
 	 */
 	function check_args($source_path, $source_timestamp, $source_md5) {
 		//make sure the source path looks valid
-		if (!is_string($source_path) && substr($source_path, -4, 4) != ".tgz") {
+		if (empty($source_path) || !is_string($source_path) || substr($source_path, -4, 4) != ".tgz") {
 			throw new Exception("source_path is not valid");
 		}
-		
+
 		//make sure the source mtime timestamp looks valid
-		if (!is_string($source_timestamp)) {
+		if (empty($source_timestamp) || !is_string($source_timestamp) || !strtotime($source_timestamp)) {
 			throw new Exception("source_timestamp is not valid");
 		}
 		
@@ -167,7 +167,7 @@ class ExtractFull {
 			//what's the name of the table we're going to create
 			//table names include the extract id
 			$table = str_replace("%{extract_id}", $this->extract_id, $tables[$i]);
-		
+
 			//create table
 			$sql .= "CREATE TABLE {$table} (\n  ".implode(" TEXT,\n  ", $table_columns[$source])." TEXT\n);\n";
 		
