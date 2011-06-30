@@ -9,7 +9,6 @@ class MemberIdsTransformTest extends PHPUnit_Framework_TestCase {
 		$this->model = new MemberIds;
 
 		$this->model->add_data("10000000");
-		runq("INSERT INTO dump_customer (customerid) VALUES ('10000000');");
 
 		$extract_id_query = runq("SELECT nextval('extract_processes_extract_id_seq');");
 		$this->extract_id = $extract_id_query[0]['nextval'];
@@ -23,16 +22,19 @@ class MemberIdsTransformTest extends PHPUnit_Framework_TestCase {
 		$this->chunk_id = $chunk_id_query[0]['nextval'];
 		runq("INSERT INTO chunks (chunk_id, transform_id) VALUES ('".pg_escape_string($this->chunk_id)."', '".pg_escape_string($this->transform_id)."');");
 		runq("INSERT INTO chunk_member_ids (chunk_id, member_id) VALUES ('".pg_escape_string($this->chunk_id)."', 10000000);");
+
+		runq("CREATE TABLE dump_{$this->extract_id}_customer (customerid TEXT);");
+		runq("INSERT INTO dump_{$this->extract_id}_customer (customerid) VALUES ('10000000');");
 	}
 
 	protected function tearDown() {
 		$this->model->delete_data("10000000");
-		runq("DELETE FROM dump_customer WHERE customerid='10000000';");
+		runq("DROP TABLE dump_{$this->extract_id}_customer;");
 		runq("DELETE FROM extract_processes WHERE extract_id='".pg_escape_string($this->extract_id)."';");
 	}
 	
 	public function testtransform() {
-		$src_members = $this->model->get_src_data($this->chunk_id);
+		$src_members = $this->model->get_src_data($this->chunk_id, $this->extract_id);
 		$dst_members = $this->model->get_dst_data($this->chunk_id);
 
 		$return = $this->model->transform($src_members, $dst_members);

@@ -46,7 +46,7 @@ class MemberConfluenceStatusesGetSrcTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testget_src_data() {
-		$member_statuses = $this->model->get_src_data($this->chunk_id);
+		$member_statuses = $this->model->get_src_data($this->chunk_id, $this->extract_id);
 
 		$this->assertNotEmpty($member_statuses);
 		$this->assertNotEmpty($member_statuses['10000000']);
