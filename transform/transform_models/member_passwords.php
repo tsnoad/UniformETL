@@ -78,6 +78,8 @@ Class MemberPasswords {
 
 		$salt_size = 32;
 
+		$salt = "";
+
 		for ($i = 0; $i < $salt_size; $i ++) {
 			$salt .= substr($sea, rand(0, $sea_size - 1), 1);
 		}
