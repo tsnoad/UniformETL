@@ -6,6 +6,7 @@ Class Plugins {
 	public static $plugins = array(
 		array("models_required-transforms", "MemberIds", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberAddresses", "hook_models_required_transforms"),
+		array("models_required-transforms", "MemberColleges", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberConfluenceStatuses", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberDivisions", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberEcpdStatuses", "hook_models_required_transforms"),
@@ -22,6 +23,7 @@ Class Plugins {
 
 		array("models_required-tables", "MemberIds", "hook_models_required_tables"),
 		array("models_required-tables", "MemberAddresses", "hook_models_required_tables"),
+		array("models_required-tables", "MemberColleges", "hook_models_required_tables"),
 		array("models_required-tables", "MemberConfluenceStatuses", "hook_models_required_tables"),
 		array("models_required-tables", "MemberDivisions", "hook_models_required_tables"),
 		array("models_required-tables", "MemberEcpdStatuses", "hook_models_required_tables"),
@@ -38,6 +40,7 @@ Class Plugins {
 
 		array("models_transform-priority", "MemberIds", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberAddresses", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberColleges", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberConfluenceStatuses", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberDivisions", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberEcpdStatuses", "hook_models_transform_priority"),
@@ -59,6 +62,7 @@ Class Plugins {
 
 		array("extract_index-sql", "MemberIds", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberAddresses", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberColleges", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberConfluenceStatuses", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberDivisions", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberEcpdStatuses", "hook_extract_index_sql"),

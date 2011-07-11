@@ -15,9 +15,12 @@ class Conf {
 		"MemberEcpdStatuses",
 		"MemberConfluenceStatuses",
 		"MemberInvoices",
+		"MemberInvoiceItems",
 		"MemberReceipts",
+		"MemberReceiptAllocations",
 		"MemberGrades",
-		"MemberDivisions"
+		"MemberDivisions",
+		"MemberColleges"
 	);
 
 	//database.php

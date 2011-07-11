@@ -14,7 +14,7 @@ require_once("/etc/uniformetl/transform/transform_models/member_web_statuses.php
 require_once("/etc/uniformetl/transform/transform_models/member_ecpd_statuses.php");
 require_once("/etc/uniformetl/transform/transform_models/member_confluence_statuses.php");
 
-class TransformModelsTest extends PHPUnit_Framework_TestCase {
+class APITest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
 		$this->user_model = new MemberIds;
 		$this->personal_model = new MemberPersonals;
@@ -36,7 +36,7 @@ class TransformModelsTest extends PHPUnit_Framework_TestCase {
 		$this->division_model->add_data(array("member_id" => "10000000", "division" => "Some Division"));
 		$this->grade_model->add_data(array("member_id" => "10000000", "grade" => "Some Grade"));
 		$this->web_status_model->add_data("10000000");
-		$this->ecpd_status_model->add_data("10000000");
+		$this->ecpd_status_model->add_data(array("member_id" => "10000000", "participant" => "t", "coordinator" => "t"));
 	}
 
 	protected function tearDown() {

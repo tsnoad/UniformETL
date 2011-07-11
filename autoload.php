@@ -61,6 +61,7 @@ function __autoload($class_name) {
 		case "MemberReceipts":
 		case "MemberGrades":
 		case "MemberDivisions":
+		case "MemberColleges":
 		    require_once("/etc/uniformetl/transform/transform_models/member_".strtolower(substr($class_name, 6)).".php");
 			break;
 		case "MemberWebStatuses":

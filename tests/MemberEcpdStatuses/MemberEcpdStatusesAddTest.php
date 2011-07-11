@@ -19,10 +19,12 @@ class MemberEcpdStatusesStatusesAddTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testadd_data() {
-		$this->model->add_data("10000000");
+		$this->model->add_data(array("member_id" => "10000000", "participant" => "t", "coordinator" => "t"));
 
 		$status_query = runq("SELECT * FROM ecpd_statuses WHERE member_id='10000000';");
 		$this->assertNotEmpty($status_query, "ecpd status was not created");
+		$this->assertEquals("t", $status_query[0]['participant'], "status was not set correctly");
+		$this->assertEquals("t", $status_query[0]['coordinator'], "status was not set correctly");
 	}
 }
 

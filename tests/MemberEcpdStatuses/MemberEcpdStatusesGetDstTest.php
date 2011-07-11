@@ -26,7 +26,7 @@ class MemberEcpdStatusesGetDstTest extends PHPUnit_Framework_TestCase {
 		runq("INSERT INTO chunks (chunk_id, transform_id) VALUES ('".pg_escape_string($this->chunk_id)."', '".pg_escape_string($this->transform_id)."');");
 		runq("INSERT INTO chunk_member_ids (chunk_id, member_id) VALUES ('".pg_escape_string($this->chunk_id)."', 10000000);");
 
-		$this->model->add_data("10000000");
+		$this->model->add_data(array("member_id" => "10000000", "participant" => "t", "coordinator" => "t"));
 	}
 
 	protected function tearDown() {
@@ -39,7 +39,9 @@ class MemberEcpdStatusesGetDstTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertNotEmpty($member_statuses);
 		$this->assertNotEmpty($member_statuses['10000000']);
-		$this->assertEquals("10000000", $member_statuses['10000000']);
+		$this->assertEquals("10000000", $member_statuses['10000000']['member_id']);
+		$this->assertEquals("t", $member_statuses['10000000']['participant']);
+		$this->assertEquals("t", $member_statuses['10000000']['coordinator']);
 	}
 }
 

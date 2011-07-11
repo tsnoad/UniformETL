@@ -128,28 +128,28 @@ Class Transform {
 
 		$transform_class = New $transform;
 		list($src_data_by_members, $dst_data_by_members) = $this->get_src_dst_data($chunk_id, $transform_class);
-$time = microtime(true);
+/* $time = microtime(true); */
 		list($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count) = $transform_class->transform($src_data_by_members, $dst_data_by_members);
-echo round(microtime(true) - $time, 3)."\t";
-$time = microtime(true);
+/* echo round(microtime(true) - $time, 3)."\t"; */
+/* $time = microtime(true); */
 
 		$this->add_data($transform_class, $data_add);
 		$this->data_nochange($transform_class, $data_nochange);
 		$this->data_update($transform_class, $data_update);
 		$this->data_delete($transform_class, $data_delete);
-echo round(microtime(true) - $time, 3)."\n";
+/* echo round(microtime(true) - $time, 3)."\n"; */
 
 		$this->model_stats($transform, $data_add, $data_nochange, $data_update, $data_delete_count);
 	}
 
 	function get_src_dst_data($chunk_id, $transform_class) {
 		try {
-$time = microtime(true);
+/* $time = microtime(true); */
 			$src_data_by_members = $transform_class->get_src_data($chunk_id, $this->extract_id);
-echo round(microtime(true) - $time, 3)."\t";
-$time = microtime(true);
+/* echo round(microtime(true) - $time, 3)."\t"; */
+/* $time = microtime(true); */
 			$dst_data_by_members = $transform_class->get_dst_data($chunk_id);
-echo round(microtime(true) - $time, 3)."\t";
+/* echo round(microtime(true) - $time, 3)."\t"; */
 		} catch (Exception $e) {
 			die($e->getMessage());
 		}
