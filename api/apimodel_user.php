@@ -94,7 +94,8 @@ Class APIModelUser {
 		//if we have to update the member's password
 		if (isset($_POST['password'])) {
 			//load the passwords model
-			$password_model = $models->init_class("passwords");
+			$password_model = $models->init_class("MemberPasswords");
+/* 			$password_model = New MemberPasswords; */
 
 			//data to pass on to model
 			$add_or_update_data = array(
