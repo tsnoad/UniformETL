@@ -13,7 +13,9 @@ Class MemberReceipts {
 	function hook_extract_index_sql($data) {
 		return array(
 			"CREATE INDEX dump_%{extract_id}_receipt_customerid ON dump_%{extract_id}_receipt (cast(customerid AS BIGINT));",
-			"CREATE INDEX dump_%{extract_id}_receipt_batch_hash ON dump_%{extract_id}_receipt (md5(trim(batchid::TEXT)||trim(batchposition::TEXT)));"
+			"CREATE INDEX dump_%{extract_id}_receipt_batchid ON dump_%{extract_id}_receipt (cast(batchid AS BIGINT));",
+			"CREATE INDEX dump_%{extract_id}_receipt_batchposition ON dump_%{extract_id}_receipt (cast(batchposition AS BIGINT));",
+			"CREATE INDEX dump_%{extract_id}_receipt_datereceived ON dump_%{extract_id}_receipt (cast(to_timestamp(datereceived, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp));"
 		);
 	}
 
@@ -32,7 +34,8 @@ Class MemberReceipts {
 			$member_id = trim($member_names_query_tmp['member_id']);
 
 			$name['member_id'] = $member_id;
-			$name['batch_hash'] = trim($member_names_query_tmp['batch_hash']);
+			$name['batchid'] = trim($member_names_query_tmp['batchid']);
+			$name['batchposition'] = trim($member_names_query_tmp['batchposition']);
 			$name['type'] = trim($member_names_query_tmp['type']);
 			$name['status'] = trim($member_names_query_tmp['status']);
 			$name['amount'] = (float)trim($member_names_query_tmp['amount']);
@@ -46,19 +49,19 @@ Class MemberReceipts {
 	}
 
 	function get_src_members_names($chunk_id, $extract_id) {
-		$src_member_names_query = runq("SELECT DISTINCT r.customerid as member_id, md5(trim(r.batchid::TEXT)||trim(r.batchposition::TEXT)) as batch_hash, r.receipttypeid as type, r.receiptstatusid as status, r.amount as amount FROM dump_{$extract_id}_receipt r INNER JOIN chunk_member_ids ch ON (ch.member_id=r.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND r.customerid NOT ILIKE '%+%';");
+		$src_member_names_query = runq("SELECT DISTINCT r.customerid as member_id, r.batchid::BIGINT as batchid, r.batchposition::BIGINT as batchposition, r.receipttypeid as type, r.receiptstatusid as status, r.amount as amount FROM dump_{$extract_id}_receipt r INNER JOIN chunk_member_ids ch ON (ch.member_id=r.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND r.customerid NOT ILIKE '%+%' AND cast(to_timestamp(r.datereceived, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)>now()-interval'24 months';");
 
 		return $this->get_members_names($src_member_names_query);
 	}
 
 	function get_dst_members_names($chunk_id) {
-		$dst_member_names_query = runq("SELECT DISTINCT r.member_id, r.batch_hash, r.type, r.status, r.amount FROM receipts r INNER JOIN chunk_member_ids ch ON (ch.member_id=r.member_id) WHERE ch.chunk_id='{$chunk_id}';");
+		$dst_member_names_query = runq("SELECT DISTINCT r.member_id, r.batchid, r.batchposition, r.type, r.status, r.amount FROM receipts r INNER JOIN chunk_member_ids ch ON (ch.member_id=r.member_id) WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members_names($dst_member_names_query);
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO receipts (member_id, batch_hash, type, status, amount) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['batch_hash'])."', '".pg_escape_string($data_add_item['type'])."', '".pg_escape_string($data_add_item['status'])."', '".pg_escape_string($data_add_item['amount'])."');");
+		runq("INSERT INTO receipts (member_id, batchid, batchposition, type, status, amount) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['batchid'])."', '".pg_escape_string($data_add_item['batchposition'])."', '".pg_escape_string($data_add_item['type'])."', '".pg_escape_string($data_add_item['status'])."', '".pg_escape_string($data_add_item['amount'])."');");
 	}
 
 	function update_data($data_update_item) {
@@ -69,7 +72,7 @@ Class MemberReceipts {
 		if (empty($data_delete_by_member)) return;
 
 		foreach ($data_delete_by_member as $data_delete_item) {
-			runq("DELETE FROM receipts WHERE member_id='".pg_escape_string($data_delete_item['member_id'])."' AND batch_hash='".pg_escape_string($data_delete_item['batch_hash'])."' AND type='".pg_escape_string($data_delete_item['type'])."' AND status='".pg_escape_string($data_delete_item['status'])."' AND type='".pg_escape_string($data_delete_item['type'])."';");
+			runq("DELETE FROM receipts WHERE member_id='".pg_escape_string($data_delete_item['member_id'])."' AND batchid='".pg_escape_string($data_delete_item['batchid'])."' AND batchposition='".pg_escape_string($data_delete_item['batchposition'])."' AND type='".pg_escape_string($data_delete_item['type'])."' AND status='".pg_escape_string($data_delete_item['status'])."' AND type='".pg_escape_string($data_delete_item['type'])."';");
 		}
 	}
 

@@ -21,31 +21,38 @@ http://www.server-world.info/en/note?os=SUSE_Linux_Enterprise_Server_11&p=ldap
 $timer = microtime(true);
 
 /* $base = "dc=example,dc=com"; */
-$base = "dc=example,dc=com";
+$base = "dc=my-domain,dc=com";
 
 ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 
-$ldap = ldap_connect("localhost");
+/* $ldap = ldap_connect("localhost"); */
+$ldap = ldap_connect("192.168.13.189");
 var_dump($ldap);
 
 /* $bind = ldap_bind($ldap, "cn=admin,".$base, "example"); */
-$bind = ldap_bind($ldap, "cn=admin,".$base, "example");
+$bind = ldap_bind($ldap, "cn=Manager,".$base, "resources");
 var_dump($bind);
 
+/*
 $iterations = 5;
 
 for ($i = 1; $i <= $iterations; $i ++) {
 	$searchids[] = $i;
 }
+*/
+
+$searchids = array("3359780");
+
+var_dump($searchids);
 
 if (true) {
-/* 	$search = ldap_search($ldap, $base, "(|(uid=".implode(")(uid=", $searchids)."))", array("uid", "cn", "userpassword", "objectclass")); */
-/* 	$search_result = ldap_get_entries($ldap, $search); */
+	$search = ldap_search($ldap, $base, "(|(uid=".implode(")(uid=", $searchids)."))", array("uid", "cn", "userpassword", "objectclass"));
+	$search_result = ldap_get_entries($ldap, $search);
 
-/* 	print_r($search_result); */
-/* 	var_dump($search_result['count']); */
+	print_r($search_result);
+	var_dump($search_result['count']);
 
-	if (true) {
+	if (false) {
 		for ($i = 1; $i <= $iterations; $i ++) {
 			ldap_delete($ldap, "uid={$i},".$base);
 		}

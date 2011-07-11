@@ -5,7 +5,9 @@ Class MemberInvoices {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_%{extract_id}_invoice" => "Invoice");
+		return array(
+			"dump_%{extract_id}_invoice" => "Invoice"
+		);
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
@@ -13,7 +15,9 @@ Class MemberInvoices {
 	function hook_extract_index_sql($data) {
 		return array(
 			"CREATE INDEX dump_%{extract_id}_invoice_customerid ON dump_%{extract_id}_invoice (cast(customerid AS BIGINT));",
-			"CREATE INDEX dump_%{extract_id}_invoice_batch_hash ON dump_%{extract_id}_invoice (md5(trim(batchid::TEXT)||trim(batchposition::TEXT)));"
+			"CREATE INDEX dump_%{extract_id}_invoice_batchid ON dump_%{extract_id}_invoice (cast(batchid AS BIGINT));",
+			"CREATE INDEX dump_%{extract_id}_invoice_batchposition ON dump_%{extract_id}_invoice (cast(batchposition AS BIGINT));",
+			"CREATE INDEX dump_%{extract_id}_invoice_datecreated ON dump_%{extract_id}_invoice (cast(to_timestamp(datecreated, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp));"
 		);
 	}
 
@@ -32,7 +36,8 @@ Class MemberInvoices {
 			$member_id = trim($member_names_query_tmp['member_id']);
 
 			$name['member_id'] = $member_id;
-			$name['batch_hash'] = trim($member_names_query_tmp['batch_hash']);
+			$name['batchid'] = trim($member_names_query_tmp['batchid']);
+			$name['batchposition'] = trim($member_names_query_tmp['batchposition']);
 			$name['type'] = trim($member_names_query_tmp['type']);
 			$name['status'] = trim($member_names_query_tmp['status']);
 			$name['amount'] = (float)trim($member_names_query_tmp['amount']);
@@ -46,19 +51,19 @@ Class MemberInvoices {
 	}
 
 	function get_src_members_names($chunk_id, $extract_id) {
-		$src_member_names_query = runq("SELECT DISTINCT i.customerid as member_id, md5(trim(i.batchid::TEXT)||trim(i.batchposition::TEXT)) as batch_hash, i.invoicetypeid as type, i.invoicestatusid as status, i.amount as amount FROM dump_{$extract_id}_invoice i INNER JOIN chunk_member_ids ch ON (ch.member_id=i.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
+		$src_member_names_query = runq("SELECT DISTINCT i.customerid as member_id, i.batchid::BIGINT as batchid, i.batchposition::BIGINT as batchposition, i.invoicetypeid as type, i.invoicestatusid as status, i.amount as amount FROM dump_{$extract_id}_invoice i INNER JOIN chunk_member_ids ch ON (ch.member_id=i.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND cast(to_timestamp(i.datecreated, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)>now()-interval'24 months';");
 
 		return $this->get_members_names($src_member_names_query);
 	}
 
 	function get_dst_members_names($chunk_id) {
-		$dst_member_names_query = runq("SELECT DISTINCT i.member_id, i.batch_hash, i.type, i.status, i.amount FROM invoices i INNER JOIN chunk_member_ids ch ON (ch.member_id=i.member_id) WHERE ch.chunk_id='{$chunk_id}';");
+		$dst_member_names_query = runq("SELECT DISTINCT i.member_id, i.batchid, i.batchposition, i.type, i.status, i.amount FROM invoices i INNER JOIN chunk_member_ids ch ON (ch.member_id=i.member_id) WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members_names($dst_member_names_query);
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO invoices (member_id, batch_hash, type, status, amount) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['batch_hash'])."', '".pg_escape_string($data_add_item['type'])."', '".pg_escape_string($data_add_item['status'])."', '".pg_escape_string($data_add_item['amount'])."');");
+		runq("INSERT INTO invoices (member_id, batchid, batchposition, type, status, amount) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['batchid'])."', '".pg_escape_string($data_add_item['batchposition'])."', '".pg_escape_string($data_add_item['type'])."', '".pg_escape_string($data_add_item['status'])."', '".pg_escape_string($data_add_item['amount'])."');");
 	}
 
 	function update_data($data_update_item) {
@@ -69,7 +74,7 @@ Class MemberInvoices {
 		if (empty($data_delete_by_member)) return;
 
 		foreach ($data_delete_by_member as $data_delete_item) {
-			runq("DELETE FROM invoices WHERE member_id='".pg_escape_string($data_delete_item['member_id'])."' AND batch_hash='".pg_escape_string($data_delete_item['batch_hash'])."' AND type='".pg_escape_string($data_delete_item['type'])."' AND status='".pg_escape_string($data_delete_item['status'])."' AND amount='".pg_escape_string($data_delete_item['amount'])."';");
+			runq("DELETE FROM invoices WHERE member_id='".pg_escape_string($data_delete_item['member_id'])."' AND batchid='".pg_escape_string($data_delete_item['batchid'])."' AND batchposition='".pg_escape_string($data_delete_item['batchposition'])."' AND type='".pg_escape_string($data_delete_item['type'])."' AND status='".pg_escape_string($data_delete_item['status'])."' AND amount='".pg_escape_string($data_delete_item['amount'])."';");
 		}
 	}
 

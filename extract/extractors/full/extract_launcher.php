@@ -274,6 +274,8 @@ class ExtractFullLauncher {
 		//helpful log message
 		var_dump("jackpot");
 
+		var_dump(Conf::$software_path."extract/extractors/full/run_extract.php ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog &");
+
 		//start the extract process
 		shell_exec(Conf::$software_path."extract/extractors/full/run_extract.php ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog &");
 	}

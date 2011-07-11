@@ -46,7 +46,7 @@ class ExtractFull {
 		file_put_contents($this->extractdir."/dump.sql", $sql);
 		
 		//run the sql file against the database
-		var_dump(shell_exec("psql ".Conf::$dbname." < {$this->extractdir}/dump.sql"));
+		passthru("psql ".Conf::$dbname." < {$this->extractdir}/dump.sql");
 		
 		//let the database know we've finished the extract
 		runq("UPDATE extract_processes SET finished=TRUE, finish_date=now() WHERE extract_id='".pg_escape_string($this->extract_id)."';");

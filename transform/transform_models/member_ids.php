@@ -11,7 +11,10 @@ Class MemberIds {
 		return "primary";
 	}
 	function hook_extract_index_sql($data) {
-		return array("CREATE INDEX dump_%{extract_id}_customer_customerid ON dump_%{extract_id}_customer (cast(customerid AS BIGINT));");
+		return array(
+			"CREATE INDEX dump_%{extract_id}_customer_customerid ON dump_%{extract_id}_customer (cast(customerid AS BIGINT));",
+			"CREATE INDEX dump_%{extract_id}_customer_custtypeid ON dump_%{extract_id}_customer (custtypeid='INDI');"
+		);
 	}
 
 	function get_src_data($src_member_ids_chunk, $extract_id) {

@@ -13,7 +13,7 @@ class MemberReceiptsDeleteTest extends PHPUnit_Framework_TestCase {
 
 		$this->user_model->add_data("10000000");
 
-		$this->model->add_data(array("member_id" => "10000000", "batch_hash" => md5("something1234"), "type" => "SING", "status" => "PROC", "amount" => "3.14"));
+		$this->model->add_data(array("member_id" => "10000000", "batchid" => "101000000", "batchposition" => "1", "type" => "SING", "status" => "PROC", "amount" => "3.14"));
 	}
 
 	protected function tearDown() {
@@ -21,7 +21,7 @@ class MemberReceiptsDeleteTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testdelete_data() {
-		$this->model->delete_data(array(array("member_id" => "10000000", "batch_hash" => md5("something1234"), "type" => "SING", "status" => "PROC", "amount" => "3.14")));
+		$this->model->delete_data(array(array("member_id" => "10000000", "batchid" => "101000000", "batchposition" => "1", "type" => "SING", "status" => "PROC", "amount" => "3.14")));
 
 		$member_query = runq("SELECT * FROM receipts WHERE member_id='10000000';");
 		$this->assertEmpty($member_query, "receipt was not deleted");

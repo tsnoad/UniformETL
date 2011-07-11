@@ -19,11 +19,12 @@ class MemberInvoicesAddTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testadd_data() {
-		$this->model->add_data(array("member_id" => "10000000", "batch_hash" => md5("something1234"), "type" => "INV", "status" => "ACQU", "amount" => "3.14"));
+		$this->model->add_data(array("member_id" => "10000000", "batchid" => "101000000", "batchposition" => "1", "type" => "INV", "status" => "ACQU", "amount" => "3.14"));
 
 		$member_query = runq("SELECT * FROM invoices WHERE member_id='10000000';");
 		$this->assertNotEmpty($member_query, "invoice was not created");
-		$this->assertEquals(md5("something1234"), $member_query[0]['batch_hash'], "invoice was not set correctly");
+		$this->assertEquals("101000000", $member_query[0]['batchid'], "invoice was not set correctly");
+		$this->assertEquals("1", $member_query[0]['batchposition'], "invoice was not set correctly");
 		$this->assertEquals("INV", $member_query[0]['type'], "invoice was not set correctly");
 		$this->assertEquals("ACQU", $member_query[0]['status'], "invoice was not set correctly");
 		$this->assertEquals("3.14", $member_query[0]['amount'], "invoice was not set correctly");

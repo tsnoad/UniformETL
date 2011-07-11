@@ -88,35 +88,53 @@ CREATE INDEX divisions_member_id ON divisions (member_id);
 create table invoices (
 	id BIGSERIAL PRIMARY KEY,
 	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	batch_hash TEXT,
+	batchid BIGINT,
+	batchposition BIGINT,
 	type TEXT,
 	status TEXT,
 	amount FLOAT,
-	UNIQUE (member_id, batch_hash, status, amount)
+	UNIQUE (batchid, batchposition)
 );
 CREATE INDEX invoices_member_id ON invoices (member_id);
+CREATE INDEX invoices_batchid ON invoices (batchid);
+CREATE INDEX invoices_batchposition ON invoices (batchposition);
 
 create table receipts (
 	id BIGSERIAL PRIMARY KEY,
 	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,
-	batch_hash TEXT,
+	batchid BIGINT,
+	batchposition BIGINT,
 	type TEXT,
 	status TEXT,
 	amount FLOAT,
-	UNIQUE (member_id, batch_hash, status, amount)
+	UNIQUE (batchid, batchposition)
 );
 CREATE INDEX receipts_member_id ON receipts (member_id);
+CREATE INDEX receipts_batchid ON receipts (batchid);
+CREATE INDEX receipts_batchposition ON receipts (batchposition);
 
-CREATE VIEW member_invoices_sum AS (
-	SELECT i.member_id, sum(i.amount) as sum FROM invoices i GROUP BY member_id
+CREATE TABLE invoiceitems (
+	id BIGSERIAL PRIMARY KEY,
+	invoice_id BIGINT NOT NULL REFERENCES invoices (id) ON UPDATE CASCADE ON DELETE CASCADE,
+	itemcode TEXT,
+	subitemcode TEXT,
+	quantity INT,
+	unitamount FLOAT,
+	amount FLOAT,
+	UNIQUE (invoice_id, itemcode, subitemcode)
 );
-CREATE VIEW member_receipts_sum AS (
-	SELECT r.member_id, sum(r.amount) as sum FROM receipts r GROUP BY member_id
-);
-CREATE VIEW member_balance AS (
-	SELECT i.member_id, i.sum-r.sum as balance FROM member_invoices_sum i INNER JOIN member_receipts_sum r ON (r.member_id=i.member_id)
-);
+CREATE INDEX invoices_invoice_id ON invoiceitems (invoice_id);
+CREATE INDEX invoices_itemcode ON invoiceitems (itemcode);
+CREATE INDEX invoices_subitemcode ON invoiceitems (subitemcode);
 
+CREATE TABLE receiptallocations (
+	id BIGSERIAL PRIMARY KEY,
+	receipt_id BIGINT NOT NULL REFERENCES receipts (id) ON UPDATE CASCADE ON DELETE CASCADE,
+	invoiceitem_id BIGINT NOT NULL REFERENCES invoiceitems (id) ON UPDATE CASCADE ON DELETE CASCADE,
+	UNIQUE (receipt_id, invoiceitem_id)
+);
+CREATE INDEX receiptallocations_invoiceitem_id ON receiptallocations (invoiceitem_id);
+CREATE INDEX receiptallocations_receipt_id ON receiptallocations (receipt_id);
 
 CREATE TABLE extract_processes (
 	extract_id BIGSERIAL PRIMARY KEY,
