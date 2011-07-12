@@ -57,7 +57,7 @@ AND trim(c.cpgid)='IEA'
 AND trim(c.changereasonid)='' 
 AND trim(c.datechange)='';"); */
 
-		$src_member_emails_query = runq("SELECT DISTINCT c.customerid::BIGINT as member_id, c.cpgid as society, '' as grade FROM dump_{$extract_id}_gradehistory c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND trim(c.cpgid)!='IEA';");
+		$src_member_emails_query = runq("SELECT DISTINCT c.customerid::BIGINT as member_id, c.cpgid as society, '' as grade FROM dump_{$extract_id}_gradehistory c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND trim(c.cpgid)!='IEA' AND trim(c.cpgid)!='iea';");
 
 
 		return $this->get_members_emails($src_member_emails_query);
