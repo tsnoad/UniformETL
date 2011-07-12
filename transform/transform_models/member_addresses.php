@@ -82,6 +82,9 @@ Class MemberAddresses {
 		list($member_id) = $data;
 
 		$address_query = runq("SELECT type, address, suburb, state, postcode, country FROM addresses a WHERE a.member_id='".pg_escape_string($member_id)."';");
+
+		if (empty($address_query)) return array("addresses" => array());
+
 		$user['addresses'] = $address_query;
 
 		return $user;

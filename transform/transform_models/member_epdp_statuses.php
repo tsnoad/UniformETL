@@ -74,7 +74,7 @@ Class MemberEpdpStatuses {
 	}
 
 	function hook_api_get_member($data) {
-		return array("e.member_id=m.member_id as ecpd_status", "LEFT JOIN ecpd_statuses e ON (e.member_id=m.member_id)");
+		return array("epdp.participant as epdp_particpant, epdp.coordinator as epdp_coordinator", "LEFT JOIN epdp_statuses epdp ON (epdp.member_id=m.member_id)");
 	}
 }
 

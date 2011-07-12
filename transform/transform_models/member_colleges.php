@@ -91,19 +91,20 @@ AND trim(c.datechange)='';"); */
 		return $transform->transform($src_data_by_members, $dst_data_by_members);
 	}
 
-/*
 	function hook_api_get_member_plurals($data) {
 		list($member_id) = $data;
 
-		$emails_query = runq("SELECT email FROM emails e WHERE e.member_id='".pg_escape_string($member_id)."';");
-		foreach ($emails_query as $emails_query_tmp) {
+		$colleges_query = runq("SELECT college FROM colleges WHERE member_id='".pg_escape_string($member_id)."';");
+
+		if (empty($colleges_query)) return array("colleges" => array());
+
+		foreach ($colleges_query as $colleges_query_tmp) {
 			//put email addresses in array
-			$user['emails'][] = $emails_query_tmp['email'];
+			$user['colleges'][] = $colleges_query_tmp['college'];
 		}
 
 		return $user;
 	}
-*/
 }
 
 ?>

@@ -79,6 +79,9 @@ Class MemberNames {
 		list($member_id) = $data;
 
 		$names_query = runq("SELECT type, given_names, family_name FROM names n WHERE n.member_id='".pg_escape_string($member_id)."';");
+
+		if (empty($names_query)) return array("names" => array());
+
 		foreach ($names_query as $names_query_tmp) {
 			//organise names by name type (there's only ever one name per name type)
 			$user['names'][$names_query_tmp['type']] = array("given_names" => $names_query_tmp['given_names'], "family_name" => $names_query_tmp['family_name']);

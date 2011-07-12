@@ -37,7 +37,7 @@ Class MemberIds {
 	}
 
 	function get_src_members($chunk_id, $extract_id) {
-		$src_member_query = runq("SELECT DISTINCT c.customerid AS member_id FROM dump_{$extract_id}_customer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
+		$src_member_query = runq("SELECT DISTINCT c.customerid AS member_id FROM dump_{$extract_id}_customer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND c.custtypeid='INDI';");
 
 		return $this->get_members($src_member_query);
 	}
