@@ -1,6 +1,28 @@
 <?php
 
 Class MemberGrades {
+/*
+	public static $grade_names = array(
+		"AFIL" => "Affiliate",
+		"ASOC" => "Associate",
+		"COMP" => "Companion",
+		"FELL" => "Fellow",
+		"GRAD" => "Graduate",
+		"HONF" => "Honorary Fellow",
+		"MEMB" => "Member",
+		"OFEL" => "Officer Fellow",
+		"OGRA" => "Officer Graduate",
+		"OMEM" => "Officer Member",
+		"OSTU" => "Officer Student",
+		"SNRM" => "Senior Member",
+		"STUD" => "Student (IEAust)",
+		"TFEL" => "Technologist Fellow",
+		"TGRA" => "Technologist Graduate",
+		"TMEM" => "Technologist Member",
+		"TSTU" => "Technologist Student"
+	);
+*/
+
 	function hook_models_required_transforms($data) {
 		return array("MemberIds");
 	}

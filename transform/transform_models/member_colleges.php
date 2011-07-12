@@ -1,11 +1,25 @@
 <?php
 
 Class MemberColleges {
+	public static $college_names = array(
+		"BIOM" => "Biomedical College",
+		"CHEM" => "Chemical College",
+		"CIVL" => "Civil College",
+		"ELEC" => "Electrical College",
+		"ENVI" => "Environmental College",
+		"ITEL" => "Info Telecom & Electronics Eng College",
+		"MECH" => "Mechanical College",
+		"STRU" => "Structural College"
+	);
+
 	function hook_models_required_transforms($data) {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_%{extract_id}_gradehistory" => "GradeHistory");
+		return array(
+			"dump_%{extract_id}_gradehistory" => "GradeHistory",
+			"dump_%{extract_id}_cpggradetype" => "cpgGradeType"
+		);
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
@@ -57,8 +71,7 @@ AND trim(c.cpgid)='IEA'
 AND trim(c.changereasonid)='' 
 AND trim(c.datechange)='';"); */
 
-		$src_member_emails_query = runq("SELECT DISTINCT c.customerid::BIGINT as member_id, c.gradetypeid as college, '' as grade FROM dump_{$extract_id}_gradehistory c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND trim(c.cpgid)='IEA';");
-
+		$src_member_emails_query = runq("SELECT DISTINCT c.customerid::BIGINT as member_id, c.gradetypeid as college, '' as grade FROM dump_{$extract_id}_gradehistory c INNER JOIN dump_{$extract_id}_cpggradetype gt ON (gt.gradetypeid=c.gradetypeid) INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND trim(c.cpgid)='IEA' AND trim(gt.classid)='COLL';");
 
 		return $this->get_members_emails($src_member_emails_query);
 	}
@@ -100,7 +113,8 @@ AND trim(c.datechange)='';"); */
 
 		foreach ($colleges_query as $colleges_query_tmp) {
 			//put email addresses in array
-			$user['colleges'][] = $colleges_query_tmp['college'];
+/* 			$user['colleges'][] = $colleges_query_tmp['college']; */
+			$user['colleges'][] = MemberColleges::$college_names[$colleges_query_tmp['college']];
 		}
 
 		return $user;

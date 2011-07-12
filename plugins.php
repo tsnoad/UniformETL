@@ -21,6 +21,7 @@ Class Plugins {
 		array("models_required-transforms", "MemberReceiptAllocations", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberReceipts", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberSocieties", "hook_models_required_transforms"),
+		array("models_required-transforms", "MemberStatuses", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberWebStatuses", "hook_models_required_transforms"),
 
 		array("models_required-tables", "MemberIds", "hook_models_required_tables"),
@@ -40,6 +41,7 @@ Class Plugins {
 		array("models_required-tables", "MemberReceiptAllocations", "hook_models_required_tables"),
 		array("models_required-tables", "MemberReceipts", "hook_models_required_tables"),
 		array("models_required-tables", "MemberSocieties", "hook_models_required_tables"),
+		array("models_required-tables", "MemberStatuses", "hook_models_required_tables"),
 		array("models_required-tables", "MemberWebStatuses", "hook_models_required_tables"),
 
 		array("models_transform-priority", "MemberIds", "hook_models_transform_priority"),
@@ -59,6 +61,7 @@ Class Plugins {
 		array("models_transform-priority", "MemberReceiptAllocations", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberReceipts", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberSocieties", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberStatuses", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberWebStatuses", "hook_models_transform_priority"),
 
 		array("transform_deleted-members-query", "ExtractFullPlugins", "hook_transform_deleted_members_query"),
@@ -83,13 +86,15 @@ Class Plugins {
 		array("extract_index-sql", "MemberReceiptAllocations", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberReceipts", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberSocieties", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberStatuses", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberWebStatuses", "hook_extract_index_sql"),
 
 /* 		array("transform_update", "PluginHistory", "record_update"), */
 
 		array("api_get-users_singles", "MemberIds", "hook_api_get_member"),
 		array("api_get-users_singles", "MemberPersonals", "hook_api_get_member"),
-		array("api_get-users_singles", "MemberWebStatuses", "hook_api_get_member"),
+		array("api_get-users_singles", "MemberStatuses", "hook_api_get_member"),
+/* 		array("api_get-users_singles", "MemberWebStatuses", "hook_api_get_member"), */
 		array("api_get-users_singles", "MemberEcpdStatuses", "hook_api_get_member"),
 		array("api_get-users_singles", "MemberEpdpStatuses", "hook_api_get_member"),
 		array("api_get-users_singles", "MemberGrades", "hook_api_get_member"),

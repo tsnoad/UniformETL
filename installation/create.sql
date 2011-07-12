@@ -14,6 +14,15 @@ create table personals (
 );
 CREATE INDEX personals_member_id ON personals (member_id);
 
+create table statuses (
+	id BIGSERIAL PRIMARY KEY,
+	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	member BOOLEAN NOT NULL DEFAULT FALSE,
+	financial BOOLEAN NOT NULL DEFAULT FALSE,
+	UNIQUE (member_id)
+);
+CREATE INDEX statuses_member_id ON statuses (member_id);
+
 create table passwords (
 	id BIGSERIAL PRIMARY KEY,
 	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -187,7 +196,7 @@ CREATE TABLE extract_latest (
 );
 CREATE TABLE transform_processes (
 	transform_id BIGSERIAL PRIMARY KEY,
-	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,,
+	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,
 	transform_pid TEXT NOT NULL,
 	start_date TIMESTAMP NOT NULL DEFAULT now(),
 	finished BOOLEAN DEFAULT FALSE,
