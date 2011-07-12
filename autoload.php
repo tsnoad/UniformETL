@@ -62,6 +62,7 @@ function __autoload($class_name) {
 		case "MemberGrades":
 		case "MemberDivisions":
 		case "MemberColleges":
+		case "MemberSocieties":
 		    require_once("/etc/uniformetl/transform/transform_models/member_".strtolower(substr($class_name, 6)).".php");
 			break;
 		case "MemberWebStatuses":
@@ -69,6 +70,9 @@ function __autoload($class_name) {
 			break;
 		case "MemberEcpdStatuses":
 		    require_once("/etc/uniformetl/transform/transform_models/member_ecpd_statuses.php");
+			break;
+		case "MemberEpdpStatuses":
+		    require_once("/etc/uniformetl/transform/transform_models/member_epdp_statuses.php");
 			break;
 		case "MemberConfluenceStatuses":
 		    require_once("/etc/uniformetl/transform/transform_models/member_confluence_statuses.php");

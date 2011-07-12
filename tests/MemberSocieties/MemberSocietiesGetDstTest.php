@@ -2,11 +2,16 @@
 
 require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/database.php");
-require_once("/etc/uniformetl/transform/transform_models/member_colleges.php");
+require_once("/etc/uniformetl/transform/transform_models/member_ids.php");
+require_once("/etc/uniformetl/transform/transform_models/member_societies.php");
 
-class MemberCollegesGetSrcTest extends PHPUnit_Framework_TestCase {
+class MemberSocietiesGetDstTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
-		$this->model = new MemberColleges;
+		$this->model = new MemberSocieties;
+
+		$this->user_model = new MemberIds;
+
+		$this->user_model->add_data("10000000");
 
 		$extract_id_query = runq("SELECT nextval('extract_processes_extract_id_seq');");
 		$this->extract_id = $extract_id_query[0]['nextval'];
@@ -21,25 +26,24 @@ class MemberCollegesGetSrcTest extends PHPUnit_Framework_TestCase {
 		runq("INSERT INTO chunks (chunk_id, transform_id) VALUES ('".pg_escape_string($this->chunk_id)."', '".pg_escape_string($this->transform_id)."');");
 		runq("INSERT INTO chunk_member_ids (chunk_id, member_id) VALUES ('".pg_escape_string($this->chunk_id)."', 10000000);");
 
-		runq("CREATE TABLE dump_{$this->extract_id}_gradehistory (customerid TEXT, cpgid TEXT, gradetypeid TEXT, gradeid TEXT);");
-		runq("INSERT INTO dump_{$this->extract_id}_gradehistory (customerid, cpgid, gradetypeid, gradeid) VALUES ('10000000', 'IEA', 'COLL', 'GRAD');");
+		$this->model->add_data(array("member_id" => "10000000", "society" => "TS01", "grade" => "MEMB"));
 	}
 
 	protected function tearDown() {
-		runq("DROP TABLE dump_{$this->extract_id}_gradehistory;");
+		$this->user_model->delete_data("10000000");
 		runq("DELETE FROM extract_processes WHERE extract_id='".pg_escape_string($this->extract_id)."';");
 	}
 	
-	public function testget_src_data() {
-		$member_colleges = $this->model->get_src_data($this->chunk_id, $this->extract_id);
+	public function testget_dst_data() {
+		$member_societies = $this->model->get_dst_data($this->chunk_id);
 
-		$data_hash = md5("10000000"."COLL"."");
+		$data_hash = md5("10000000"."TS01"."MEMB");
 
-		$this->assertNotEmpty($member_colleges);
-		$this->assertNotEmpty($member_colleges['10000000']);
-		$this->assertNotEmpty($member_colleges['10000000'][$data_hash]);
-		$this->assertEquals("COLL", $member_colleges['10000000'][$data_hash]['college']);
-		$this->assertEquals("", $member_colleges['10000000'][$data_hash]['grade']);
+		$this->assertNotEmpty($member_societies);
+		$this->assertNotEmpty($member_societies['10000000']);
+		$this->assertNotEmpty($member_societies['10000000'][$data_hash]);
+		$this->assertEquals("TS01", $member_societies['10000000'][$data_hash]['society']);
+		$this->assertEquals("MEMB", $member_societies['10000000'][$data_hash]['grade']);
 	}
 }
 

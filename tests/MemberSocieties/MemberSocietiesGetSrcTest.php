@@ -2,11 +2,11 @@
 
 require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/database.php");
-require_once("/etc/uniformetl/transform/transform_models/member_colleges.php");
+require_once("/etc/uniformetl/transform/transform_models/member_societies.php");
 
-class MemberCollegesGetSrcTest extends PHPUnit_Framework_TestCase {
+class MemberSocietiesGetSrcTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
-		$this->model = new MemberColleges;
+		$this->model = new MemberSocieties;
 
 		$extract_id_query = runq("SELECT nextval('extract_processes_extract_id_seq');");
 		$this->extract_id = $extract_id_query[0]['nextval'];
@@ -22,7 +22,7 @@ class MemberCollegesGetSrcTest extends PHPUnit_Framework_TestCase {
 		runq("INSERT INTO chunk_member_ids (chunk_id, member_id) VALUES ('".pg_escape_string($this->chunk_id)."', 10000000);");
 
 		runq("CREATE TABLE dump_{$this->extract_id}_gradehistory (customerid TEXT, cpgid TEXT, gradetypeid TEXT, gradeid TEXT);");
-		runq("INSERT INTO dump_{$this->extract_id}_gradehistory (customerid, cpgid, gradetypeid, gradeid) VALUES ('10000000', 'IEA', 'COLL', 'GRAD');");
+		runq("INSERT INTO dump_{$this->extract_id}_gradehistory (customerid, cpgid, gradetypeid, gradeid) VALUES ('10000000', 'TS01', 'MEMB', 'MEMB');");
 	}
 
 	protected function tearDown() {
@@ -31,15 +31,15 @@ class MemberCollegesGetSrcTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testget_src_data() {
-		$member_colleges = $this->model->get_src_data($this->chunk_id, $this->extract_id);
+		$member_societies = $this->model->get_src_data($this->chunk_id, $this->extract_id);
 
-		$data_hash = md5("10000000"."COLL"."");
+		$data_hash = md5("10000000"."TS01"."");
 
-		$this->assertNotEmpty($member_colleges);
-		$this->assertNotEmpty($member_colleges['10000000']);
-		$this->assertNotEmpty($member_colleges['10000000'][$data_hash]);
-		$this->assertEquals("COLL", $member_colleges['10000000'][$data_hash]['college']);
-		$this->assertEquals("", $member_colleges['10000000'][$data_hash]['grade']);
+		$this->assertNotEmpty($member_societies);
+		$this->assertNotEmpty($member_societies['10000000']);
+		$this->assertNotEmpty($member_societies['10000000'][$data_hash]);
+		$this->assertEquals("TS01", $member_societies['10000000'][$data_hash]['society']);
+		$this->assertEquals("", $member_societies['10000000'][$data_hash]['grade']);
 	}
 }
 

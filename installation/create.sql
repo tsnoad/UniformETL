@@ -71,6 +71,15 @@ create table ecpd_statuses (
 );
 CREATE INDEX ecpd_statuses_member_id ON ecpd_statuses (member_id);
 
+create table epdp_statuses (
+	id BIGSERIAL PRIMARY KEY,
+	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	participant BOOLEAN NOT NULL DEFAULT FALSE,
+	coordinator BOOLEAN NOT NULL DEFAULT FALSE,
+	UNIQUE (member_id)
+);
+CREATE INDEX epdp_statuses_member_id ON epdp_statuses (member_id);
+
 create table grades (
 	id BIGSERIAL PRIMARY KEY,
 	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -95,6 +104,15 @@ create table colleges (
 	UNIQUE (member_id, college)
 );
 CREATE INDEX colleges_member_id ON colleges (member_id);
+
+create table societies (
+	id BIGSERIAL PRIMARY KEY,
+	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	society TEXT,
+	grade TEXT,
+	UNIQUE (member_id, society)
+);
+CREATE INDEX societies_member_id ON societies (member_id);
 
 create table invoices (
 	id BIGSERIAL PRIMARY KEY,

@@ -11,6 +11,7 @@ Class Plugins {
 		array("models_required-transforms", "MemberDivisions", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberEcpdStatuses", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberEmails", "hook_models_required_transforms"),
+		array("models_required-transforms", "MemberEpdpStatuses", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberGrades", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberInvoiceItems", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberInvoices", "hook_models_required_transforms"),
@@ -19,6 +20,7 @@ Class Plugins {
 		array("models_required-transforms", "MemberPersonals", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberReceiptAllocations", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberReceipts", "hook_models_required_transforms"),
+		array("models_required-transforms", "MemberSocieties", "hook_models_required_transforms"),
 		array("models_required-transforms", "MemberWebStatuses", "hook_models_required_transforms"),
 
 		array("models_required-tables", "MemberIds", "hook_models_required_tables"),
@@ -28,6 +30,7 @@ Class Plugins {
 		array("models_required-tables", "MemberDivisions", "hook_models_required_tables"),
 		array("models_required-tables", "MemberEcpdStatuses", "hook_models_required_tables"),
 		array("models_required-tables", "MemberEmails", "hook_models_required_tables"),
+		array("models_required-tables", "MemberEpdpStatuses", "hook_models_required_tables"),
 		array("models_required-tables", "MemberGrades", "hook_models_required_tables"),
 		array("models_required-tables", "MemberInvoiceItems", "hook_models_required_tables"),
 		array("models_required-tables", "MemberInvoices", "hook_models_required_tables"),
@@ -36,6 +39,7 @@ Class Plugins {
 		array("models_required-tables", "MemberPersonals", "hook_models_required_tables"),
 		array("models_required-tables", "MemberReceiptAllocations", "hook_models_required_tables"),
 		array("models_required-tables", "MemberReceipts", "hook_models_required_tables"),
+		array("models_required-tables", "MemberSocieties", "hook_models_required_tables"),
 		array("models_required-tables", "MemberWebStatuses", "hook_models_required_tables"),
 
 		array("models_transform-priority", "MemberIds", "hook_models_transform_priority"),
@@ -45,6 +49,7 @@ Class Plugins {
 		array("models_transform-priority", "MemberDivisions", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberEcpdStatuses", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberEmails", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberEpdpStatuses", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberGrades", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberInvoiceItems", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberInvoices", "hook_models_transform_priority"),
@@ -53,6 +58,7 @@ Class Plugins {
 		array("models_transform-priority", "MemberPersonals", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberReceiptAllocations", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberReceipts", "hook_models_transform_priority"),
+		array("models_transform-priority", "MemberSocieties", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberWebStatuses", "hook_models_transform_priority"),
 
 		array("transform_deleted-members-query", "ExtractFullPlugins", "hook_transform_deleted_members_query"),
@@ -67,6 +73,7 @@ Class Plugins {
 		array("extract_index-sql", "MemberDivisions", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberEcpdStatuses", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberEmails", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberEpdpStatuses", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberGrades", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberInvoiceItems", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberInvoices", "hook_extract_index_sql"),
@@ -75,6 +82,7 @@ Class Plugins {
 		array("extract_index-sql", "MemberPersonals", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberReceiptAllocations", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberReceipts", "hook_extract_index_sql"),
+		array("extract_index-sql", "MemberSocieties", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberWebStatuses", "hook_extract_index_sql"),
 
 		array("transform_update", "PluginHistory", "record_update"),

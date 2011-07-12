@@ -13,6 +13,7 @@ class Conf {
 		"MemberAddresses",
 		"MemberWebStatuses",
 		"MemberEcpdStatuses",
+		"MemberEpdpStatuses",
 		"MemberConfluenceStatuses",
 		"MemberInvoices",
 		"MemberInvoiceItems",
@@ -20,7 +21,8 @@ class Conf {
 		"MemberReceiptAllocations",
 		"MemberGrades",
 		"MemberDivisions",
-		"MemberColleges"
+		"MemberColleges",
+		"MemberSocieties"
 	);
 
 	//database.php
