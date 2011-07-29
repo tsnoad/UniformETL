@@ -49,7 +49,9 @@ Class MemberPersonals {
 	}
 
 	function get_src_members_personals($chunk_id, $extract_id) {
-		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT c.customerid AS member_id, c.sex AS gender, CASE WHEN dob IS NOT NULL AND dob!='' THEN cast(to_timestamp(dob, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp) ELSE NULL END AS date_of_birth FROM dump_{$extract_id}_customer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
+		$select_dateofbirth = db_choose(db_pgsql("cast(to_timestamp(dob, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)"), db_mysql("str_to_date(dob, '%b %e %Y %l:%i:%s:%f%p')"));
+
+		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT c.customerid AS member_id, c.sex AS gender, CASE WHEN dob IS NOT NULL AND dob!='' THEN {$select_dateofbirth} ELSE NULL END AS date_of_birth FROM dump_{$extract_id}_customer c INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("c.customerid").") WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members_personals($src_member_ecpd_statuses_query);
 	}
@@ -61,15 +63,15 @@ Class MemberPersonals {
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO personals (member_id, gender, date_of_birth) VALUES ('".pg_escape_string($data_add_item['member_id'])."', ".(!empty($data_add_item['gender']) ? "'".pg_escape_string($data_add_item['gender'])."'" : "NULL").", ".(!empty($data_add_item['date_of_birth']) ? "'".pg_escape_string($data_add_item['date_of_birth'])."'" : "NULL").");");
+		runq("INSERT INTO personals (member_id, gender, date_of_birth) VALUES ('".db_escape($data_add_item['member_id'])."', ".(!empty($data_add_item['gender']) ? "'".db_escape($data_add_item['gender'])."'" : "NULL").", ".(!empty($data_add_item['date_of_birth']) ? "'".db_escape($data_add_item['date_of_birth'])."'" : "NULL").");");
 	}
 
 	function update_data($data_update_item) {
-		runq("UPDATE personals SET gender=".(!empty($data_update_item['gender']) ? "'".pg_escape_string($data_update_item['gender'])."'" : "NULL").", date_of_birth=".(!empty($data_update_item['date_of_birth']) ? "'".pg_escape_string($data_update_item['date_of_birth'])."'" : "NULL")." WHERE member_id='".pg_escape_string($data_update_item['member_id'])."';");
+		runq("UPDATE personals SET gender=".(!empty($data_update_item['gender']) ? "'".db_escape($data_update_item['gender'])."'" : "NULL").", date_of_birth=".(!empty($data_update_item['date_of_birth']) ? "'".db_escape($data_update_item['date_of_birth'])."'" : "NULL")." WHERE member_id='".db_escape($data_update_item['member_id'])."';");
 	}
 
 	function delete_data($data_delete_item) {
-/* 		runq("DELETE FROM web_statuses WHERE member_id='".pg_escape_string($data_delete_item)."';"); */
+/* 		runq("DELETE FROM web_statuses WHERE member_id='".db_escape($data_delete_item)."';"); */
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {

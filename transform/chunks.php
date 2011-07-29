@@ -14,7 +14,7 @@ class Chunks {
 		$timer = microtime(true);
 
 		//how many members are there?
-		$members_count_query = runq("select count(DISTINCT customerid::BIGINT) AS count FROM dump_{$this->extract_id}_customer WHERE customerid::BIGINT IS NOT NULL;");
+		$members_count_query = runq("select count(DISTINCT ".db_cast_bigint("customerid").") AS count FROM dump_{$this->extract_id}_customer WHERE ".db_cast_bigint("customerid")." IS NOT NULL;");
 		$members_count = $members_count_query[0]['count'];
 
 		if (empty($members_count)) {
@@ -37,7 +37,7 @@ class Chunks {
 				runq("INSERT INTO chunks (chunk_id, transform_id) VALUES ('".db_escape($chunk_id)."', '".db_escape($this->transform_id)."');");
 	
 				//add a chunk's worth of member ids to the chunk
-				runq("INSERT INTO chunk_member_ids SELECT DISTINCT '".db_escape($chunk_id)."'::BIGINT AS chunk_id, customerid::BIGINT AS member_id FROM dump_{$this->extract_id}_customer ORDER BY customerid::BIGINT ASC LIMIT ".Conf::$chunk_size." OFFSET ".$chunk_offset.";");
+				runq("INSERT INTO chunk_member_ids SELECT DISTINCT '".db_escape($chunk_id)."' AS chunk_id, ".db_cast_bigint("customerid")." AS member_id FROM dump_{$this->extract_id}_customer ORDER BY ".db_cast_bigint("customerid")." ASC LIMIT ".Conf::$chunk_size." OFFSET ".$chunk_offset.";");
 
 			} catch (Exception $e) {
 				print_r($e->getMessage());

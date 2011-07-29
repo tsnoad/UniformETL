@@ -48,7 +48,7 @@ Class MemberStatuses {
 	}
 
 	function get_src_members_ecpd_statuses($chunk_id, $extract_id) {
-		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT c.customerid::BIGINT as member_id, custstatusid='MEMB' as member, finstatus='1' as financial FROM dump_{$extract_id}_cpgcustomer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND c.cpgid='IEA';");
+		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT ".db_cast_bigint("c.customerid")." as member_id, custstatusid='MEMB' as member, finstatus='1' as financial FROM dump_{$extract_id}_cpgcustomer c INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("c.customerid").") WHERE ch.chunk_id='{$chunk_id}' AND c.cpgid='IEA';");
 
 		return $this->get_members_ecpd_statuses($src_member_ecpd_statuses_query);
 	}
@@ -60,7 +60,7 @@ Class MemberStatuses {
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO statuses (member_id, member, financial) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['member'])."', '".pg_escape_string($data_add_item['financial'])."');");
+		runq("INSERT INTO statuses (member_id, member, financial) VALUES ('".db_escape($data_add_item['member_id'])."', '".db_escape($data_add_item['member'])."', '".db_escape($data_add_item['financial'])."');");
 	}
 
 	function update_data($data_update_item) {
@@ -68,7 +68,7 @@ Class MemberStatuses {
 	}
 
 	function delete_data($data_delete_item) {
-/* 		runq("DELETE FROM ecpd_statuses WHERE member_id='".pg_escape_string($data_delete_item['member_id'])."';"); */
+/* 		runq("DELETE FROM ecpd_statuses WHERE member_id='".db_escape($data_delete_item['member_id'])."';"); */
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {

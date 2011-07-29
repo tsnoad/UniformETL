@@ -48,7 +48,7 @@ Class MemberWebStatuses {
 	}
 
 	function get_src_members_web_statuses($chunk_id, $extract_id) {
-		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT c.customerid as member_id FROM dump_{$extract_id}_cpgcustomer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND c.cpgid='IEA' AND c.custstatusid='MEMB';");
+		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT c.customerid as member_id FROM dump_{$extract_id}_cpgcustomer c INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("c.customerid").") WHERE ch.chunk_id='{$chunk_id}' AND c.cpgid='IEA' AND c.custstatusid='MEMB';");
 
 		return $this->get_members_web_statuses($src_member_ecpd_statuses_query);
 	}
@@ -60,7 +60,7 @@ Class MemberWebStatuses {
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO web_statuses (member_id) VALUES ('".pg_escape_string($data_add_item)."');");
+		runq("INSERT INTO web_statuses (member_id) VALUES ('".db_escape($data_add_item)."');");
 	}
 
 	function update_data($data_update_item) {
@@ -68,7 +68,7 @@ Class MemberWebStatuses {
 	}
 
 	function delete_data($data_delete_item) {
-		runq("DELETE FROM web_statuses WHERE member_id='".pg_escape_string($data_delete_item)."';");
+		runq("DELETE FROM web_statuses WHERE member_id='".db_escape($data_delete_item)."';");
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {

@@ -26,7 +26,7 @@ function db_query($conn, $query) {
 	$result = mysql_query($query, $conn);
 
 	if ($result === false) {
-		throw new Exception(mysql_error($conn));
+		throw new Exception(mysql_error($conn)."\nFor query: ".$query);
 	}
 
 	if (stripos(trim($query), "select") !== 0) {
