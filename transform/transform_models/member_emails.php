@@ -12,8 +12,14 @@ Class MemberEmails {
 	}
 	function hook_extract_index_sql($data) {
 		return array(
-			"CREATE INDEX dump_%{extract_id}_email_emailtypeid ON dump_%{extract_id}_email (emailtypeid) WHERE (emailtypeid='INET');",
-			"CREATE INDEX dump_%{extract_id}_email_customerid ON dump_%{extract_id}_email (cast(customerid AS BIGINT)) WHERE (emailtypeid='INET');"
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_email_emailtypeid ON dump_%{extract_id}_email (emailtypeid) WHERE (emailtypeid='INET');"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_email MODIFY COLUMN emailtypeid VARCHAR(32); CREATE INDEX dump_%{extract_id}_email_emailtypeid ON dump_%{extract_id}_email (emailtypeid);")
+			),
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_email_customerid ON dump_%{extract_id}_email (cast(customerid AS BIGINT)) WHERE (emailtypeid='INET');"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_email MODIFY COLUMN customerid BIGINT; CREATE INDEX dump_%{extract_id}_email_customerid ON dump_%{extract_id}_email (customerid);")
+			)
 		);
 	}
 
@@ -43,7 +49,7 @@ Class MemberEmails {
 	}
 
 	function get_src_members_emails($chunk_id, $extract_id) {
-		$src_member_emails_query = runq("SELECT DISTINCT e.customerid as member_id, e.emailaddress as email FROM dump_{$extract_id}_email e INNER JOIN chunk_member_ids ch ON (ch.member_id=e.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND e.emailtypeid='INET';");
+		$src_member_emails_query = runq("SELECT DISTINCT e.customerid as member_id, e.emailaddress as email FROM dump_{$extract_id}_email e INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("e.customerid").") WHERE ch.chunk_id='{$chunk_id}' AND e.emailtypeid='INET';");
 
 		return $this->get_members_emails($src_member_emails_query);
 	}
@@ -55,7 +61,7 @@ Class MemberEmails {
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO emails (member_id, email) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['email'])."');");
+		runq("INSERT INTO emails (member_id, email) VALUES ('".db_escape($data_add_item['member_id'])."', '".db_escape($data_add_item['email'])."');");
 	}
 
 	function update_data($data_update_item) {
@@ -66,7 +72,7 @@ Class MemberEmails {
 		if (empty($data_delete_by_member)) return;
 
 		foreach ($data_delete_by_member as $data_delete_item) {
-			runq("DELETE FROM emails WHERE member_id='".pg_escape_string($data_delete_item['member_id'])."' AND email='".pg_escape_string($data_delete_item['email'])."';");
+			runq("DELETE FROM emails WHERE member_id='".db_escape($data_delete_item['member_id'])."' AND email='".db_escape($data_delete_item['email'])."';");
 		}
 	}
 
@@ -79,7 +85,7 @@ Class MemberEmails {
 	function hook_api_get_member_plurals($data) {
 		list($member_id) = $data;
 
-		$emails_query = runq("SELECT email FROM emails e WHERE e.member_id='".pg_escape_string($member_id)."';");
+		$emails_query = runq("SELECT email FROM emails e WHERE e.member_id='".db_escape($member_id)."';");
 
 		if (empty($emails_query)) return array("emails" => array());
 

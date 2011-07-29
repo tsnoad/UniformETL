@@ -12,9 +12,18 @@ Class MemberDivisions {
 	}
 	function hook_extract_index_sql($data) {
 		return array(
-			"CREATE INDEX dump_%{extract_id}_cpgcustomer_cpgid ON dump_%{extract_id}_cpgcustomer (cpgid) WHERE (cpgid='IEA');",
-			"CREATE INDEX dump_%{extract_id}_cpgcustomer_customerid ON dump_%{extract_id}_cpgcustomer (cast(customerid AS BIGINT)) WHERE (cpgid='IEA');",
-			"CREATE INDEX dump_%{extract_id}_cpgcustomer_custstatusid ON dump_%{extract_id}_cpgcustomer (custstatusid) WHERE (custstatusid='MEMB');"
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_cpgcustomer_cpgid ON dump_%{extract_id}_cpgcustomer (cpgid) WHERE (cpgid='IEA');"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_cpgcustomer MODIFY COLUMN cpgid VARCHAR(32); CREATE INDEX dump_%{extract_id}_cpgcustomer_cpgid ON dump_%{extract_id}_cpgcustomer (cpgid);")
+			),
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_cpgcustomer_customerid ON dump_%{extract_id}_cpgcustomer (cast(customerid AS BIGINT)) WHERE (cpgid='IEA');"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_cpgcustomer MODIFY COLUMN customerid BIGINT; CREATE INDEX dump_%{extract_id}_cpgcustomer_customerid ON dump_%{extract_id}_cpgcustomer (customerid);")
+			),
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_cpgcustomer_custstatusid ON dump_%{extract_id}_cpgcustomer (custstatusid) WHERE (custstatusid='MEMB');"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_cpgcustomer MODIFY COLUMN custstatusid VARCHAR(32); CREATE INDEX dump_%{extract_id}_cpgcustomer_custstatusid ON dump_%{extract_id}_cpgcustomer (custstatusid);")
+			)
 		);
 	}
 
@@ -42,7 +51,7 @@ Class MemberDivisions {
 	}
 
 	function get_src_members_grades($chunk_id, $extract_id) {
-		$src_member_passwords_query = runq("SELECT DISTINCT d.customerid as member_id, d.divisionid as division FROM dump_{$extract_id}_cpgcustomer d INNER JOIN chunk_member_ids ch ON (ch.member_id=d.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND d.cpgid='IEA';");
+		$src_member_passwords_query = runq("SELECT DISTINCT d.customerid as member_id, d.divisionid as division FROM dump_{$extract_id}_cpgcustomer d INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("d.customerid").") WHERE ch.chunk_id='{$chunk_id}' AND d.cpgid='IEA';");
 
 		return $this->get_members_grades($src_member_passwords_query);
 	}
@@ -54,7 +63,7 @@ Class MemberDivisions {
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO divisions (member_id, division) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['division'])."');");
+		runq("INSERT INTO divisions (member_id, division) VALUES ('".db_escape($data_add_item['member_id'])."', '".db_escape($data_add_item['division'])."');");
 	}
 
 	function delete_data($data_delete_item) {

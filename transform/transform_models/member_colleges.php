@@ -26,11 +26,26 @@ Class MemberColleges {
 	}
 	function hook_extract_index_sql($data) {
 		return array(
-			"CREATE INDEX dump_%{extract_id}_gradehistory_customerid ON dump_%{extract_id}_gradehistory (cast(customerid AS BIGINT));",
-			"CREATE INDEX dump_%{extract_id}_gradehistory_cpgid ON dump_%{extract_id}_gradehistory (trim(cpgid));",
-			"CREATE INDEX dump_%{extract_id}_gradehistory_gradetypeid ON dump_%{extract_id}_gradehistory (gradetypeid);",
-			"CREATE INDEX dump_%{extract_id}_gradehistory_dateadmitted ON dump_%{extract_id}_gradehistory (cast(to_timestamp(dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp));",
-			"CREATE VIEW dump_%{extract_id}_gradehistory_latestdateadmitted AS SELECT customerid, gradetypeid, max(cast(to_timestamp(dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)) as latestdateadmitted FROM dump_%{extract_id}_gradehistory WHERE trim(cpgid)='IEA' GROUP BY customerid, gradetypeid;"
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_gradehistory_customerid ON dump_%{extract_id}_gradehistory (cast(customerid AS BIGINT));"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_gradehistory MODIFY COLUMN customerid BIGINT; CREATE INDEX dump_%{extract_id}_gradehistory_customerid ON dump_%{extract_id}_gradehistory (customerid);")
+			),
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_gradehistory_cpgid ON dump_%{extract_id}_gradehistory (trim(cpgid));"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_gradehistory MODIFY COLUMN cpgid VARCHAR(32); UPDATE dump_%{extract_id}_gradehistory SET cpgid=trim(cpgid); CREATE INDEX dump_%{extract_id}_gradehistory_cpgid ON dump_%{extract_id}_gradehistory (cpgid);")
+			),
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_gradehistory_gradetypeid ON dump_%{extract_id}_gradehistory (gradetypeid);"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_gradehistory MODIFY COLUMN gradetypeid VARCHAR(32); CREATE INDEX dump_%{extract_id}_gradehistory_gradetypeid ON dump_%{extract_id}_gradehistory (gradetypeid);")
+			),
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_gradehistory_dateadmitted ON dump_%{extract_id}_gradehistory (cast(to_timestamp(dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp));"), 
+				db_mysql("")
+			),
+			db_choose(
+				db_pgsql("CREATE VIEW dump_%{extract_id}_gradehistory_latestdateadmitted AS SELECT customerid, gradetypeid, max(cast(to_timestamp(dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)) as latestdateadmitted FROM dump_%{extract_id}_gradehistory WHERE trim(cpgid)='IEA' AND changereasonid='' GROUP BY customerid, gradetypeid;"), 
+				db_mysql("")
+			)
 		);
 	}
 

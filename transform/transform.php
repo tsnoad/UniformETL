@@ -10,7 +10,7 @@ class Recorder {
 
 	function record_start() {
 		try {
-			runq("INSERT INTO transform_processes (transform_id, extract_id, transform_pid) VALUES ('".pg_escape_string($this->transform_id)."', '".pg_escape_string($this->extract_id)."', '".pg_escape_string(getmypid())."');");
+			runq("INSERT INTO transform_processes (transform_id, extract_id, transform_pid) VALUES ('".db_escape($this->transform_id)."', '".db_escape($this->extract_id)."', '".db_escape(getmypid())."');");
 		} catch (Exception $e) {
 			die("could not create process in database");
 		}
@@ -18,7 +18,7 @@ class Recorder {
 
 	function record_finish() {
 		try {
-			runq("UPDATE transform_processes SET finished=TRUE, finish_date=now() WHERE transform_id='".pg_escape_string($this->transform_id)."';");
+			runq("UPDATE transform_processes SET finished=TRUE, finish_date=now() WHERE transform_id='".db_escape($this->transform_id)."';");
 		} catch (Exception $e) {
 			die("could not update process in database");
 		}
@@ -44,13 +44,12 @@ Class Transform {
 		}
 
 		try {
-			$transform_id_query = runq("SELECT nextval('transform_processes_transform_id_seq');");
-			$this->transform_id = $transform_id_query[0]['nextval'];
+			$this->transform_id = db_nextval("transform_processes", "transform_id");
 		} catch (Exception $e) {
 			die("could not create process in database");
 		}
 
-		$extract_process_query = runq("SELECT * FROM extract_processes e LEFT OUTER JOIN extract_full ef ON (ef.extract_id=e.extract_id) WHERE e.extract_id='".pg_escape_string($this->extract_id)."' LIMIT 1;");
+		$extract_process_query = runq("SELECT * FROM extract_processes e LEFT OUTER JOIN extract_full ef ON (ef.extract_id=e.extract_id) WHERE e.extract_id='".db_escape($this->extract_id)."' LIMIT 1;");
 		$this->extract_process = $extract_process_query[0];
 
 		$this->recorder = New Recorder;
@@ -91,7 +90,7 @@ Class Transform {
 	}
 
 	function deleted_members() {
-		$deleted_members_query = runq("SELECT m.* FROM member_ids m LEFT OUTER JOIN dump_{$this->extract_id}_customer c ON (m.member_id=c.customerid::BIGINT AND c.custtypeid='INDI') WHERE c.customerid::BIGINT IS NULL;");
+		$deleted_members_query = runq("SELECT m.* FROM member_ids m LEFT OUTER JOIN dump_{$this->extract_id}_customer c ON (m.member_id=".db_cast_bigint("c.customerid")." AND c.custtypeid='INDI') WHERE ".db_cast_bigint("c.customerid")." IS NULL;");
 
 		list($deleted_members_query) = Plugins::hook("transform_deleted-members-query", array($deleted_members_query, $this->extract_process));
 
@@ -128,28 +127,20 @@ Class Transform {
 
 		$transform_class = New $transform;
 		list($src_data_by_members, $dst_data_by_members) = $this->get_src_dst_data($chunk_id, $transform_class);
-/* $time = microtime(true); */
 		list($data_add, $data_nochange, $data_update, $data_delete, $data_delete_count) = $transform_class->transform($src_data_by_members, $dst_data_by_members);
-/* echo round(microtime(true) - $time, 3)."\t"; */
-/* $time = microtime(true); */
 
 		$this->add_data($transform_class, $data_add);
 		$this->data_nochange($transform_class, $data_nochange);
 		$this->data_update($transform_class, $data_update);
 		$this->data_delete($transform_class, $data_delete);
-/* echo round(microtime(true) - $time, 3)."\n"; */
 
 		$this->model_stats($transform, $data_add, $data_nochange, $data_update, $data_delete_count);
 	}
 
 	function get_src_dst_data($chunk_id, $transform_class) {
 		try {
-/* $time = microtime(true); */
 			$src_data_by_members = $transform_class->get_src_data($chunk_id, $this->extract_id);
-/* echo round(microtime(true) - $time, 3)."\t"; */
-/* $time = microtime(true); */
 			$dst_data_by_members = $transform_class->get_dst_data($chunk_id);
-/* echo round(microtime(true) - $time, 3)."\t"; */
 		} catch (Exception $e) {
 			die($e->getMessage());
 		}

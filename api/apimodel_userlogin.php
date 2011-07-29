@@ -43,7 +43,7 @@ Class APIModelUserLogin {
 		}
 
 		//get the member's password salt and hash
-		$login_query = runq("SELECT m.member_id, p.salt, p.hash FROM member_ids m INNER JOIN passwords p ON (p.member_id=m.member_id) WHERE m.member_id='".pg_escape_string($member_id)."' LIMIT 1;");
+		$login_query = runq("SELECT m.member_id, p.salt, p.hash FROM member_ids m INNER JOIN passwords p ON (p.member_id=m.member_id) WHERE m.member_id='".db_escape($member_id)."' LIMIT 1;");
 		$login_tmp = $login_query[0];
 	
 		//try to log in
@@ -60,7 +60,7 @@ Class APIModelUserLogin {
 
 	function get_member_id() {
 		//get the member id
-		preg_match("/^users\/([0-9]+)\/login\/?$/", $_GET['url'], &$matches);
+		preg_match("/^users\/([0-9]+)\/login\/?$/", $_GET['url'], $matches);
 		$member_id = $matches[1];
 	
 		//no member id?

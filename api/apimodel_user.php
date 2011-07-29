@@ -60,7 +60,7 @@ Class APIModelUser {
 		}
 
 		//put together the query and run it
-		$user_query = runq("SELECT ".$get_user_member_ids[0].", ".implode(", ", $get_user_plugins_selects)." FROM ".$get_user_member_ids[1]." ".implode(" ", $get_user_plugins_froms)." WHERE m.member_id='".pg_escape_string($member_id)."' LIMIT 1;");
+		$user_query = runq("SELECT ".$get_user_member_ids[0].", ".implode(", ", $get_user_plugins_selects)." FROM ".$get_user_member_ids[1]." ".implode(" ", $get_user_plugins_froms)." WHERE m.member_id='".db_escape($member_id)."' LIMIT 1;");
 		$user = $user_query[0];
 	
 		//not in database?
@@ -119,7 +119,7 @@ Class APIModelUser {
 
 	function get_member_id() {
 		//get the member id
-		preg_match("/^users\/([0-9]+)\/?$/", $_GET['url'], &$matches);
+		preg_match("/^users\/([0-9]+)\/?$/", $_GET['url'], $matches);
 		$member_id = $matches[1];
 	
 		//no member id?

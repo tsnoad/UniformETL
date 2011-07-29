@@ -11,7 +11,12 @@ Class MemberAddresses {
 		return "secondary";
 	}
 	function hook_extract_index_sql($data) {
-		return array("CREATE INDEX dump_%{extract_id}_address_customerid ON dump_%{extract_id}_address (cast(customerid AS BIGINT));");
+		return array(
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_address_customerid ON dump_%{extract_id}_address (cast(customerid AS BIGINT));"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_address MODIFY COLUMN customerid BIGINT; CREATE INDEX dump_%{extract_id}_address_customerid ON dump_%{extract_id}_address (customerid);")
+			)
+		);
 	}
 
 	function get_src_data($src_member_ids_chunk, $extract_id) {
@@ -45,7 +50,13 @@ Class MemberAddresses {
 	}
 
 	function get_src_members_addresses($chunk_id, $extract_id) {
-		$src_member_addresses_query = runq("SELECT DISTINCT a.customerid as member_id, a.addrtypeid as type, trim(a.line1)||CASE WHEN length(trim(a.line2))>0 THEN E'\n'||trim(a.line2) ELSE '' END||CASE WHEN length(trim(a.line3))>0 THEN E'\n'||trim(a.line3) ELSE '' END as address, a.suburb as suburb, a.state as state, a.postcode as postcode, a.countryid as country FROM dump_{$extract_id}_address a INNER JOIN chunk_member_ids ch ON (ch.member_id=a.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND a.valid='1';");
+		$select_address = db_concat(
+			"trim(a.line1)",
+			"CASE WHEN length(trim(a.line2))>0 THEN ".db_concat("E'\n'", "trim(a.line2)")." ELSE '' END",
+			"CASE WHEN length(trim(a.line3))>0 THEN ".db_concat("E'\n'", "trim(a.line3)")." ELSE '' END"
+		);
+
+		$src_member_addresses_query = runq("SELECT DISTINCT a.customerid as member_id, a.addrtypeid as type, {$select_address} as address, a.suburb as suburb, a.state as state, a.postcode as postcode, a.countryid as country FROM dump_{$extract_id}_address a INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("a.customerid").") WHERE ch.chunk_id='{$chunk_id}' AND a.valid='1';");
 
 		return $this->get_members_addresses($src_member_addresses_query);
 	}
@@ -57,7 +68,7 @@ Class MemberAddresses {
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO addresses (member_id, type, address, suburb, state, postcode, country) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['type'])."', '".pg_escape_string($data_add_item['address'])."', '".pg_escape_string($data_add_item['suburb'])."', '".pg_escape_string($data_add_item['state'])."', '".pg_escape_string($data_add_item['postcode'])."', '".pg_escape_string($data_add_item['country'])."');");
+		runq("INSERT INTO addresses (member_id, type, address, suburb, state, postcode, country) VALUES ('".db_escape($data_add_item['member_id'])."', '".db_escape($data_add_item['type'])."', '".db_escape($data_add_item['address'])."', '".db_escape($data_add_item['suburb'])."', '".db_escape($data_add_item['state'])."', '".db_escape($data_add_item['postcode'])."', '".db_escape($data_add_item['country'])."');");
 	}
 
 	function update_data($data_update_item) {
@@ -68,7 +79,7 @@ Class MemberAddresses {
 		if (empty($data_delete_by_member)) return;
 
 		foreach ($data_delete_by_member as $data_delete_item) {
-			runq("DELETE FROM addresses WHERE member_id='".pg_escape_string($data_delete_item['member_id'])."' AND type='".pg_escape_string($data_delete_item['type'])."' AND address='".pg_escape_string($data_delete_item['address'])."' AND suburb='".pg_escape_string($data_delete_item['suburb'])."' AND state='".pg_escape_string($data_delete_item['state'])."' AND postcode='".pg_escape_string($data_delete_item['postcode'])."' AND country='".pg_escape_string($data_delete_item['country'])."';");
+			runq("DELETE FROM addresses WHERE member_id='".db_escape($data_delete_item['member_id'])."' AND type='".db_escape($data_delete_item['type'])."' AND address='".db_escape($data_delete_item['address'])."' AND suburb='".db_escape($data_delete_item['suburb'])."' AND state='".db_escape($data_delete_item['state'])."' AND postcode='".db_escape($data_delete_item['postcode'])."' AND country='".db_escape($data_delete_item['country'])."';");
 		}
 	}
 
@@ -81,7 +92,7 @@ Class MemberAddresses {
 	function hook_api_get_member_plurals($data) {
 		list($member_id) = $data;
 
-		$address_query = runq("SELECT type, address, suburb, state, postcode, country FROM addresses a WHERE a.member_id='".pg_escape_string($member_id)."';");
+		$address_query = runq("SELECT type, address, suburb, state, postcode, country FROM addresses a WHERE a.member_id='".db_escape($member_id)."';");
 
 		if (empty($address_query)) return array("addresses" => array());
 

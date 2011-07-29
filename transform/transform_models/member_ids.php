@@ -12,8 +12,14 @@ Class MemberIds {
 	}
 	function hook_extract_index_sql($data) {
 		return array(
-			"CREATE INDEX dump_%{extract_id}_customer_customerid ON dump_%{extract_id}_customer (cast(customerid AS BIGINT));",
-			"CREATE INDEX dump_%{extract_id}_customer_custtypeid ON dump_%{extract_id}_customer (custtypeid='INDI');"
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_customer_customerid ON dump_%{extract_id}_customer (cast(customerid AS BIGINT));"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_customer MODIFY COLUMN customerid BIGINT; CREATE INDEX dump_%{extract_id}_customer_customerid ON dump_%{extract_id}_customer (customerid);")
+			),
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_customer_custtypeid ON dump_%{extract_id}_customer (custtypeid='INDI');"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_customer MODIFY COLUMN custtypeid VARCHAR(32); CREATE INDEX dump_%{extract_id}_customer_custtypeid ON dump_%{extract_id}_customer (custtypeid);")
+			)
 		);
 	}
 
@@ -37,7 +43,7 @@ Class MemberIds {
 	}
 
 	function get_src_members($chunk_id, $extract_id) {
-		$src_member_query = runq("SELECT DISTINCT c.customerid AS member_id FROM dump_{$extract_id}_customer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND c.custtypeid='INDI';");
+		$src_member_query = runq("SELECT DISTINCT c.customerid AS member_id FROM dump_{$extract_id}_customer c INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("c.customerid").") WHERE ch.chunk_id='{$chunk_id}' AND c.custtypeid='INDI';");
 
 		return $this->get_members($src_member_query);
 	}
@@ -49,7 +55,7 @@ Class MemberIds {
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO member_ids (member_id) VALUES ('".pg_escape_string($data_add_item)."');");
+		runq("INSERT INTO member_ids (member_id) VALUES ('".db_escape($data_add_item)."');");
 	}
 
 	function update_data($data_update_item) {
@@ -57,7 +63,7 @@ Class MemberIds {
 	}
 
 	function delete_data($data_delete_item) {
-		runq("DELETE FROM member_ids WHERE member_id='".pg_escape_string($data_delete_item)."';");
+		runq("DELETE FROM member_ids WHERE member_id='".db_escape($data_delete_item)."';");
 	}
 
 	function transform($src_members, $dst_members) {

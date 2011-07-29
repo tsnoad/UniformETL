@@ -12,8 +12,14 @@ Class MemberEpdpStatuses {
 	}
 	function hook_extract_index_sql($data) {
 		return array(
-			"CREATE INDEX dump_%{extract_id}_groupmember_groupid ON dump_%{extract_id}_groupmember (groupid) WHERE (groupid='6052');",
-			"CREATE INDEX dump_%{extract_id}_groupmember_customerid ON dump_%{extract_id}_groupmember (cast(customerid AS BIGINT)) WHERE (groupid='6052');"
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_groupmember_groupid ON dump_%{extract_id}_groupmember (groupid) WHERE (groupid='6052');"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_groupmember MODIFY COLUMN groupid BIGINT; CREATE INDEX dump_%{extract_id}_groupmember_groupid ON dump_%{extract_id}_groupmember (groupid);")
+			),
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_groupmember_customerid ON dump_%{extract_id}_groupmember (cast(customerid AS BIGINT)) WHERE (groupid='6052');"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_groupmember MODIFY COLUMN customerid BIGINT; CREATE INDEX dump_%{extract_id}_groupmember_customerid ON dump_%{extract_id}_address (customerid);")
+			)
 		);
 	}
 

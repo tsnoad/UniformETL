@@ -38,9 +38,9 @@ switch ($event) {
 		}
 
 		try {
-			runq("INSERT INTO extract_processes (extract_id, extractor, extract_pid) VALUES ('".pg_escape_string($extract_id)."', 'full', '".pg_escape_string($extract_pid)."');");
+			runq("INSERT INTO extract_processes (extract_id, extractor, extract_pid) VALUES ('".db_escape($extract_id)."', 'full', '".db_escape($extract_pid)."');");
 	
-			runq("INSERT INTO extract_full (extract_id, source_path, source_timestamp, source_md5) VALUES ('".pg_escape_string($extract_id)."', '".pg_escape_string($source_path)."', '".pg_escape_string($source_timestamp)."', '".pg_escape_string($source_md5)."');");
+			runq("INSERT INTO extract_full (extract_id, source_path, source_timestamp, source_md5) VALUES ('".db_escape($extract_id)."', '".db_escape($source_path)."', '".db_escape($source_timestamp)."', '".db_escape($source_md5)."');");
 
 		} catch (Exception $e) {
 			die("could not create process in database");
@@ -55,7 +55,7 @@ switch ($event) {
 		}
 
 		try {
-			runq("UPDATE extract_processes SET finished=TRUE, finish_date=now() WHERE extract_id='".pg_escape_string($extract_id)."';");
+			runq("UPDATE extract_processes SET finished=TRUE, finish_date=now() WHERE extract_id='".db_escape($extract_id)."';");
 		} catch (Exception $e) {
 			die("could not update process in database");
 		}
@@ -69,7 +69,7 @@ switch ($event) {
 		}
 
 		try {
-			runq("UPDATE extract_processes SET finished=TRUE, finish_date=now(), failed=TRUE WHERE extract_id='".pg_escape_string($extract_id)."';");
+			runq("UPDATE extract_processes SET finished=TRUE, finish_date=now(), failed=TRUE WHERE extract_id='".db_escape($extract_id)."';");
 		} catch (Exception $e) {
 			die("could not update process in database");
 		}

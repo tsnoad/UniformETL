@@ -9,8 +9,12 @@ class ExtractFull {
 	public $extractuntardir;
 
 	function start($source_path, $source_timestamp, $source_md5) {
-		//make sure we were provided with all the arguments that we need
-		$this->check_args($source_path, $source_timestamp, $source_md5);
+		try {
+			//make sure we were provided with all the arguments that we need
+			$this->check_args($source_path, $source_timestamp, $source_md5);
+		} catch (Exception $e) {
+			die($e->getMessage());
+		}
 
 		//reserve an extract id, and create an extract process in the database
 		$this->get_extract_id($source_path, $source_timestamp, $source_md5);
@@ -46,10 +50,18 @@ class ExtractFull {
 		file_put_contents($this->extractdir."/dump.sql", $sql);
 		
 		//run the sql file against the database
-		passthru("psql ".Conf::$dbname." < {$this->extractdir}/dump.sql");
+		if (Conf::$dblang == "pgsql") {
+			passthru("psql ".Conf::$dbname." < {$this->extractdir}/dump.sql");
+		} else if (Conf::$dblang == "mysql") {
+			passthru("mysql -u ".Conf::$dbuser." -p".Conf::$dbpass." ".Conf::$dbname." < {$this->extractdir}/dump.sql");
+		}
 		
-		//let the database know we've finished the extract
-		runq("UPDATE extract_processes SET finished=TRUE, finish_date=now() WHERE extract_id='".pg_escape_string($this->extract_id)."';");
+		try {
+			//let the database know we've finished the extract
+			runq("UPDATE extract_processes SET finished=TRUE, finish_date=now() WHERE extract_id='".db_escape($this->extract_id)."';");
+		} catch (Exception $e) {
+			die($e->getMessage());
+		}
 		
 		//helpful log message
 		echo "finished\n";
@@ -80,17 +92,14 @@ class ExtractFull {
 	 */
 	function get_extract_id($source_path, $source_timestamp, $source_md5) {
 		try {
-			//reserve a process id
-			$extract_id_query = runq("SELECT nextval('extract_processes_extract_id_seq');");
-		
-			//so other method can use it
-			$this->extract_id = $extract_id_query[0]['nextval'];
+			//reserve a process id so other methods can use it
+			$this->extract_id = db_nextval("extract_processes", "extract_id");
 		
 			//create a process in the database
-			runq("INSERT INTO extract_processes (extract_id, extractor, extract_pid) VALUES ('".pg_escape_string($this->extract_id)."', 'full', '".pg_escape_string(getmypid())."');");
+			runq("INSERT INTO extract_processes (extract_id, extractor, extract_pid) VALUES ('".db_escape($this->extract_id)."', 'full', '".db_escape(getmypid())."');");
 		
 			//record information about the source file
-			runq("INSERT INTO extract_full (extract_id, source_path, source_timestamp, source_md5) VALUES ('".pg_escape_string($this->extract_id)."', '".pg_escape_string($source_path)."', '".pg_escape_string($source_timestamp)."', '".pg_escape_string($source_md5)."');");
+			runq("INSERT INTO extract_full (extract_id, source_path, source_timestamp, source_md5) VALUES ('".db_escape($this->extract_id)."', '".db_escape($source_path)."', '".db_escape($source_timestamp)."', '".db_escape($source_md5)."');");
 
 		} catch (Exception $e) {
 			print_r($e->getMessage());
@@ -169,10 +178,16 @@ class ExtractFull {
 			$table = str_replace("%{extract_id}", $this->extract_id, $tables[$i]);
 
 			//create table
-			$sql .= "CREATE TABLE {$table} (\n  ".implode(" TEXT,\n  ", $table_columns[$source])." TEXT\n);\n";
+			$sql .= db_choose(
+				db_pgsql("CREATE TABLE {$table} (\n  ".implode(" TEXT,\n  ", $table_columns[$source])." TEXT\n);\n"), 
+				db_mysql("CREATE TABLE {$table} (\n  ".implode(" TEXT,\n  ", $table_columns[$source])." TEXT\n) ENGINE=InnoDB;\n")
+			);
 		
 			//import from source file
-			$sql .= "COPY {$table} (".implode(", ", $table_columns[$source]).") FROM '{$this->extractdir}/tabout{$source}.sql' DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS ".'$$\$$'.";\n\n";
+			$sql .= db_choose(
+				db_pgsql("COPY {$table} (".implode(", ", $table_columns[$source]).") FROM '{$this->extractdir}/tabout{$source}.sql' DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS ".'$$\$$'.";\n\n"),
+				db_mysql("LOAD DATA LOCAL INFILE '{$this->extractdir}/tabout{$source}.sql' INTO TABLE {$table} COLUMNS TERMINATED BY '|' ENCLOSED BY '\'';\n\n")
+			);
 		}
 
 		return $sql;

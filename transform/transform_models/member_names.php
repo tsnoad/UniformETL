@@ -11,7 +11,12 @@ Class MemberNames {
 		return "secondary";
 	}
 	function hook_extract_index_sql($data) {
-		return array("CREATE INDEX dump_%{extract_id}_name_customerid ON dump_%{extract_id}_name (cast(customerid AS BIGINT));");
+		return array(
+			db_choose(
+				db_pgsql("CREATE INDEX dump_%{extract_id}_name_customerid ON dump_%{extract_id}_name (cast(customerid AS BIGINT));"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_name MODIFY COLUMN customerid BIGINT; CREATE INDEX dump_%{extract_id}_name_customerid ON dump_%{extract_id}_name (customerid);")
+			)
+		);
 	}
 
 	function get_src_data($src_member_ids_chunk, $extract_id) {
@@ -42,7 +47,7 @@ Class MemberNames {
 	}
 
 	function get_src_members_names($chunk_id, $extract_id) {
-		$src_member_names_query = runq("SELECT DISTINCT n.customerid as member_id, n.nametypeid as type, split_part(n.nameline2, ' ', 1) AS given_names, n.nameline1 as family_name FROM dump_{$extract_id}_name n INNER JOIN chunk_member_ids ch ON (ch.member_id=n.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}';");
+		$src_member_names_query = runq("SELECT DISTINCT n.customerid as member_id, n.nametypeid as type, ".db_choose(db_pgsql("split_part(n.nameline2, ' ', 1)"), db_mysql("substring_index(n.nameline2, ' ', 1)"))." AS given_names, n.nameline1 as family_name FROM dump_{$extract_id}_name n INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("n.customerid").") WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members_names($src_member_names_query);
 	}
@@ -54,7 +59,7 @@ Class MemberNames {
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO names (member_id, type, given_names, family_name) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['type'])."', '".pg_escape_string($data_add_item['given_names'])."', '".pg_escape_string($data_add_item['family_name'])."');");
+		runq("INSERT INTO names (member_id, type, given_names, family_name) VALUES ('".db_escape($data_add_item['member_id'])."', '".db_escape($data_add_item['type'])."', '".db_escape($data_add_item['given_names'])."', '".db_escape($data_add_item['family_name'])."');");
 	}
 
 	function update_data($data_update_item) {
@@ -65,7 +70,7 @@ Class MemberNames {
 		if (empty($data_delete_by_member)) return;
 
 		foreach ($data_delete_by_member as $data_delete_item) {
-			runq("DELETE FROM names WHERE member_id='".pg_escape_string($data_delete_item['member_id'])."' AND type='".pg_escape_string($data_delete_item['type'])."' AND given_names='".pg_escape_string($data_delete_item['given_names'])."' AND family_name='".pg_escape_string($data_delete_item['family_name'])."';");
+			runq("DELETE FROM names WHERE member_id='".db_escape($data_delete_item['member_id'])."' AND type='".db_escape($data_delete_item['type'])."' AND given_names='".db_escape($data_delete_item['given_names'])."' AND family_name='".db_escape($data_delete_item['family_name'])."';");
 		}
 	}
 
@@ -78,7 +83,7 @@ Class MemberNames {
 	function hook_api_get_member_plurals($data) {
 		list($member_id) = $data;
 
-		$names_query = runq("SELECT type, given_names, family_name FROM names n WHERE n.member_id='".pg_escape_string($member_id)."';");
+		$names_query = runq("SELECT type, given_names, family_name FROM names n WHERE n.member_id='".db_escape($member_id)."';");
 
 		if (empty($names_query)) return array("names" => array());
 

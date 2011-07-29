@@ -1,9 +1,13 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js" type="text/javascript"></script>
 <style type="text/css">
 .block {
 	width: 400px;
 	margin: 10px auto;
-	border: 2px solid #d3d7cf;
+/* 	border: 2px solid #d3d7cf; */
 }
+/*
 .block div {
 	width: 120px;
 	margin: 10px;
@@ -14,45 +18,100 @@
 	font-size: 8pt;
 	text-align: center;
 }
+*/
+.start, .finish {
+	width: 120px;
+	position: relative;
+	margin: 20px 0px;
+	padding: 30px 0px;
+	font-family: Lucida Grande, Sans;
+	font-size: 8pt;
+	text-align: center;
+}
+.start_bg, .finish_bg {
+	width: 120px;
+	height: 60px;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	border: 2px solid #c0c0c0;
+	-webkit-border-radius: 5px;
+}
 .decision {
-	float: left;
+	width: 120px;
+	position: relative;
+	margin: 20px 0px;
+	padding: 60px 0px;
+	font-family: Lucida Grande, Sans;
+	font-size: 8pt;
+	text-align: center;
 }
-.decision_beside {
-	float: left;
+.decision_bg {
+	width: 84px;
+	height: 84px;
+	position: absolute;
+	left: 16px; /* (120 - (84 + 4)) / 2 */
+	top: 0px;
+	border: 2px solid #c0c0c0;
+	-webkit-transform:rotate(45deg);
 }
-.decision_below {
-	clear: both;
+.routine {
+	width: 120px;
+	position: relative;
+	margin: 20px 0px;
+	padding: 30px 0px;
+	font-family: Lucida Grande, Sans;
+	font-size: 8pt;
+	text-align: center;
 }
-.decision_yes {
-	width: 30px !important;
-	height: 30px;
-	margin: 10px 60px !important;
-	padding: 0px !important;
-	border: 0px !important;
-	-webkit-border-radius: 15px;
-	background-color: #d3d7cf;
-	line-height: 28px;
-}
-.decision_no {
-	width: 30px !important;
-	height: 30px;
-	margin: 10px 60px !important;
-	padding: 0px !important;
-	border: 0px !important;
-	-webkit-border-radius: 15px;
-	background-color: #d3d7cf;
-	line-height: 28px;
+.routine_bg {
+	width: 120px;
+	height: 60px;
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	border: 2px solid #c0c0c0;
 }
 </style>
+<script type="text/javascript">
+	$(function() {
+		$(".start, .finish").renderthing();
+		$(".decision").renderthing();
+		$(".routine").renderthing();
+	});
 
+	(function($) {
+		$.fn.renderthing = function(displace) {
+			return this.each(function() {
+				if ($(this).hasClass("start")) {
+					var bg_class = "start_bg";
+					var top = ($(this).height() - 64) / 2 + 30;
+				} else if ($(this).hasClass("finish")) {
+					var bg_class = "finish_bg";
+					var top = ($(this).height() - 64) / 2 + 30;
+				} else if ($(this).hasClass("decision")) {
+					var bg_class = "decision_bg";
+					var top = ($(this).height() - 88) / 2 + 60;
+				} else if ($(this).hasClass("routine")) {
+					var bg_class = "routine_bg";
+					var top = ($(this).height() - 64) / 2 + 30;
+				}
+
+				$(this).prepend(
+					$("<div></div>").addClass(bg_class).css("top", top)
+				);
+			});
+		};
+	})(jQuery);
+</script>
+</head>
+<body>
 <div class="block">
 	<div class="block_label">Extract Daemon</div>
 	<div class="start">start</div>
 	<div class="decision">daemon already running?</div>
-	<div class="decision_yes decision_beside">yes</div>
-	<div class="decision_no decision_below">no</div>
-	<div class="">start watcher</div>
-	<div class="">start launcher</div>
+	<div class="routine">start watcher</div>
+	<div class="routine">start launcher</div>
 	<div class="finish">finish</div>
 </div>
 
@@ -60,20 +119,14 @@
 	<div class="block_label">Extract Watcher</div>
 	<div class="start">start</div>
 	<div class="decision">watcher already running?</div>
-	<div class="decision_yes decision_beside">yes</div>
-	<div class="decision_no decision_below">no</div>
+	<div class="finish">finish</div>
 	<div class="decision">any unfinished extracts in database?</div>
-	<div class="decision_no decision_beside">no</div>
-	<div class="decision_yes decision_below">yes</div>
-	<div class="loop">loop through extracts</div>
+	<div class="finish">finish</div>
+	<div class="routine">loop through extracts</div>
 	<div class="decision">is extract running?</div>
-	<div class="decision_yes decision_beside">yes</div>
-	<div class="decision_no decision_below">no</div>
-	<div class="">wait 5 seconds</div>
+	<div class="routine">wait 5 seconds</div>
 	<div class="decision">has extract status been updated in database?</div>
-	<div class="decision_yes decision_beside">yes</div>
-	<div class="decision_no decision_below">no</div>
-	<div class="">mark extracts as cancelled</div>
+	<div class="routine">mark extracts as cancelled</div>
 	<div class="finish">finish</div>
 </div>
 
@@ -180,3 +233,5 @@
 
 	<div class="finish">finish</div>
 </div>
+</body>
+</html>
