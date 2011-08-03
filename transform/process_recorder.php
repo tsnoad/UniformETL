@@ -24,7 +24,7 @@ switch ($event) {
 		}
 
 		try {
-			runq("UPDATE transform_processes SET finished=TRUE, finish_date=now(), failed=TRUE WHERE transform_id='".pg_escape_string($transform_id)."';");
+			runq("UPDATE transform_processes SET finished=TRUE, finish_date=now(), failed=TRUE WHERE transform_id='".db_escape($transform_id)."';");
 		} catch (Exception $e) {
 			die("could not update process in database");
 		}

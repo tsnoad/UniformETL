@@ -51,7 +51,7 @@ Class MemberInvoices {
 	}
 
 	function get_src_members_names($chunk_id, $extract_id) {
-		$src_member_names_query = runq("SELECT DISTINCT i.customerid as member_id, i.batchid::BIGINT as batchid, i.batchposition::BIGINT as batchposition, i.invoicetypeid as type, i.invoicestatusid as status, i.amount as amount FROM dump_{$extract_id}_invoice i INNER JOIN chunk_member_ids ch ON (ch.member_id=i.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND cast(to_timestamp(i.datecreated, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)>now()-interval'24 months';");
+		$src_member_names_query = runq("SELECT DISTINCT i.customerid as member_id, i.batchid::BIGINT as batchid, i.batchposition::BIGINT as batchposition, i.invoicetypeid as type, i.invoicestatusid as status, i.amount as amount FROM dump_{$extract_id}_invoice i INNER JOIN chunk_member_ids ch ON (ch.member_id=i.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' "/* ."AND cast(to_timestamp(i.datecreated, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)>now()-interval'24 months'" */.";");
 
 		return $this->get_members_names($src_member_names_query);
 	}

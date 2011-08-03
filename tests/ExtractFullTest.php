@@ -112,21 +112,27 @@ class ExtractFullTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertNotEmpty($this->extract->extract_id);
 
-		$extract_full_query = runq("SELECT * FROM extract_processes e INNER JOIN extract_full ef ON (ef.extract_id=e.extract_id) WHERE e.extract_id='".pg_escape_string($this->extract->extract_id)."';");
+		$extract_full_query = runq("SELECT * FROM extract_processes e INNER JOIN extract_full ef ON (ef.extract_id=e.extract_id) WHERE e.extract_id='".db_escape($this->extract->extract_id)."';");
 
 		$this->assertNotEmpty($extract_full_query);
 		$this->assertNotEmpty($extract_full_query[0]);
 		$this->assertEquals($this->extract->extract_id, $extract_full_query[0]['extract_id']);
-		$this->assertEquals("f", $extract_full_query[0]['finished']);
-		$this->assertEquals("f", $extract_full_query[0]['failed']);
-/* 		$this->assertEquals("f", $extract_full_query[0]['models']); */
+		if (Conf::$dblang == "pgsql") {
+			$this->assertEquals("f", $extract_full_query[0]['finished']);
+			$this->assertEquals("f", $extract_full_query[0]['failed']);
+	/* 		$this->assertEquals("f", $extract_full_query[0]['models']); */
+		} else if (Conf::$dblang == "mysql") {
+			$this->assertEquals("0", $extract_full_query[0]['finished']);
+			$this->assertEquals("0", $extract_full_query[0]['failed']);
+	/* 		$this->assertEquals("0", $extract_full_query[0]['models']); */
+		}
 		$this->assertEquals("full", $extract_full_query[0]['extractor']);
 		$this->assertEquals(getmypid(), $extract_full_query[0]['extract_pid']);
 		$this->assertEquals($source_path, $extract_full_query[0]['source_path']);
 		$this->assertEquals($source_timestamp, $extract_full_query[0]['source_timestamp']);
 		$this->assertEquals($source_md5, $extract_full_query[0]['source_md5']);
 
-		runq("DELETE FROM extract_processes WHERE extract_id='".pg_escape_string($this->extract->extract_id)."';");
+		runq("DELETE FROM extract_processes WHERE extract_id='".db_escape($this->extract->extract_id)."';");
 	}
 
 	public function testget_extractdir() {
@@ -191,7 +197,11 @@ class ExtractFullTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertNotEmpty($sql);
 
-		$this->assertEquals("CREATE TABLE dump_{$this->extract->extract_id}_source (\n  col1 TEXT,\n  col2 TEXT\n);\nCOPY dump_{$this->extract->extract_id}_source (col1, col2) FROM '{$this->extract->extractdir}/taboutsometable.sql' DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS $$\\$$;\n\n", $sql);
+		if (Conf::$dblang == "pgsql") {
+			$this->assertEquals("CREATE TABLE dump_{$this->extract->extract_id}_source (\n  col1 TEXT,\n  col2 TEXT\n);\nCOPY dump_{$this->extract->extract_id}_source (col1, col2) FROM '{$this->extract->extractdir}/taboutsometable.sql' DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS $$\\$$;\n\n", $sql);
+		} else if (Conf::$dblang == "mysql") {
+			$this->assertEquals("CREATE TABLE dump_{$this->extract->extract_id}_source (\n  col1 TEXT,\n  col2 TEXT\n) ENGINE=InnoDB;\nLOAD DATA LOCAL INFILE '{$this->extract->extractdir}/taboutsometable.sql' INTO TABLE dump_{$this->extract->extract_id}_source COLUMNS TERMINATED BY '|' ENCLOSED BY '\\'';\n\n", $sql);
+		}
 	}
 
 	public function testindex_sql() {

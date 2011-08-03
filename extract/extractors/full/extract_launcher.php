@@ -81,7 +81,7 @@ class ExtractFullLauncher {
 		}
 
 		//check if there are any extract processes running at the moment
-		$already_extracting = runq("SELECT count(*) FROM extract_processes WHERE finished=FALSE;");
+		$already_extracting = runq("SELECT count(*) as count FROM extract_processes WHERE finished=FALSE;");
 
 		//we'll have to wait until the extract finishes
 		if ($already_extracting[0]['count'] > 0) {
@@ -94,7 +94,7 @@ class ExtractFullLauncher {
 	 */
 	function check_already_transforming() {
 		//check if there are any transform processes running at the moment
-		$already_transforming = runq("SELECT count(*) FROM transform_processes WHERE finished=FALSE;");
+		$already_transforming = runq("SELECT count(*) as count FROM transform_processes WHERE finished=FALSE;");
 
 		//we'll have to wait until the transform finishes
 		if ($already_transforming[0]['count'] > 0) {
@@ -244,7 +244,7 @@ class ExtractFullLauncher {
 	 */
 	function dump_already_processed($file) {
 		//search for extract processes that have used files with the same mtime or md5 hash
-		$already_processed_query = runq("SELECT count(*) FROM extract_processes p INNER JOIN extract_full f ON (f.extract_id=p.extract_id) WHERE f.source_md5='".pg_escape_string($file['md5'])."' OR f.source_timestamp='".pg_escape_string(date("c", $file['modtime']))."';");
+		$already_processed_query = runq("SELECT count(*) AS count FROM extract_processes p INNER JOIN extract_full f ON (f.extract_id=p.extract_id) WHERE f.source_md5='".db_escape($file['md5'])."' OR f.source_timestamp='".db_escape(date("c", $file['modtime']))."';");
 		$already_processed_count = $already_processed_query[0]['count'];
 	
 		//if any extracts have used this file
@@ -274,7 +274,7 @@ class ExtractFullLauncher {
 		//helpful log message
 		var_dump("jackpot");
 
-		var_dump(Conf::$software_path."extract/extractors/full/run_extract.php ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog &");
+/* 		var_dump(Conf::$software_path."extract/extractors/full/run_extract.php ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog &"); */
 
 		//start the extract process
 		shell_exec(Conf::$software_path."extract/extractors/full/run_extract.php ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog &");

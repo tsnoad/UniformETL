@@ -51,25 +51,6 @@ class DatabaseSelectTest extends PHPUnit_Framework_TestCase {
 
 		$this->fail('An expected exception has not been raised.');
 	}
-
-	public function testNextvalSuccess() {
-		$query = runq("SELECT nextval('member_ids_id_seq');");
-		$this->assertNotEmpty($query);
-		$this->assertNotEmpty($query[0]);
-		$this->assertNotEmpty($query[0]['nextval']);
-	}
-
-	public function testNextvalBadSyntax() {
-		try {
-			$query = runq("SELECT nextval('squiggles');");
-		} catch (Exception $e) {
-/* 			var_dump($e->getMessage()); */
-
-			return;
-		}
-
-		$this->fail('An expected exception has not been raised.');
-	}
 }
 
 ?>

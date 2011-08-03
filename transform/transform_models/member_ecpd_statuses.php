@@ -62,7 +62,7 @@ Class MemberEcpdStatuses {
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO ecpd_statuses (member_id, participant, coordinator) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['participant'])."', '".pg_escape_string($data_add_item['coordinator'])."');");
+		runq("INSERT INTO ecpd_statuses (member_id, participant, coordinator) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".db_boolean($data_add_item['participant'])."', '".db_boolean($data_add_item['coordinator'])."');");
 	}
 
 	function update_data($data_update_item) {

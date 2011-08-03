@@ -37,6 +37,10 @@ function db_query($conn, $query) {
 	    $return[] = $row;
 	}
 
+	if (empty($return)) {
+		return false;
+	}
+
 	return $return;
 }
 
@@ -63,6 +67,26 @@ function db_concat($argument1orarguments, $argument2=null, $argument3=null) {
 
 function db_cast_bigint($column) {
 	return $column;
+}
+
+function db_boolean($input) {
+	if (is_bool($input)) {
+		if ($input) {
+			return "1";
+		}
+
+	} else if (is_integer($input)) {
+		if ($input === 1) {
+			return "1";
+		}
+	} else if (is_string($input)) {
+		$input = trim(strtolower($input));
+		if ($input == "1" || $input == "t" || $input == "true") {
+			return "1";
+		}
+	}
+
+	return "0";
 }
 
 ?>

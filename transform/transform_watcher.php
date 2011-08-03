@@ -44,7 +44,7 @@ foreach ($unfinisheds_query as $unfinished) {
 
 	sleep(5);
 
-	$status_query = runq("SELECT * FROM transform_processes WHERE transform_id='".pg_escape_string($unfinished['transform_id'])."' LIMIT 1;");
+	$status_query = runq("SELECT * FROM transform_processes WHERE transform_id='".db_escape($unfinished['transform_id'])."' LIMIT 1;");
 
 	if ($status_query[0]['finished'] == 't') {
 		//process has completed normally

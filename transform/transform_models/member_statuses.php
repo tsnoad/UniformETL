@@ -60,7 +60,7 @@ Class MemberStatuses {
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO statuses (member_id, member, financial) VALUES ('".db_escape($data_add_item['member_id'])."', '".db_escape($data_add_item['member'])."', '".db_escape($data_add_item['financial'])."');");
+		runq("INSERT INTO statuses (member_id, member, financial) VALUES ('".db_escape($data_add_item['member_id'])."', '".db_boolean($data_add_item['member'])."', '".db_boolean($data_add_item['financial'])."');");
 	}
 
 	function update_data($data_update_item) {

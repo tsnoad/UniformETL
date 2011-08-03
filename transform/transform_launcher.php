@@ -19,14 +19,14 @@ class Launcher {
 		}
 
 		//are there any extracts currently in progress?
-		$already_extracting = runq("SELECT count(*) FROM extract_processes WHERE finished=FALSE;");
+		$already_extracting = runq("SELECT count(*) as count FROM extract_processes WHERE finished=FALSE;");
 		if ($already_extracting[0]['count'] > 0) {
 			//we have to wait until they've finished
 			die("extract is currently running\n");
 		}
 
 		//are there any transforms currently in progress?
-		$already_transforming = runq("SELECT count(*) FROM transform_processes WHERE finished=FALSE;");
+		$already_transforming = runq("SELECT count(*) as count FROM transform_processes WHERE finished=FALSE;");
 		if ($already_transforming[0]['count'] > 0) {
 			//we have to wait until they've finished
 			die("transform is currently running\n");

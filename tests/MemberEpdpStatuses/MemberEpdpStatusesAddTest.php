@@ -23,8 +23,13 @@ class MemberEpdpStatusesStatusesAddTest extends PHPUnit_Framework_TestCase {
 
 		$status_query = runq("SELECT * FROM epdp_statuses WHERE member_id='10000000';");
 		$this->assertNotEmpty($status_query, "epdp status was not created");
-		$this->assertEquals("t", $status_query[0]['participant'], "status was not set correctly");
-		$this->assertEquals("t", $status_query[0]['coordinator'], "status was not set correctly");
+		if (Conf::$dblang == "pgsql") {
+			$this->assertEquals("t", $status_query[0]['participant'], "status was not set correctly");
+			$this->assertEquals("t", $status_query[0]['coordinator'], "status was not set correctly");
+		} else if (Conf::$dblang == "mysql") {
+			$this->assertEquals("1", $status_query[0]['participant'], "status was not set correctly");
+			$this->assertEquals("1", $status_query[0]['coordinator'], "status was not set correctly");
+		}
 	}
 }
 
