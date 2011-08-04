@@ -37,7 +37,7 @@ class Chunks {
 				runq("INSERT INTO chunks (chunk_id, transform_id) VALUES ('".db_escape($chunk_id)."', '".db_escape($this->transform_id)."');");
 	
 				//add a chunk's worth of member ids to the chunk
-				runq("INSERT INTO chunk_member_ids SELECT DISTINCT '".db_escape($chunk_id)."' AS chunk_id, ".db_cast_bigint("customerid")." AS member_id FROM dump_{$this->extract_id}_customer WHERE custtypeid='INDI' ORDER BY ".db_cast_bigint("customerid")." ASC LIMIT ".Conf::$chunk_size." OFFSET ".$chunk_offset.";");
+				runq("INSERT INTO chunk_member_ids SELECT DISTINCT {$chunk_id} AS chunk_id, ".db_cast_bigint("customerid")." AS member_id FROM dump_{$this->extract_id}_customer WHERE custtypeid='INDI' ORDER BY ".db_cast_bigint("customerid")." ASC LIMIT ".Conf::$chunk_size." OFFSET ".$chunk_offset.";");
 
 			} catch (Exception $e) {
 				print_r($e->getMessage());

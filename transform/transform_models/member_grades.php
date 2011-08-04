@@ -65,6 +65,7 @@ Class MemberGrades {
 
 			$password['member_id'] = $member_id;
 			$password['grade'] = trim($member_passwords_query_tmp['grade']);
+			$password['chartered'] = trim($member_passwords_query_tmp['chartered']);
 
 			$members_passwords[$member_id] = $password;
 		}
@@ -73,19 +74,19 @@ Class MemberGrades {
 	}
 
 	function get_src_members_grades($chunk_id, $extract_id) {
-		$src_member_passwords_query = runq("SELECT DISTINCT g.customerid as member_id, g.gradeid as grade FROM dump_{$extract_id}_cpgcustomer g INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("g.customerid").") WHERE ch.chunk_id='{$chunk_id}' AND g.cpgid='IEA';");
+		$src_member_passwords_query = runq("SELECT DISTINCT g.customerid as member_id, g.gradeid as grade, supppnenabled='1' as chartered FROM dump_{$extract_id}_cpgcustomer g INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("g.customerid").") WHERE ch.chunk_id='{$chunk_id}' AND g.cpgid='IEA';");
 
 		return $this->get_members_grades($src_member_passwords_query);
 	}
 
 	function get_dst_members_grades($chunk_id) {
-		$dst_member_passwords_query = runq("SELECT DISTINCT g.member_id, g.grade FROM grades g INNER JOIN chunk_member_ids ch ON (ch.member_id=g.member_id) WHERE ch.chunk_id='{$chunk_id}';");
+		$dst_member_passwords_query = runq("SELECT DISTINCT g.member_id, g.grade, g.chartered FROM grades g INNER JOIN chunk_member_ids ch ON (ch.member_id=g.member_id) WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members_grades($dst_member_passwords_query);
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO grades (member_id, grade) VALUES ('".db_escape($data_add_item['member_id'])."', '".db_escape($data_add_item['grade'])."');");
+		runq("INSERT INTO grades (member_id, grade, chartered) VALUES ('".db_escape($data_add_item['member_id'])."', '".db_escape($data_add_item['grade'])."', '".db_boolean($data_add_item['financial'])."');");
 	}
 
 	function delete_data($data_delete_item) {
@@ -101,7 +102,26 @@ Class MemberGrades {
 	}
 
 	function hook_api_get_member($data) {
-		return array("g.grade", "LEFT JOIN grades g ON (g.member_id=m.member_id)");
+		$grade_constants = "(VALUES
+('AFIL', 'Affiliate', 'AffilIEAust', ''),
+('COMP', 'Companion', 'CompIEAust ', ''),
+('FELL', 'Fellow', 'FIEAust', 'CPEng'),
+('GRAD', 'Graduate', 'GradIEAust ', ''),
+('HONF', 'Honorary Fellow', 'HonFIEAust ', 'CPEng'),
+('MEMB', 'Member', 'MIEAust', 'CPEng'),
+('OFEL', 'Officer Fellow', 'OFIEAust', 'CEngO'),
+('OGRA', 'Officer Graduate', 'GradOIEAust', ''),
+('OMEM', 'Officer Member', 'OMIEAust', 'CEngO'),
+('OSTU', 'Officer Student', 'StudIEAust', ''),
+('SNRM', 'Senior Member', 'SMIEAust', 'CPEng'),
+('STUD', 'Student (IEAust)', 'StudIEAust', ''),
+('TFEL', 'Technologist Fellow', 'TFIEAust', 'CEngT'),
+('TGRA', 'Technologist Graduate', 'GradTIEAust', ''),
+('TMEM', 'Technologist Member', 'TMIEAust', 'CEngT'),
+('TSTU', 'Technologist Student', 'StudIEAust', '')
+) AS gn (grade, name, postnominals, chartered_postnominals)";
+
+		return array("gn.name AS grade, g.chartered, case when g.chartered then gn.postnominals||' '||gn.chartered_postnominals else gn.postnominals end as grade_postnominals", "LEFT JOIN grades g ON (g.member_id=m.member_id) LEFT JOIN {$grade_constants} ON (gn.grade=g.grade)");
 	}
 }
 

@@ -96,7 +96,10 @@ Class MemberAddresses {
 
 		if (empty($address_query)) return array("addresses" => array());
 
-		$user['addresses'] = $address_query;
+		foreach ($address_query as $address_query_tmp) {
+			//organise names by name type (there's only ever one name per name type)
+			$user['addresses'][$address_query_tmp['type']][] = array("address" => $address_query_tmp['address'], "suburb" => $address_query_tmp['suburb'], "state" => $address_query_tmp['state'], "postcode" => $address_query_tmp['postcode'], "country" => $address_query_tmp['country']);
+		}
 
 		return $user;
 	}

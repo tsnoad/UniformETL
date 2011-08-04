@@ -48,7 +48,7 @@ Class MemberWebStatuses {
 	}
 
 	function get_src_members_web_statuses($chunk_id, $extract_id) {
-		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT c.customerid as member_id FROM dump_{$extract_id}_cpgcustomer c INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("c.customerid").") WHERE ch.chunk_id='{$chunk_id}' AND c.cpgid='IEA' AND c.custstatusid='MEMB';");
+		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT ".db_cast_bigint("c.customerid")." as member_id FROM dump_{$extract_id}_cpgcustomer c INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("c.customerid").") WHERE ch.chunk_id='{$chunk_id}' AND c.cpgid='IEA' AND c.custstatusid='MEMB';");
 
 		return $this->get_members_web_statuses($src_member_ecpd_statuses_query);
 	}

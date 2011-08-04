@@ -52,6 +52,7 @@ function __autoload($class_name) {
 		case "MemberIds":
 		case "MemberPersonals":
 		case "MemberPasswords":
+		case "MemberSecretQuestions":
 		case "MemberNames":
 		case "MemberEmails":
 		case "MemberAddresses":

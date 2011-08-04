@@ -79,7 +79,20 @@ Class MemberDivisions {
 	}
 
 	function hook_api_get_member($data) {
-		return array("d.division", "LEFT JOIN divisions d ON (d.member_id=m.member_id)");
+		$division_constants = "(VALUES
+('CBR', 'Canberra Division'),
+('NAT', 'IEAust National Office'),
+('NEWC', 'Newcastle Division'),
+('NT', 'Northern Division'),
+('QLD', 'Queensland Division'),
+('SA', 'South Australia Division'),
+('SYD', 'Sydney Division'),
+('TAS', 'Tasmania Division'),
+('VIC', 'Victoria Division'),
+('WA', 'Western Australia Division')
+) AS dn (division, name)";
+
+		return array("dn.name as division", "LEFT JOIN divisions d ON (d.member_id=m.member_id) LEFT JOIN {$division_constants} ON (dn.division=d.division)");
 	}
 }
 

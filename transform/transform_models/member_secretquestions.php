@@ -55,21 +55,23 @@ Class MemberSecretQuestions {
 			$chunk_member_ids[] = $bar['member_id'];
 		}
 
-		$search_results = $this->gandalf_runq("SELECT DISTINCT a.person_id, a.passphrase FROM authentication a WHERE (a.person_id='".implode("' OR a.person_id='", $chunk_member_ids)."') AND a.end_date='infinity' AND passphrase IS NOT NULL AND passphrase!='';");
+		$search_results = $this->gandalf_runq("SELECT DISTINCT a.person_id, q.description AS question, a.answer FROM answers a INNER JOIN questions q ON (q.id=a.question_id) WHERE (a.person_id='".implode("' OR a.person_id='", $chunk_member_ids)."') AND answer IS NOT NULL AND answer!='';");
 
 		foreach ($search_results as $search_result) {
 			if (empty($search_result['person_id'])) continue; 
 
-			$squiggle[] = array("member_id" => $search_result['person_id'], "password" => $search_result['passphrase']);
+			$squiggle[] = array("member_id" => $search_result['person_id'], "question" => $search_result['question'], "answer" => $search_result['answer']);
 		}
 
 		return $this->get_members_passwords($squiggle);
 	}
 
 	function get_dst_members_passwords($chunk_id) {
+/*
 		$dst_member_passwords_query = runq("SELECT DISTINCT p.member_id, p.salt, p.hash FROM passwords p INNER JOIN chunk_member_ids ch ON (ch.member_id=p.member_id) WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members_passwords($dst_member_passwords_query);
+*/
 	}
 
 	function make_salt() {
@@ -88,6 +90,7 @@ Class MemberSecretQuestions {
 	}
 
 	function add_data($data_add_item) {
+/*
 		$salt = $this->make_salt();
 		$hash = md5($salt.$data_add_item['password']);
 
@@ -95,6 +98,7 @@ Class MemberSecretQuestions {
 		$ldap_hash = "{SSHA}".base64_encode(pack("H*",sha1($data_add_item['password'].$ldap_salt)).$ldap_salt);
 
 		runq("INSERT INTO passwords (member_id, salt, hash, ldap_hash) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($salt)."', '".pg_escape_string($hash)."', '".pg_escape_string($ldap_hash)."');");
+*/
 	}
 
 	function delete_data($data_delete_item) {
@@ -102,6 +106,7 @@ Class MemberSecretQuestions {
 	}
 
 	function update_data($data_add_item) {
+/*
 		$salt = $this->make_salt();
 		$hash = md5($salt.$data_add_item['password']);
 
@@ -109,15 +114,17 @@ Class MemberSecretQuestions {
 		$ldap_hash = "{SSHA}".base64_encode(pack("H*",sha1($data_add_item['password'].$ldap_salt)).$ldap_salt);
 
 		runq("UPDATE passwords SET salt='".pg_escape_string($salt)."', hash='".pg_escape_string($hash)."', ldap_hash='".pg_escape_string($ldap_hash)."' WHERE member_id='".pg_escape_string($data_add_item['member_id'])."';");
+*/
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {
-		$transform = New SingleTransforms;
+		$transform = New PluralTransforms;
 
 		return $transform->transform($src_data_by_members, $dst_data_by_members);
 	}
 
 	function update_or_add_data($data_item) {
+/*
 		$member_id = $data_item['member_id'];
 
 		$existing_data_count = runq("SELECT count(*) FROM passwords WHERE member_id='".pg_escape_string($data_item['member_id'])."';");
@@ -128,6 +135,7 @@ Class MemberSecretQuestions {
 		} else {
 			$this->add_data($data_item);
 		}
+*/
 	}
 }
 

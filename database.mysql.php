@@ -74,7 +74,6 @@ function db_boolean($input) {
 		if ($input) {
 			return "1";
 		}
-
 	} else if (is_integer($input)) {
 		if ($input === 1) {
 			return "1";

@@ -93,6 +93,7 @@ create table grades (
 	id BIGSERIAL PRIMARY KEY,
 	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,
 	grade TEXT NOT NULL,
+	chartered BOOLEAN NOT NULL DEFAULT FALSE,
 	UNIQUE (member_id)
 );
 CREATE INDEX grades_member_id ON grades (member_id);
@@ -211,6 +212,7 @@ CREATE TABLE chunk_member_ids (
 	chunk_id BIGINT REFERENCES chunks ON UPDATE CASCADE ON DELETE CASCADE,
 	member_id BIGINT
 );
+CREATE INDEX chunk_member_ids_chunk_id ON chunk_member_ids (chunk_id);
 CREATE INDEX chunk_member_ids_member_id ON chunk_member_ids (member_id);
 
 CREATE TABLE history (
