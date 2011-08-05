@@ -8,6 +8,8 @@ class Conf {
 		"MemberIds",
 		"MemberPasswords",
 		"MemberPersonals",
+		"MemberSecretQuestions",
+		"MemberStatuses",
 		"MemberNames",
 		"MemberEmails",
 		"MemberAddresses",
@@ -30,6 +32,8 @@ class Conf {
 	public static $dbname = "hotel";
 	public static $dbuser = "";
 	public static $dbpass = "";
+	public static $dblang = "pgsql";
+/* 	public static $dblang = "mysql"; */
 
 	//extract_launcher.php
 	public static $server = "user@remote.server.com";
