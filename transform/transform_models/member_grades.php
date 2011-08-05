@@ -86,7 +86,7 @@ Class MemberGrades {
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO grades (member_id, grade, chartered) VALUES ('".db_escape($data_add_item['member_id'])."', '".db_escape($data_add_item['grade'])."', '".db_boolean($data_add_item['financial'])."');");
+		runq("INSERT INTO grades (member_id, grade, chartered) VALUES ('".db_escape($data_add_item['member_id'])."', '".db_escape($data_add_item['grade'])."', '".db_boolean($data_add_item['chartered'])."');");
 	}
 
 	function delete_data($data_delete_item) {
