@@ -183,7 +183,7 @@ CREATE TABLE extract_processes (
 	finish_date TIMESTAMP,
 	failed BOOLEAN DEFAULT FALSE,
 	extractor TEXT NOT NULL,
-	models TEXT ARRAY
+	models TEXT NOT NULL
 );
 CREATE TABLE extract_full (
 	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,

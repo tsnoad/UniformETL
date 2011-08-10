@@ -65,12 +65,10 @@ Class MemberSocieties {
 				db_pgsql("CREATE INDEX dump_%{extract_id}_gradehistory_dateadmitted ON dump_%{extract_id}_gradehistory (cast(to_timestamp(dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp));"), 
 				db_mysql("")
 			),
-/*
 			db_choose(
-				db_pgsql("CREATE VIEW dump_%{extract_id}_gradehistory_latestdateadmitted AS SELECT customerid, gradetypeid, max(cast(to_timestamp(dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)) as latestdateadmitted FROM dump_%{extract_id}_gradehistory WHERE trim(cpgid)='IEA' AND changereasonid='' GROUP BY customerid, gradetypeid;"), 
+				db_pgsql("CREATE VIEW dump_%{extract_id}_gradehistory_latestdateadmitted AS SELECT customerid, cpgid, gradetypeid, max(cast(to_timestamp(dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)) AS latestdateadmitted FROM dump_%{extract_id}_gradehistory WHERE datechange='' AND changereasonid='' GROUP BY customerid, cpgid, gradetypeid;"), 
 				db_mysql("")
 			)
-*/
 		);
 	}
 
@@ -101,18 +99,7 @@ Class MemberSocieties {
 	}
 
 	function get_src_members_emails($chunk_id, $extract_id) {
-/* 		$src_member_emails_query = runq("
-SELECT DISTINCT c.customerid::BIGINT as member_id, c.gradetypeid as college, c.gradeid as grade 
-FROM dump_{$extract_id}_gradehistory c 
-INNER JOIN dump_{$extract_id}_gradehistory_latestdateadmitted ca ON (ca.customerid::BIGINT=c.customerid::BIGINT AND ca.gradetypeid=c.gradetypeid AND ca.latestdateadmitted=cast(to_timestamp(c.dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)) 
-INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) 
-WHERE ch.chunk_id='{$chunk_id}' 
-AND trim(c.cpgid)='IEA' 
-AND trim(c.changereasonid)='' 
-AND trim(c.datechange)='';"); */
-
-		$src_member_emails_query = runq("SELECT DISTINCT c.customerid::BIGINT as member_id, c.cpgid as society, '' as grade FROM dump_{$extract_id}_gradehistory c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND trim(c.cpgid)!='IEA' AND trim(c.cpgid)!='iea';");
-
+		$src_member_emails_query = runq("SELECT DISTINCT g.customerid::BIGINT AS member_id, g.cpgid AS society, g.gradeid AS grade FROM dump_{$extract_id}_gradehistory g INNER JOIN dump_{$extract_id}_gradehistory_latestdateadmitted gda ON (gda.customerid=g.customerid AND gda.cpgid=g.cpgid AND gda.gradetypeid=g.gradetypeid AND gda.latestdateadmitted=cast(to_timestamp(dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') AS TIMESTAMP)) INNER JOIN chunk_member_ids ch ON (ch.member_id=g.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND trim(g.cpgid)!='IEA' AND g.datechange='' AND g.changereasonid='';");
 
 		return $this->get_members_emails($src_member_emails_query);
 	}

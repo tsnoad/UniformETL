@@ -37,14 +37,6 @@ Class MemberColleges {
 			db_choose(
 				db_pgsql("CREATE INDEX dump_%{extract_id}_gradehistory_gradetypeid ON dump_%{extract_id}_gradehistory (gradetypeid);"), 
 				db_mysql("ALTER TABLE dump_%{extract_id}_gradehistory MODIFY COLUMN gradetypeid VARCHAR(32); CREATE INDEX dump_%{extract_id}_gradehistory_gradetypeid ON dump_%{extract_id}_gradehistory (gradetypeid);")
-			),
-			db_choose(
-				db_pgsql("CREATE INDEX dump_%{extract_id}_gradehistory_dateadmitted ON dump_%{extract_id}_gradehistory (cast(to_timestamp(dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp));"), 
-				db_mysql("")
-			),
-			db_choose(
-				db_pgsql("CREATE VIEW dump_%{extract_id}_gradehistory_latestdateadmitted AS SELECT customerid, gradetypeid, max(cast(to_timestamp(dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)) as latestdateadmitted FROM dump_%{extract_id}_gradehistory WHERE trim(cpgid)='IEA' AND changereasonid='' GROUP BY customerid, gradetypeid;"), 
-				db_mysql("")
 			)
 		);
 	}
@@ -76,17 +68,7 @@ Class MemberColleges {
 	}
 
 	function get_src_members_emails($chunk_id, $extract_id) {
-/* 		$src_member_emails_query = runq("
-SELECT DISTINCT c.customerid::BIGINT as member_id, c.gradetypeid as college, c.gradeid as grade 
-FROM dump_{$extract_id}_gradehistory c 
-INNER JOIN dump_{$extract_id}_gradehistory_latestdateadmitted ca ON (ca.customerid::BIGINT=c.customerid::BIGINT AND ca.gradetypeid=c.gradetypeid AND ca.latestdateadmitted=cast(to_timestamp(c.dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)) 
-INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) 
-WHERE ch.chunk_id='{$chunk_id}' 
-AND trim(c.cpgid)='IEA' 
-AND trim(c.changereasonid)='' 
-AND trim(c.datechange)='';"); */
-
-		$src_member_emails_query = runq("SELECT DISTINCT c.customerid::BIGINT as member_id, c.gradetypeid as college, '' as grade FROM dump_{$extract_id}_gradehistory c INNER JOIN dump_{$extract_id}_cpggradetype gt ON (gt.gradetypeid=c.gradetypeid) INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND trim(c.cpgid)='IEA' AND trim(gt.classid)='COLL';");
+		$src_member_emails_query = runq("SELECT DISTINCT c.customerid::BIGINT as member_id, c.gradetypeid as college, c.gradeid as grade FROM dump_{$extract_id}_gradehistory c INNER JOIN dump_{$extract_id}_cpggradetype gt ON (gt.gradetypeid=c.gradetypeid) INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND trim(c.cpgid)='IEA' AND trim(gt.classid)='COLL' AND c.datechange='' AND c.changereasonid='';");
 
 		return $this->get_members_emails($src_member_emails_query);
 	}
@@ -128,7 +110,6 @@ AND trim(c.datechange)='';"); */
 
 		foreach ($colleges_query as $colleges_query_tmp) {
 			//put email addresses in array
-/* 			$user['colleges'][] = $colleges_query_tmp['college']; */
 			$user['colleges'][] = MemberColleges::$college_names[$colleges_query_tmp['college']];
 		}
 

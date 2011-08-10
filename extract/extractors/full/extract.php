@@ -96,7 +96,7 @@ class ExtractFull {
 			$this->extract_id = db_nextval("extract_processes", "extract_id");
 		
 			//create a process in the database
-			runq("INSERT INTO extract_processes (extract_id, extractor, extract_pid) VALUES ('".db_escape($this->extract_id)."', 'full', '".db_escape(getmypid())."');");
+			runq("INSERT INTO extract_processes (extract_id, extractor, extract_pid, models) VALUES ('".db_escape($this->extract_id)."', 'full', '".db_escape(getmypid())."', '".db_escape(json_encode(Conf::$do_transforms))."');");
 		
 			//record information about the source file
 			runq("INSERT INTO extract_full (extract_id, source_path, source_timestamp, source_md5) VALUES ('".db_escape($this->extract_id)."', '".db_escape($source_path)."', '".db_escape($source_timestamp)."', '".db_escape($source_md5)."');");
