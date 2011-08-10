@@ -23,7 +23,7 @@ class MemberGradesGetDstTest extends PHPUnit_Framework_TestCase {
 		runq("INSERT INTO chunks (chunk_id, transform_id) VALUES ('".db_escape($this->chunk_id)."', '".db_escape($this->transform_id)."');");
 		runq("INSERT INTO chunk_member_ids (chunk_id, member_id) VALUES ('".db_escape($this->chunk_id)."', 10000000);");
 
-		$this->model->add_data(array("member_id" => "10000000", "grade" => "Some Grade"));
+		$this->model->add_data(array("member_id" => "10000000", "grade" => "Some Grade", "chartered" => "t"));
 	}
 
 	protected function tearDown() {
@@ -37,6 +37,7 @@ class MemberGradesGetDstTest extends PHPUnit_Framework_TestCase {
 		$this->assertNotEmpty($member_grades);
 		$this->assertNotEmpty($member_grades['10000000']);
 		$this->assertEquals("Some Grade", $member_grades['10000000']['grade']);
+		$this->assertEquals("t", $member_grades['10000000']['chartered']);
 	}
 }
 

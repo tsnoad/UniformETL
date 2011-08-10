@@ -72,7 +72,7 @@ Class MemberAddresses {
 	}
 
 	function update_data($data_update_item) {
-		//needs to be coded
+		//Plural: Does no updating.
 	}
 
 	function delete_data($data_delete_by_member) {

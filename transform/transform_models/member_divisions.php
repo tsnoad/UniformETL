@@ -67,9 +67,11 @@ Class MemberDivisions {
 	}
 
 	function delete_data($data_delete_item) {
+		runq("DELETE FROM divisions WHERE member_id='".db_escape($data_delete_item['member_id'])."' AND division='".db_escape($data_delete_item['division'])."';");
 	}
 
-	function update_data($data_add_item) {
+	function update_data($data_update_item) {
+		runq("UPDATE divisions SET division='".db_escape($data_update_item['division'])."' WHERE member_id='".db_escape($data_update_item['member_id'])."';");
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {

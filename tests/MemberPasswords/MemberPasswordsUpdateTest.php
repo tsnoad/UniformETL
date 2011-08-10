@@ -24,7 +24,7 @@ class MemberPasswordsUpdateTest extends PHPUnit_Framework_TestCase {
 		$this->model->update_data(array("member_id" => "10000000", "password" => "somethingdifferent"));
 
 		$password_query = runq("SELECT * FROM passwords WHERE member_id='10000000';");
-		$this->assertNotEmpty($password_query, "password was not created");
+		$this->assertNotEmpty($password_query, "password was not updated");
 		$this->assertEquals(md5($password_query[0]['salt']."somethingdifferent"), $password_query[0]['hash'], "password was not set correctly");
 	}
 }

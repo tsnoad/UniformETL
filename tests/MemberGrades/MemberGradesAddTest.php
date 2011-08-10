@@ -19,11 +19,12 @@ class MemberGradesAddTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testadd_data() {
-		$this->model->add_data(array("member_id" => "10000000", "grade" => "Some Grade"));
+		$this->model->add_data(array("member_id" => "10000000", "grade" => "Some Grade", "chartered" => "t"));
 
 		$member_query = runq("SELECT * FROM grades WHERE member_id='10000000';");
 		$this->assertNotEmpty($member_query, "grade was not created");
 		$this->assertEquals("Some Grade", $member_query[0]['grade'], "grade was not set correctly");
+		$this->assertEquals("t", $member_query[0]['chartered'], "grade was not set correctly");
 	}
 }
 

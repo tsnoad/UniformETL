@@ -48,8 +48,6 @@ Class MemberEpdpStatuses {
 	}
 
 	function get_src_members_ecpd_statuses($chunk_id, $extract_id) {
-/* 		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT g.customerid as member_id FROM dump_{$extract_id}_groupmember g INNER JOIN chunk_member_ids ch ON (ch.member_id=g.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND g.groupid='6052';"); */
-
 		$src_member_ecpd_statuses_query = runq("SELECT DISTINCT ch.member_id, CASE WHEN gp.groupid='6052' THEN TRUE ELSE FALSE END as participant, CASE WHEN gc.subgroupid='28507' THEN TRUE ELSE FALSE END as coordinator FROM chunk_member_ids ch LEFT OUTER JOIN dump_{$extract_id}_groupmember gp ON (gp.customerid::BIGINT=ch.member_id AND gp.groupid='6052') LEFT OUTER JOIN dump_{$extract_id}_groupmember gc ON (gc.customerid::BIGINT=ch.member_id AND gc.subgroupid='28507') WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members_ecpd_statuses($src_member_ecpd_statuses_query);
@@ -66,11 +64,11 @@ Class MemberEpdpStatuses {
 	}
 
 	function update_data($data_update_item) {
-		//needs to be coded
+		runq("UPDATE epdp_statuses SET participant='".db_boolean($data_update_item['participant'])."', coordinator='".db_boolean($data_update_item['coordinator'])."' WHERE member_id='".db_escape($data_update_item['member_id'])."';");
 	}
 
 	function delete_data($data_delete_item) {
-/* 		runq("DELETE FROM ecpd_statuses WHERE member_id='".pg_escape_string($data_delete_item['member_id'])."';"); */
+		runq("DELETE FROM epdp_statuses WHERE member_id='".db_escape($data_delete_item['member_id'])."' AND participant='".db_boolean($data_delete_item['participant'])."' AND coordinator='".db_boolean($data_delete_item['coordinator'])."';");
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {

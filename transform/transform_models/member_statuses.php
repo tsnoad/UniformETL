@@ -64,11 +64,11 @@ Class MemberStatuses {
 	}
 
 	function update_data($data_update_item) {
-		//needs to be coded
+		runq("UPDATE statuses SET member='".db_boolean($data_update_item['member'])."', financial='".db_boolean($data_update_item['financial'])."' WHERE member_id='".db_escape($data_update_item['member_id'])."';");
 	}
 
 	function delete_data($data_delete_item) {
-/* 		runq("DELETE FROM ecpd_statuses WHERE member_id='".db_escape($data_delete_item['member_id'])."';"); */
+		runq("DELETE FROM statuses WHERE member_id='".db_escape($data_delete_item['member_id'])."' AND member='".db_boolean($data_delete_item['member'])."' AND financial='".db_boolean($data_delete_item['financial'])."';");
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {

@@ -24,7 +24,7 @@ class MemberPersonalsUpdateTest extends PHPUnit_Framework_TestCase {
 		$this->model->update_data(array("member_id" => "10000000", "gender" => "F", "date_of_birth" => "1966-06-10 13:24:00"));
 
 		$personal_query = runq("SELECT * FROM personals WHERE member_id='10000000';");
-		$this->assertNotEmpty($personal_query, "personal was not created");
+		$this->assertNotEmpty($personal_query, "personal was not updated");
 		$this->assertEquals("F", $personal_query[0]['gender'], "personal was not set correctly");
 		$this->assertEquals("1966-06-10 13:24:00", $personal_query[0]['date_of_birth'], "personal was not set correctly");
 	}
@@ -33,7 +33,7 @@ class MemberPersonalsUpdateTest extends PHPUnit_Framework_TestCase {
 		$this->model->update_data(array("member_id" => "10000000", "gender" => "", "date_of_birth" => ""));
 
 		$personal_query = runq("SELECT * FROM personals WHERE member_id='10000000';");
-		$this->assertNotEmpty($personal_query, "personal was not created");
+		$this->assertNotEmpty($personal_query, "personal was not updated");
 		$this->assertNull($personal_query[0]['gender'], "personal was not set correctly");
 		$this->assertNull($personal_query[0]['date_of_birth'], "personal was not set correctly");
 	}

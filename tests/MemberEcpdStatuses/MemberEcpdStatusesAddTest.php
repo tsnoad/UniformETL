@@ -5,7 +5,7 @@ require_once("/etc/uniformetl/database.php");
 require_once("/etc/uniformetl/transform/transform_models/member_ids.php");
 require_once("/etc/uniformetl/transform/transform_models/member_ecpd_statuses.php");
 
-class MemberEcpdStatusesStatusesAddTest extends PHPUnit_Framework_TestCase {
+class MemberEcpdStatusesAddTest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
 		$this->model = new MemberEcpdStatuses;
 
