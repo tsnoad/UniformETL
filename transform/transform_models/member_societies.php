@@ -42,7 +42,7 @@ Class MemberSocieties {
 		return array("MemberIds");
 	}
 	function hook_models_required_tables($data) {
-		return array("dump_%{extract_id}_gradehistory" => "GradeHistory");
+		return array("dump_%{extract_id}_cpgcustomer" => "cpgCustomer");
 	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
@@ -50,24 +50,12 @@ Class MemberSocieties {
 	function hook_extract_index_sql($data) {
 		return array(
 			db_choose(
-				db_pgsql("CREATE INDEX dump_%{extract_id}_gradehistory_customerid ON dump_%{extract_id}_gradehistory (cast(customerid AS BIGINT));"), 
-				db_mysql("ALTER TABLE dump_%{extract_id}_gradehistory MODIFY COLUMN customerid BIGINT; CREATE INDEX dump_%{extract_id}_gradehistory_customerid ON dump_%{extract_id}_gradehistory (customerid);")
+				db_pgsql("CREATE INDEX dump_%{extract_id}_cpgcustomer_cpgid_notiea ON dump_%{extract_id}_cpgcustomer (cpgid) WHERE (cpgid!='IEA');"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_cpgcustomer MODIFY COLUMN cpgid VARCHAR(32); CREATE INDEX dump_%{extract_id}_cpgcustomer_cpgid ON dump_%{extract_id}_cpgcustomer (cpgid);")
 			),
 			db_choose(
-				db_pgsql("CREATE INDEX dump_%{extract_id}_gradehistory_cpgid ON dump_%{extract_id}_gradehistory (trim(cpgid));"), 
-				db_mysql("ALTER TABLE dump_%{extract_id}_gradehistory MODIFY COLUMN cpgid VARCHAR(32); UPDATE dump_%{extract_id}_gradehistory SET cpgid=trim(cpgid); CREATE INDEX dump_%{extract_id}_gradehistory_cpgid ON dump_%{extract_id}_gradehistory (cpgid);")
-			),
-			db_choose(
-				db_pgsql("CREATE INDEX dump_%{extract_id}_gradehistory_gradetypeid ON dump_%{extract_id}_gradehistory (gradetypeid);"), 
-				db_mysql("ALTER TABLE dump_%{extract_id}_gradehistory MODIFY COLUMN gradetypeid VARCHAR(32); CREATE INDEX dump_%{extract_id}_gradehistory_gradetypeid ON dump_%{extract_id}_gradehistory (gradetypeid);")
-			),
-			db_choose(
-				db_pgsql("CREATE INDEX dump_%{extract_id}_gradehistory_dateadmitted ON dump_%{extract_id}_gradehistory (cast(to_timestamp(dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp));"), 
-				db_mysql("")
-			),
-			db_choose(
-				db_pgsql("CREATE VIEW dump_%{extract_id}_gradehistory_latestdateadmitted AS SELECT customerid, cpgid, gradetypeid, max(cast(to_timestamp(dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)) AS latestdateadmitted FROM dump_%{extract_id}_gradehistory WHERE datechange='' AND changereasonid='' GROUP BY customerid, cpgid, gradetypeid;"), 
-				db_mysql("")
+				db_pgsql("CREATE INDEX dump_%{extract_id}_cpgcustomer_customerid_notiea ON dump_%{extract_id}_cpgcustomer (cast(customerid AS BIGINT)) WHERE (cpgid!='IEA');"), 
+				db_mysql("ALTER TABLE dump_%{extract_id}_cpgcustomer MODIFY COLUMN customerid BIGINT; CREATE INDEX dump_%{extract_id}_cpgcustomer_customerid ON dump_%{extract_id}_cpgcustomer (customerid);")
 			)
 		);
 	}
@@ -99,7 +87,7 @@ Class MemberSocieties {
 	}
 
 	function get_src_members_emails($chunk_id, $extract_id) {
-		$src_member_emails_query = runq("SELECT DISTINCT g.customerid::BIGINT AS member_id, g.cpgid AS society, g.gradeid AS grade FROM dump_{$extract_id}_gradehistory g INNER JOIN dump_{$extract_id}_gradehistory_latestdateadmitted gda ON (gda.customerid=g.customerid AND gda.cpgid=g.cpgid AND gda.gradetypeid=g.gradetypeid AND gda.latestdateadmitted=cast(to_timestamp(dateadmitted, 'Mon DD YYYY HH:MI:SS:MSPM') AS TIMESTAMP)) INNER JOIN chunk_member_ids ch ON (ch.member_id=g.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND trim(g.cpgid)!='IEA' AND g.datechange='' AND g.changereasonid='';");
+		$src_member_emails_query = runq("SELECT DISTINCT c.customerid::BIGINT AS member_id, c.cpgid AS society, c.gradeid AS grade FROM dump_{$extract_id}_cpgcustomer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND trim(c.cpgid)!='IEA' and trim(c.custstatusid)='MEMB';");
 
 		return $this->get_members_emails($src_member_emails_query);
 	}
@@ -111,18 +99,18 @@ Class MemberSocieties {
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO societies (member_id, society, grade) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['society'])."', '".pg_escape_string($data_add_item['grade'])."');");
+		runq("INSERT INTO societies (member_id, society, grade) VALUES ('".db_escape($data_add_item['member_id'])."', '".db_escape($data_add_item['society'])."', '".db_escape($data_add_item['grade'])."');");
 	}
 
 	function update_data($data_update_item) {
-		//needs to be coded
+		//Plural: Does no updating.
 	}
 
 	function delete_data($data_delete_by_member) {
 		if (empty($data_delete_by_member)) return;
 
 		foreach ($data_delete_by_member as $data_delete_item) {
-			runq("DELETE FROM societies WHERE member_id='".pg_escape_string($data_delete_item['member_id'])."' AND society='".pg_escape_string($data_delete_item['society'])."' AND grade='".pg_escape_string($data_delete_item['grade'])."';");
+			runq("DELETE FROM societies WHERE member_id='".db_escape($data_delete_item['member_id'])."' AND society='".db_escape($data_delete_item['society'])."' AND grade='".db_escape($data_delete_item['grade'])."';");
 		}
 	}
 
@@ -135,7 +123,7 @@ Class MemberSocieties {
 	function hook_api_get_member_plurals($data) {
 		list($member_id) = $data;
 
-		$societies_query = runq("SELECT society FROM societies WHERE member_id='".pg_escape_string($member_id)."';");
+		$societies_query = runq("SELECT society FROM societies WHERE member_id='".db_escape($member_id)."';");
 
 		if (empty($societies_query)) return array("societies" => array());
 

@@ -19,12 +19,12 @@ class MemberSocietiesAddTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testadd_data() {
-		$this->model->add_data(array("member_id" => "10000000", "society" => "TS01", "grade" => "MEMB"));
+		$this->model->add_data(array("member_id" => "10000000", "society" => "TS01", "grade" => "STUD"));
 
 		$member_query = runq("SELECT * FROM societies WHERE member_id='10000000';");
 		$this->assertNotEmpty($member_query, "society was not created");
 		$this->assertEquals("TS01", $member_query[0]['society'], "society was not set correctly");
-		$this->assertEquals("MEMB", $member_query[0]['grade'], "society was not set correctly");
+		$this->assertEquals("STUD", $member_query[0]['grade'], "society was not set correctly");
 	}
 }
 

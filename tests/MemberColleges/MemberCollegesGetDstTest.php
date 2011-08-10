@@ -23,7 +23,7 @@ class MemberCollegesGetDstTest extends PHPUnit_Framework_TestCase {
 		runq("INSERT INTO chunks (chunk_id, transform_id) VALUES ('".db_escape($this->chunk_id)."', '".db_escape($this->transform_id)."');");
 		runq("INSERT INTO chunk_member_ids (chunk_id, member_id) VALUES ('".db_escape($this->chunk_id)."', 10000000);");
 
-		$this->model->add_data(array("member_id" => "10000000", "college" => "COLL", "grade" => "GRAD"));
+		$this->model->add_data(array("member_id" => "10000000", "college" => "FBAR", "grade" => "FELL"));
 	}
 
 	protected function tearDown() {
@@ -34,13 +34,13 @@ class MemberCollegesGetDstTest extends PHPUnit_Framework_TestCase {
 	public function testget_dst_data() {
 		$member_colleges = $this->model->get_dst_data($this->chunk_id);
 
-		$data_hash = md5("10000000"."COLL"."GRAD");
+		$data_hash = md5("10000000"."FBAR"."FELL");
 
 		$this->assertNotEmpty($member_colleges);
 		$this->assertNotEmpty($member_colleges['10000000']);
 		$this->assertNotEmpty($member_colleges['10000000'][$data_hash]);
-		$this->assertEquals("COLL", $member_colleges['10000000'][$data_hash]['college']);
-		$this->assertEquals("GRAD", $member_colleges['10000000'][$data_hash]['grade']);
+		$this->assertEquals("FBAR", $member_colleges['10000000'][$data_hash]['college']);
+		$this->assertEquals("FELL", $member_colleges['10000000'][$data_hash]['grade']);
 	}
 }
 

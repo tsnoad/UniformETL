@@ -18,11 +18,15 @@ class MemberCollegesGetSrcTest extends PHPUnit_Framework_TestCase {
 		runq("INSERT INTO chunks (chunk_id, transform_id) VALUES ('".db_escape($this->chunk_id)."', '".db_escape($this->transform_id)."');");
 		runq("INSERT INTO chunk_member_ids (chunk_id, member_id) VALUES ('".db_escape($this->chunk_id)."', 10000000);");
 
-		runq("CREATE TABLE dump_{$this->extract_id}_gradehistory (customerid TEXT, cpgid TEXT, gradetypeid TEXT, gradeid TEXT);");
-		runq("INSERT INTO dump_{$this->extract_id}_gradehistory (customerid, cpgid, gradetypeid, gradeid) VALUES ('10000000', 'IEA', 'COLL', 'GRAD');");
+		runq("CREATE TABLE dump_{$this->extract_id}_cpggradetype (gradetypeid TEXT, classid TEXT);");
+		runq("INSERT INTO dump_{$this->extract_id}_cpggradetype (gradetypeid, classid) VALUES ('FBAR', 'COLL');");
+
+		runq("CREATE TABLE dump_{$this->extract_id}_gradehistory (customerid TEXT, cpgid TEXT, gradetypeid TEXT, gradeid TEXT, datechange TEXT, changereasonid TEXT);");
+		runq("INSERT INTO dump_{$this->extract_id}_gradehistory (customerid, cpgid, gradetypeid, gradeid, datechange, changereasonid) VALUES ('10000000', 'IEA', 'FBAR', 'FELL', '', '');");
 	}
 
 	protected function tearDown() {
+		runq("DROP TABLE dump_{$this->extract_id}_cpggradetype;");
 		runq("DROP TABLE dump_{$this->extract_id}_gradehistory;");
 		runq("DELETE FROM extract_processes WHERE extract_id='".db_escape($this->extract_id)."';");
 	}
@@ -30,13 +34,13 @@ class MemberCollegesGetSrcTest extends PHPUnit_Framework_TestCase {
 	public function testget_src_data() {
 		$member_colleges = $this->model->get_src_data($this->chunk_id, $this->extract_id);
 
-		$data_hash = md5("10000000"."COLL"."");
+		$data_hash = md5("10000000"."FBAR"."FELL");
 
 		$this->assertNotEmpty($member_colleges);
 		$this->assertNotEmpty($member_colleges['10000000']);
 		$this->assertNotEmpty($member_colleges['10000000'][$data_hash]);
-		$this->assertEquals("COLL", $member_colleges['10000000'][$data_hash]['college']);
-		$this->assertEquals("", $member_colleges['10000000'][$data_hash]['grade']);
+		$this->assertEquals("FBAR", $member_colleges['10000000'][$data_hash]['college']);
+		$this->assertEquals("FELL", $member_colleges['10000000'][$data_hash]['grade']);
 	}
 }
 

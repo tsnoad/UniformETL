@@ -19,12 +19,12 @@ class MemberCollegesAddTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testadd_data() {
-		$this->model->add_data(array("member_id" => "10000000", "college" => "COLL", "grade" => "GRAD"));
+		$this->model->add_data(array("member_id" => "10000000", "college" => "FBAR", "grade" => "FELL"));
 
 		$member_query = runq("SELECT * FROM colleges WHERE member_id='10000000';");
 		$this->assertNotEmpty($member_query, "college was not created");
-		$this->assertEquals("COLL", $member_query[0]['college'], "college was not set correctly");
-		$this->assertEquals("GRAD", $member_query[0]['grade'], "college was not set correctly");
+		$this->assertEquals("FBAR", $member_query[0]['college'], "college was not set correctly");
+		$this->assertEquals("FELL", $member_query[0]['grade'], "college was not set correctly");
 	}
 }
 

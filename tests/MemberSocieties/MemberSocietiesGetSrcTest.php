@@ -18,25 +18,25 @@ class MemberSocietiesGetSrcTest extends PHPUnit_Framework_TestCase {
 		runq("INSERT INTO chunks (chunk_id, transform_id) VALUES ('".db_escape($this->chunk_id)."', '".db_escape($this->transform_id)."');");
 		runq("INSERT INTO chunk_member_ids (chunk_id, member_id) VALUES ('".db_escape($this->chunk_id)."', 10000000);");
 
-		runq("CREATE TABLE dump_{$this->extract_id}_gradehistory (customerid TEXT, cpgid TEXT, gradetypeid TEXT, gradeid TEXT);");
-		runq("INSERT INTO dump_{$this->extract_id}_gradehistory (customerid, cpgid, gradetypeid, gradeid) VALUES ('10000000', 'TS01', 'MEMB', 'MEMB');");
+		runq("CREATE TABLE dump_{$this->extract_id}_cpgcustomer (customerid TEXT, cpgid TEXT, custstatusid TEXT, gradeid TEXT);");
+		runq("INSERT INTO dump_{$this->extract_id}_cpgcustomer (customerid, cpgid, custstatusid, gradeid) VALUES ('10000000', 'TS01', 'MEMB', 'STUD');");
 	}
 
 	protected function tearDown() {
-		runq("DROP TABLE dump_{$this->extract_id}_gradehistory;");
+		runq("DROP TABLE dump_{$this->extract_id}_cpgcustomer;");
 		runq("DELETE FROM extract_processes WHERE extract_id='".db_escape($this->extract_id)."';");
 	}
 	
 	public function testget_src_data() {
 		$member_societies = $this->model->get_src_data($this->chunk_id, $this->extract_id);
 
-		$data_hash = md5("10000000"."TS01"."");
+		$data_hash = md5("10000000"."TS01"."STUD");
 
 		$this->assertNotEmpty($member_societies);
 		$this->assertNotEmpty($member_societies['10000000']);
 		$this->assertNotEmpty($member_societies['10000000'][$data_hash]);
 		$this->assertEquals("TS01", $member_societies['10000000'][$data_hash]['society']);
-		$this->assertEquals("", $member_societies['10000000'][$data_hash]['grade']);
+		$this->assertEquals("STUD", $member_societies['10000000'][$data_hash]['grade']);
 	}
 }
 

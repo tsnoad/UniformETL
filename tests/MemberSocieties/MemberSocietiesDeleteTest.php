@@ -13,7 +13,7 @@ class MemberSocietiesDeleteTest extends PHPUnit_Framework_TestCase {
 
 		$this->user_model->add_data("10000000");
 
-		$this->model->add_data(array("member_id" => "10000000", "society" => "TS01", "grade" => "MEMB"));
+		$this->model->add_data(array("member_id" => "10000000", "society" => "TS01", "grade" => "STUD"));
 	}
 
 	protected function tearDown() {
@@ -21,7 +21,7 @@ class MemberSocietiesDeleteTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	public function testdelete_data() {
-		$this->model->delete_data(array(array("member_id" => "10000000", "society" => "TS01", "grade" => "MEMB")));
+		$this->model->delete_data(array(array("member_id" => "10000000", "society" => "TS01", "grade" => "STUD")));
 
 		$member_query = runq("SELECT * FROM societies WHERE member_id='10000000';");
 		$this->assertEmpty($member_query, "society was not deleted");
