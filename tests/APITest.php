@@ -4,6 +4,7 @@ require_once("/etc/uniformetl/config.php");
 require_once("/etc/uniformetl/database.php");
 require_once("/etc/uniformetl/transform/transform_models/member_ids.php");
 require_once("/etc/uniformetl/transform/transform_models/member_personals.php");
+require_once("/etc/uniformetl/transform/transform_models/member_statuses.php");
 require_once("/etc/uniformetl/transform/transform_models/member_names.php");
 require_once("/etc/uniformetl/transform/transform_models/member_emails.php");
 require_once("/etc/uniformetl/transform/transform_models/member_addresses.php");
@@ -18,24 +19,24 @@ class APITest extends PHPUnit_Framework_TestCase {
 	protected function setUp() {
 		$this->user_model = new MemberIds;
 		$this->personal_model = new MemberPersonals;
+		$this->status_model = new MemberStatuses;
 		$this->name_model = new MemberNames;
 		$this->email_model = new MemberEmails;
 		$this->address_model = new MemberAddresses;
 		$this->password_model = new MemberPasswords;
 		$this->division_model = new MemberDivisions;
 		$this->grade_model = new MemberGrades;
-		$this->web_status_model = new MemberWebStatuses;
 		$this->ecpd_status_model = new MemberEcpdStatuses;
 
 		$this->user_model->add_data("10000000");
 		$this->personal_model->add_data(array("member_id" => "10000000", "gender" => "M", "date_of_birth" => "2011-06-10 13:24:00"));
+		$this->status_model->add_data(array("member_id" => "10000000", "member" => "t", "financial" => "t"));
 		$this->name_model->add_data(array("member_id" => "10000000", "type" => "PREF", "given_names" => "Some", "family_name" => "Name"));
 		$this->email_model->add_data(array("member_id" => "10000000", "email" => "someone@example.com"));
 		$this->address_model->add_data(array("member_id" => "10000000", "type" => "PRIV", "address" => "123 fake st", "suburb" => "somewhere", "state" => "act", "postcode" => "1234", "country" => "AA"));
 		$this->password_model->add_data(array("member_id" => "10000000", "password" => "foobar123"));
-		$this->division_model->add_data(array("member_id" => "10000000", "division" => "Some Division"));
-		$this->grade_model->add_data(array("member_id" => "10000000", "grade" => "Some Grade"));
-		$this->web_status_model->add_data("10000000");
+		$this->division_model->add_data(array("member_id" => "10000000", "division" => "CBR"));
+		$this->grade_model->add_data(array("member_id" => "10000000", "grade" => "FELL", "chartered" => "t"));
 		$this->ecpd_status_model->add_data(array("member_id" => "10000000", "participant" => "t", "coordinator" => "t"));
 	}
 
@@ -63,10 +64,11 @@ class APITest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("M", $data['gender']);
 		$this->assertEquals("2011-06-10 13:24:00", $data['date_of_birth']);
 
-		$this->assertEquals("t", $data['web_status']);
-		$this->assertEquals("t", $data['ecpd_status']);
-		$this->assertEquals("Some Grade", $data['grade']);
-		$this->assertEquals("Some Division", $data['division']);
+		$this->assertEquals("t", $data['member']);
+		$this->assertEquals("Fellow", $data['grade']);
+		$this->assertEquals("t", $data['chartered']);
+		$this->assertEquals("FIEAust CPEng", $data['grade_postnominals']);
+		$this->assertEquals("Canberra Division", $data['division']);
 
 		$this->assertTrue(is_array($data['names']));
 		$this->assertTrue(is_array($data['names']['PREF']));
@@ -77,13 +79,13 @@ class APITest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("someone@example.com", $data['emails'][0]);
 
 		$this->assertTrue(is_array($data['addresses']));
-		$this->assertTrue(is_array($data['addresses'][0]));
-		$this->assertEquals("PRIV", $data['addresses'][0]['type']);
-		$this->assertEquals("123 fake st", $data['addresses'][0]['address']);
-		$this->assertEquals("somewhere", $data['addresses'][0]['suburb']);
-		$this->assertEquals("act", $data['addresses'][0]['state']);
-		$this->assertEquals("1234", $data['addresses'][0]['postcode']);
-		$this->assertEquals("AA", $data['addresses'][0]['country']);
+		$this->assertTrue(is_array($data['addresses']['PRIV']));
+		$this->assertTrue(is_array($data['addresses']['PRIV'][0]));
+		$this->assertEquals("123 fake st", $data['addresses']['PRIV'][0]['address']);
+		$this->assertEquals("somewhere", $data['addresses']['PRIV'][0]['suburb']);
+		$this->assertEquals("act", $data['addresses']['PRIV'][0]['state']);
+		$this->assertEquals("1234", $data['addresses']['PRIV'][0]['postcode']);
+		$this->assertEquals("AA", $data['addresses']['PRIV'][0]['country']);
 	}
 
 	public function testGetUserBadId() {

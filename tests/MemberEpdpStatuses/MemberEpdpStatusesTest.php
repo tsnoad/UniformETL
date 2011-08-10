@@ -31,6 +31,33 @@ class MemberEpdpStatusesTest extends PHPUnit_Framework_TestCase {
 	public function testtransform() {
 		$this->assertTrue(method_exists($this->model, "transform"), "transform() does not exist");
 	}
+	
+	public function testRequiredTransforms() {
+		$required = $this->model->hook_models_required_transforms("");
+
+		$this->assertTrue(is_array($required));
+	}
+	
+	public function testRequiredTables() {
+		$required = $this->model->hook_models_required_tables("");
+
+		$this->assertTrue(is_array($required));
+		$this->assertNotEmpty(reset($required));
+		$this->assertNotEmpty(reset(array_keys($required)));
+		$this->assertContains("%{extract_id}", reset(array_keys($required)));
+	}
+	
+	public function testPriority() {
+		$priority = $this->model->hook_models_transform_priority("");
+
+		$this->assertContains($priority, array("primary", "secondary", "tertiary"), "priority is not acceptable");
+	}
+	
+	public function testIndexes() {
+		$indexes = $this->model->hook_extract_index_sql("");
+
+		$this->assertTrue(is_array($indexes));
+	}
 }
 
 ?>
