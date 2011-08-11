@@ -18,6 +18,10 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/".strtolower($class_name).".php");
 			break;
 
+		case "Janitor":
+		    require_once("/etc/uniformetl/janitor/janitor.php");
+			break;
+
 		case "ExtractFull":
 		    require_once("/etc/uniformetl/extract/extractors/full/extract.php");
 			break;
