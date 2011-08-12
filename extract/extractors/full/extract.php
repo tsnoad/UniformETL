@@ -51,9 +51,11 @@ class ExtractFull {
 		
 		//run the sql file against the database
 		if (Conf::$dblang == "pgsql") {
-			passthru("psql ".Conf::$dbname." < {$this->extractdir}/dump.sql");
+			passthru("psql ".Conf::$dbname." < {$this->extractdir}/dump.sql 2>&1", $return_state);
+
+			var_dump($return_state);
 		} else if (Conf::$dblang == "mysql") {
-			passthru("mysql -u ".Conf::$dbuser." -p".Conf::$dbpass." ".Conf::$dbname." < {$this->extractdir}/dump.sql");
+			passthru("mysql -u ".Conf::$dbuser." -p".Conf::$dbpass." ".Conf::$dbname." < {$this->extractdir}/dump.sql 2>&1");
 		}
 		
 		try {

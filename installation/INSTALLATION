@@ -14,11 +14,16 @@ ln -s /home/uetl/ /etc/uniformetl
 
 4. Create config files from templates
 cp config.template.php config.php
-cp config.template.sh config.sh
 
 5. Edit Config files
 nano config.php
-nano config.sh
+
+6. Set correct permissions
+chown -R tsnoad:tsnoad /home/uetl/
+chmod -R 744 /home/uetl/
+chmod 755 /home/uetl/
+chmod 755 /home/uetl/extract/
+chmod -R 755 /home/uetl/extract/extract_processes/
 
 6. create database and load schema
 createdb hotel
@@ -36,17 +41,27 @@ cat ~/.ssh/id_rsa_something.pub | ssh remote.server.com "cat >> ~/.ssh/authorize
 #UETL Transform Daemon: waits for extract to finish, starts transform, monitors progress.
 * * * * * su - tsnoad -c '/home/uetl/transform/transform_daemon.php >> /home/uetl/logs/transformdaemonlog'
 
-10. Add cleanup scripts to root's crontab
-#Periodically run VACUUM and ANALYZE to keep the database uncluttered
-0 6 * * * su - tsnoad -c 'psql hotel -c "VACUUM;"; psql hotel -c "ANALYZE;"'
+10. Add janitor script to root's crontab
+#Janitor script: cleans up dump tables and extract folders for completed processes
+0 * * * * su - tsnoad -c '/home/hotel/janitor/run_janitor.php >> /home/hotel/logs/janitorlog'
 
-10. Wait for Daemon to find data and start extracting...
+11. Add cleanup scripts to root's crontab
+#Periodically run VACUUM and ANALYZE to keep the database uncluttered
+0 6 * * * su - tsnoad -c 'pg_vacuum --dbname=hotel --analyze'
+
+12. Wait for Daemon to find data and start extracting...
 
 
 Configuring API
 ---------------
 
 1. Make sure mod_rewrite is installed and enabled
+
+2. Create the .htaccess file from template
+cp /home/uetl/api/.htaccess.template /home/uetl/api/.htaccess
+
+5. Edit .htaccess files
+nano /home/uetl/api/.htaccess
 
 2. Configure apache to make /home/uetl/api/ available
 
