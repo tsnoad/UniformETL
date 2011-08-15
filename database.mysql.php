@@ -29,7 +29,7 @@ function db_query($conn, $query) {
 		throw new Exception(mysql_error($conn)."\nFor query: ".$query);
 	}
 
-	if (stripos(trim($query), "select") !== 0) {
+	if (stripos(trim($query), "select") !== 0 && stripos(trim($query), "show") !== 0) {
 		return true;
 	}
 

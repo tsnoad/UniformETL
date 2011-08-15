@@ -123,6 +123,10 @@ Class MemberGrades {
 ('TSTU', 'Technologist Student', 'StudIEAust', '')
 ) AS gn (grade, name, postnominals, chartered_postnominals)";
 
+		if (Conf::$dblang == "mysql") {
+			return array("g.grade AS grade, g.chartered, '' AS grade_postnominals", "LEFT JOIN grades g ON (g.member_id=m.member_id)");
+		}
+
 		return array("gn.name AS grade, g.chartered, case when g.chartered then gn.postnominals||' '||gn.chartered_postnominals else gn.postnominals end as grade_postnominals", "LEFT JOIN grades g ON (g.member_id=m.member_id) LEFT JOIN {$grade_constants} ON (gn.grade=g.grade)");
 	}
 }

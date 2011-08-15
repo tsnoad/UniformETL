@@ -86,8 +86,13 @@ Class Janitor {
 
 	function get_finished_tables($extract_ids) {
 		//get all the tables in the database that belong to one of the complete extracts
-		$fin_dump_table = "tablename ~ '^dump_(".implode("|", $extract_ids).")_[a-zA-Z]+$'";
-		$finished_tables = runq("select tablename from pg_tables where {$fin_dump_table};");
+		if (Conf::$dblang == "pgsql") {
+			$fin_dump_table = "tablename ~ '^dump_(".implode("|", $extract_ids).")_[a-zA-Z]+$'";
+			$finished_tables = runq("select tablename from pg_tables where {$fin_dump_table};");
+		} else if (Conf::$dblang == "mysql") {
+			$fin_dump_table = "table_name REGEXP '^dump_(".implode("|", $extract_ids).")_[a-zA-Z]+$'";
+			$finished_tables = runq("select table_name as tablename from information_schema.tables where {$fin_dump_table};");
+		}
 
 		if (empty($finished_tables)) return null;
 

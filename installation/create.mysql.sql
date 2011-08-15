@@ -102,6 +102,7 @@ create table grades (
 	id BIGINT AUTO_INCREMENT PRIMARY KEY,
 	member_id BIGINT NOT NULL,
 	grade VARCHAR (512) NOT NULL,
+	chartered BOOLEAN NOT NULL DEFAULT FALSE,
 	UNIQUE (member_id),
 	FOREIGN KEY (member_id) REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
@@ -200,7 +201,7 @@ CREATE TABLE extract_processes (
 	finish_date DATETIME,
 	failed BOOLEAN DEFAULT FALSE,
 	extractor VARCHAR (32) NOT NULL,
-	models TEXT
+	models TEXT NOT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE extract_full (

@@ -94,6 +94,10 @@ Class MemberDivisions {
 ('WA', 'Western Australia Division')
 ) AS dn (division, name)";
 
+		if (Conf::$dblang == "mysql") {
+			return array("d.division as division", "LEFT JOIN divisions d ON (d.member_id=m.member_id)");
+		}
+
 		return array("dn.name as division", "LEFT JOIN divisions d ON (d.member_id=m.member_id) LEFT JOIN {$division_constants} ON (dn.division=d.division)");
 	}
 }

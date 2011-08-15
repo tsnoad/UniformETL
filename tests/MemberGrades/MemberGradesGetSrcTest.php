@@ -33,7 +33,11 @@ class MemberGradesGetSrcTest extends PHPUnit_Framework_TestCase {
 		$this->assertNotEmpty($member_grades);
 		$this->assertNotEmpty($member_grades['10000000']);
 		$this->assertEquals("Some Grade", $member_grades['10000000']['grade']);
-		$this->assertEquals("t", $member_grades['10000000']['chartered']);
+		if (Conf::$dblang == "pgsql") {
+			$this->assertEquals("t", $member_grades['10000000']['chartered']);
+		} else if (Conf::$dblang == "mysql") {
+			$this->assertEquals("1", $member_grades['10000000']['chartered']);
+		}
 	}
 }
 

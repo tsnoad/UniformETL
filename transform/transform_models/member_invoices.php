@@ -63,7 +63,7 @@ Class MemberInvoices {
 	}
 
 	function add_data($data_add_item) {
-		runq("INSERT INTO invoices (member_id, batchid, batchposition, type, status, amount) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($data_add_item['batchid'])."', '".pg_escape_string($data_add_item['batchposition'])."', '".pg_escape_string($data_add_item['type'])."', '".pg_escape_string($data_add_item['status'])."', '".pg_escape_string($data_add_item['amount'])."');");
+		runq("INSERT INTO invoices (member_id, batchid, batchposition, type, status, amount) VALUES ('".db_escape($data_add_item['member_id'])."', '".db_escape($data_add_item['batchid'])."', '".db_escape($data_add_item['batchposition'])."', '".db_escape($data_add_item['type'])."', '".db_escape($data_add_item['status'])."', '".db_escape($data_add_item['amount'])."');");
 	}
 
 	function update_data($data_update_item) {
@@ -74,7 +74,7 @@ Class MemberInvoices {
 		if (empty($data_delete_by_member)) return;
 
 		foreach ($data_delete_by_member as $data_delete_item) {
-			runq("DELETE FROM invoices WHERE member_id='".pg_escape_string($data_delete_item['member_id'])."' AND batchid='".pg_escape_string($data_delete_item['batchid'])."' AND batchposition='".pg_escape_string($data_delete_item['batchposition'])."' AND type='".pg_escape_string($data_delete_item['type'])."' AND status='".pg_escape_string($data_delete_item['status'])."' AND amount='".pg_escape_string($data_delete_item['amount'])."';");
+			runq("DELETE FROM invoices WHERE member_id='".db_escape($data_delete_item['member_id'])."' AND batchid='".db_escape($data_delete_item['batchid'])."' AND batchposition='".db_escape($data_delete_item['batchposition'])."' AND type='".db_escape($data_delete_item['type'])."' AND status='".db_escape($data_delete_item['status'])."' AND ".db_choose(db_pgsql("amount='".db_escape($data_delete_item['amount'])."'"), db_mysql("round(amount, 6)=round('".db_escape($data_delete_item['amount'])."', 6)")).";");
 		}
 	}
 

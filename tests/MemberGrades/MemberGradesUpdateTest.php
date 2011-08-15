@@ -26,7 +26,11 @@ class MemberGradesUpdateTest extends PHPUnit_Framework_TestCase {
 		$grade_query = runq("SELECT * FROM grades WHERE member_id='10000000';");
 		$this->assertNotEmpty($grade_query, "grade was not updated");
 		$this->assertEquals("Some Other Grade", $grade_query[0]['grade'], "grade was not set correctly");
-		$this->assertEquals("f", $grade_query[0]['chartered'], "grade was not set correctly");
+		if (Conf::$dblang == "pgsql") {
+			$this->assertEquals("f", $grade_query[0]['chartered'], "grade was not set correctly");
+		} else if (Conf::$dblang == "mysql") {
+			$this->assertEquals("0", $grade_query[0]['chartered'], "grade was not set correctly");
+		}
 	}
 }
 

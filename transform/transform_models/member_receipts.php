@@ -49,7 +49,7 @@ Class MemberReceipts {
 	}
 
 	function get_src_members_names($chunk_id, $extract_id) {
-		$src_member_names_query = runq("SELECT DISTINCT r.customerid as member_id, r.batchid::BIGINT as batchid, r.batchposition::BIGINT as batchposition, r.receipttypeid as type, r.receiptstatusid as status, r.amount as amount FROM dump_{$extract_id}_receipt r INNER JOIN chunk_member_ids ch ON (ch.member_id=r.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND r.customerid NOT ILIKE '%+%' "/* ." AND cast(to_timestamp(r.datereceived, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)>now()-interval'24 months'" */.";");
+		$src_member_names_query = runq("SELECT DISTINCT r.customerid as member_id, r.batchid::BIGINT as batchid, r.batchposition::BIGINT as batchposition, r.receipttypeid as type, r.receiptstatusid as status, r.amount as amount FROM dump_{$extract_id}_receipt r INNER JOIN chunk_member_ids ch ON (ch.member_id=r.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND r.customerid NOT LIKE '%+%' "/* ." AND cast(to_timestamp(r.datereceived, 'Mon DD YYYY HH:MI:SS:MSPM') as timestamp)>now()-interval'24 months'" */.";");
 
 		return $this->get_members_names($src_member_names_query);
 	}

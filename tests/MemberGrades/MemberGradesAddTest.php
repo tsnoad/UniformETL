@@ -24,7 +24,11 @@ class MemberGradesAddTest extends PHPUnit_Framework_TestCase {
 		$member_query = runq("SELECT * FROM grades WHERE member_id='10000000';");
 		$this->assertNotEmpty($member_query, "grade was not created");
 		$this->assertEquals("Some Grade", $member_query[0]['grade'], "grade was not set correctly");
-		$this->assertEquals("t", $member_query[0]['chartered'], "grade was not set correctly");
+		if (Conf::$dblang == "pgsql") {
+			$this->assertEquals("t", $member_query[0]['chartered'], "grade was not set correctly");
+		} else if (Conf::$dblang == "mysql") {
+			$this->assertEquals("1", $member_query[0]['chartered'], "grade was not set correctly");
+		}
 	}
 }
 

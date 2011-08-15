@@ -17,7 +17,11 @@ class JanitorDropTableTest extends PHPUnit_Framework_TestCase {
 
 		$this->janitor->drop_table("dump_1000000_testtesttest");
 
-		$table_query = runq("select tablename from pg_tables where tablename='".db_escape("dump_1000000_testtesttest")."';");
+		if (Conf::$dblang == "pgsql") {
+			$table_query = runq("select tablename from pg_tables where tablename='".db_escape("dump_1000000_testtesttest")."';");
+		} else if (Conf::$dblang == "mysql") {
+			$table_query = runq("show tables where tables_in_".Conf::$dbname."='".db_escape("dump_1000000_testtesttest")."';");
+		}
 		$this->assertEmpty($table_query, "table was not deleted");
 	}
 

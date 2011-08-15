@@ -26,14 +26,14 @@ class JanitorGetExtractsTest extends PHPUnit_Framework_TestCase {
 		$this->assertContains($this->extract_id, $extract_ids);
 	}
 
-	public function testOneComplete() {
+	public function testOneIncomplete() {
 		$this->transform_id = db_nextval("transform_processes", "transform_id");
 		runq("INSERT INTO transform_processes (transform_id, extract_id, start_date, finished, finish_date, failed, transform_pid) VALUES ('".db_escape($this->transform_id)."', '".db_escape($this->extract_id)."', now(), FALSE, now(), FALSE, 1);");
 
 		$extract_ids = $this->janitor->get_finished_extracts();
 
-		$this->assertTrue(is_array($extract_ids));
-		$this->assertNotContains($this->extract_id, $extract_ids);
+		//there might be completed extracts other than the one we just created
+		$this->assertNotContains($this->extract_id, (array)$extract_ids);
 	}
 
 	public function testOneCompleteOneIncomplete() {
@@ -45,8 +45,8 @@ class JanitorGetExtractsTest extends PHPUnit_Framework_TestCase {
 
 		$extract_ids = $this->janitor->get_finished_extracts();
 
-		$this->assertTrue(is_array($extract_ids));
-		$this->assertNotContains($this->extract_id, $extract_ids);
+		//there might be completed extracts other than the one we just created
+		$this->assertNotContains($this->extract_id, (array)$extract_ids);
 	}
 }
 

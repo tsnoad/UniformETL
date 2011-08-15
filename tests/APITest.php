@@ -64,11 +64,19 @@ class APITest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals("M", $data['gender']);
 		$this->assertEquals("2011-06-10 13:24:00", $data['date_of_birth']);
 
-		$this->assertEquals("t", $data['member']);
-		$this->assertEquals("Fellow", $data['grade']);
-		$this->assertEquals("t", $data['chartered']);
-		$this->assertEquals("FIEAust CPEng", $data['grade_postnominals']);
-		$this->assertEquals("Canberra Division", $data['division']);
+		if (Conf::$dblang == "pgsql") {
+			$this->assertEquals("t", $data['member']);
+			$this->assertEquals("Fellow", $data['grade']);
+			$this->assertEquals("t", $data['chartered']);
+			$this->assertEquals("FIEAust CPEng", $data['grade_postnominals']);
+			$this->assertEquals("Canberra Division", $data['division']);
+		} else if (Conf::$dblang == "mysql") {
+			$this->assertEquals("1", $data['chartered']);
+			$this->assertEquals("FELL", $data['grade']);
+			$this->assertEquals("1", $data['member']);
+			$this->assertEquals("", $data['grade_postnominals']);
+			$this->assertEquals("CBR", $data['division']);
+		}
 
 		$this->assertTrue(is_array($data['names']));
 		$this->assertTrue(is_array($data['names']['PREF']));

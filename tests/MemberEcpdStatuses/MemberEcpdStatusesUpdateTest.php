@@ -25,8 +25,13 @@ class MemberEcpdStatusesUpdateTest extends PHPUnit_Framework_TestCase {
 
 		$status_query = runq("SELECT * FROM ecpd_statuses WHERE member_id='10000000';");
 		$this->assertNotEmpty($status_query, "status was not updated");
-		$this->assertEquals("f", $status_query[0]['participant'], "status was not set correctly");
-		$this->assertEquals("f", $status_query[0]['coordinator'], "status was not set correctly");
+		if (Conf::$dblang == "pgsql") {
+			$this->assertEquals("f", $status_query[0]['participant'], "status was not set correctly");
+			$this->assertEquals("f", $status_query[0]['coordinator'], "status was not set correctly");
+		} else if (Conf::$dblang == "mysql") {
+			$this->assertEquals("0", $status_query[0]['participant'], "status was not set correctly");
+			$this->assertEquals("0", $status_query[0]['coordinator'], "status was not set correctly");
+		}
 	}
 }
 
