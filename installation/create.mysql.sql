@@ -203,6 +203,8 @@ CREATE TABLE extract_processes (
 	extractor VARCHAR (32) NOT NULL,
 	models TEXT NOT NULL
 ) ENGINE=InnoDB;
+CREATE TABLE extract_processes_extract_id_seq (current_val BIGINT);
+INSERT INTO extract_processes_extract_id_seq (current_val) VALUES (0);
 
 CREATE TABLE extract_full (
 	extract_id BIGINT,
@@ -228,12 +230,16 @@ CREATE TABLE transform_processes (
 	failed BOOLEAN DEFAULT FALSE,
 	FOREIGN KEY (extract_id) REFERENCES extract_processes (extract_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
+CREATE TABLE transform_processes_transform_id_seq (current_val BIGINT);
+INSERT INTO transform_processes_transform_id_seq (current_val) VALUES (0);
 
 CREATE TABLE chunks (
 	chunk_id BIGINT AUTO_INCREMENT PRIMARY KEY,
 	transform_id BIGINT,
 	FOREIGN KEY (transform_id) REFERENCES transform_processes (transform_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
+CREATE TABLE chunks_chunk_id_seq (current_val BIGINT);
+INSERT INTO chunks_chunk_id_seq (current_val) VALUES (0);
 
 CREATE TABLE chunk_member_ids (
 	chunk_id BIGINT,

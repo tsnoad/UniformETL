@@ -87,7 +87,7 @@ Class MemberSocieties {
 	}
 
 	function get_src_members_emails($chunk_id, $extract_id) {
-		$src_member_emails_query = runq("SELECT DISTINCT c.customerid::BIGINT AS member_id, c.cpgid AS society, c.gradeid AS grade FROM dump_{$extract_id}_cpgcustomer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND trim(c.cpgid)!='IEA' and trim(c.custstatusid)='MEMB';");
+		$src_member_emails_query = runq("SELECT DISTINCT c.customerid::BIGINT AS member_id, c.cpgid AS society, c.gradeid AS grade FROM dump_{$extract_id}_cpgcustomer c INNER JOIN chunk_member_ids ch ON (ch.member_id=c.customerid::BIGINT) WHERE ch.chunk_id='{$chunk_id}' AND trim(c.cpgid)!='IEA' AND trim(c.custstatusid)='MEMB';");
 
 		return $this->get_members_emails($src_member_emails_query);
 	}
