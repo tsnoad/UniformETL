@@ -75,7 +75,7 @@ class ExtractFullLauncher {
 	 */
 	function check_already_extracting() {
 		//is the laucher running more than once (once being us)
-		if (trim(shell_exec("ps h -C extract_launcher.php o pid | wc -l")) > 1) {
+		if (trim(shell_exec("ps h -C run_extract_launcher.php o pid | wc -l")) > 1) {
 			//let's not step on our own toes
 			die("extract launcher is currently running");
 		}

@@ -32,7 +32,7 @@ echo "OK\n";
 shell_exec(Conf::$software_path."transform/transform_watcher.php >> ".Conf::$software_path."logs/transformdaemonlog");
 
 //start the launcher to check if there's any completed extract processes that we can start transforming
-shell_exec(Conf::$software_path."transform/transform_launcher.php >> ".Conf::$software_path."logs/transformdaemonlog");
+shell_exec(Conf::$software_path."transform/run_transform_launcher.php >> ".Conf::$software_path."logs/transformdaemonlog");
 
 //helpful log message
 echo str_pad(" Transform Daemon Complete ", 80, "-", STR_PAD_BOTH)."\n";
