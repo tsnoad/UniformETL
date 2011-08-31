@@ -74,7 +74,7 @@ Class MemberGrades {
 	}
 
 	function get_src_members_grades($chunk_id, $extract_id) {
-		$src_member_passwords_query = runq("SELECT DISTINCT g.customerid as member_id, g.gradeid as grade, supppnenabled='1' as chartered FROM dump_{$extract_id}_cpgcustomer g INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("g.customerid").") WHERE ch.chunk_id='{$chunk_id}' AND g.cpgid='IEA';");
+		$src_member_passwords_query = runq("SELECT DISTINCT g.customerid as member_id, g.gradeid as grade, g.supppnenabled='1' as chartered FROM dump_{$extract_id}_cpgcustomer g INNER JOIN chunk_member_ids ch ON (ch.member_id=".db_cast_bigint("g.customerid").") WHERE ch.chunk_id='{$chunk_id}' AND g.cpgid='IEA';");
 
 		return $this->get_members_grades($src_member_passwords_query);
 	}

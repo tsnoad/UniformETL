@@ -23,7 +23,7 @@ Class ExtractFullPlugins {
 		$latest_members = array();
 
 		foreach ($latest_members_query as $latest_members_tmp) {
-			foreach (explode(",", trim($latest_members_tmp['member_ids'], "{}")) as $latest_member_id) {
+			foreach (json_decode($latest_members_tmp['member_ids']) as $latest_member_id) {
 				$latest_member_ids[] = $latest_member_id;
 			}
 		}

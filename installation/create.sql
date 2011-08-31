@@ -193,7 +193,7 @@ CREATE TABLE extract_full (
 );
 CREATE TABLE extract_latest (
 	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,
-	member_ids BIGINT ARRAY
+	member_ids TEXT
 );
 CREATE TABLE transform_processes (
 	transform_id BIGSERIAL PRIMARY KEY,
