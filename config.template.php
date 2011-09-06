@@ -35,11 +35,17 @@ class Conf {
 	public static $dblang = "pgsql";
 /* 	public static $dblang = "mysql"; */
 
-	//extract_launcher.php
+	//extractors/full/extract_launcher.php
 	public static $server = "user@remote.server.com";
 	public static $identity = "/home/user/.ssh/id_rsa_something";
 	public static $dumps_path = '/data01/datadump/*.tgz';
 	public static $dump_path_check_regex = "/^\/data01\/datadump\/FoxtrotTableDump[0-9]{8,8}\.tgz$/";
+
+	//extractors/latest/extract_launcher.php
+	public static $sybasedbalias = "beebop";
+	public static $sybasedbname = "";
+	public static $sybasedbuser = "";
+	public static $sybasedbpass = "";
 
 	//chunks.php
 	public static $chunk_size = 10000;
