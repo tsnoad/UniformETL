@@ -1,7 +1,5 @@
 <?php
 
-/* php -r 'require("/etc/uniformetl/extract/extractors/latest/extract_launcher.php"); $extract = New ExtractLatest; $extract->start_extract();' */
-
 require_once("/etc/uniformetl/autoload.php");
 require_once("/etc/uniformetl/database.php");
 
@@ -56,7 +54,7 @@ Class ExtractLatest {
 		),
 	);
 
-	public $table_columns = array(
+	public $source_columns = array(
 		"Customer" => array(
 			"CustomerId", "CustTypeId", "Sex", "DOB",
 		),
@@ -110,15 +108,19 @@ Class ExtractLatest {
 
 		$this->start_sybase();
 		
-		list($member_ids, $source_data) = $this->get_member_data($this->table_columns, $models->sources);
+		$member_data = $this->get_member_data($this->source_columns, $models->sources, $this->sybase_data_structure);
 		
 		$this->close_sybase();
 
+		$member_data = $this->filter_tables($member_data, $this->sybase_data_structure, $models->sources);
+
+		$member_data = $this->filter_columns($member_data, $this->sybase_data_structure, $this->source_columns);
+
+		$member_ids = $this->get_member_ids($member_data);
+
 		$this->save_member_ids($member_ids);
 
-		$sql = $this->create_copy_sql($source_data, $this->table_columns, $models->sources, $models->tables);
-
-var_dump($sql);
+		$sql = $this->create_copy_sql($member_data, $models->sources, $this->source_columns, $models->tables);
 
 		//write the sql to a file
 		file_put_contents($this->extractdir."/dump.sql", $sql);
@@ -176,8 +178,6 @@ var_dump($sql);
 		sybase_close($this->sybase);
 	}
 
-
-
 	/*
 	 * reserve an extract id, and create an extract process in the database
 	 */
@@ -220,78 +220,138 @@ var_dump($sql);
 		}
 	}
 	
-	function get_member_data($table_columns, $sources) {
-		$sources_casei = array_combine(array_map("strtolower", $sources), $sources);
-
+	function get_member_data($source_columns, $sources, $sybase_data_structure) {
 		$result = sybase_query("execute spAPIEAAuthenticationSelect @pLastMinutesNum = 360", $this->sybase);
 
 		while ($row = sybase_fetch_assoc($result)) {
-			$member_id = trim($row['CustomerId']);
 			$source_table = trim($row['TableName']);
 
-			$source = $sources_casei[strtolower($source_table)];
+			$member_data[$source_table][] = $row;
+		}
 
-			if (!in_array(strtolower($source_table), array_keys($sources_casei))) {
+		return $member_data;
+	}
+
+	function filter_tables($member_data, $structure, $sources) {
+		$data_table_names = array_combine(array_keys($member_data), array_map("strtolower", array_keys($member_data)));
+
+		foreach ($sources as $source) {
+			$data_table_name = array_search(strtolower($source), $data_table_names);
+
+			if (empty($member_data[$data_table_name])) {
+				$data_out[$source] = array();
 				continue;
 			}
 
-			$member_ids[$member_id] = $member_id;
+			foreach ($member_data[$data_table_name] as $row) {
+				$data_out[$source][] = $row;
+			}
+		}
 
-			unset($source_data_row);
+		return $data_out;
+	}
 
-			foreach ($table_columns[$source] as $table_column) {
-				$sybase_row_name = array_search($table_column, $this->sybase_data_structure[$source_table]);
+	function filter_columns($member_data, $structure, $source_columns) {
+		$struc_table_names = array_combine(array_keys($structure), array_map("strtolower", array_keys($structure)));
 
-				if (empty($row[$sybase_row_name])) {
-					if ($table_column == "CustTypeId") {
-						$source_data_row[$table_column] = "INDI";
-					} else {
-						$source_data_row[$table_column] = "";
+		foreach ($member_data as $table => $rows) {
+			$struc_table_name = array_search(strtolower($table), $struc_table_names);
+
+			if (empty($rows)) {
+				continue;
+			}
+
+			foreach ($rows as $row) {
+				unset($data_row_out);
+
+				foreach ($source_columns[$table] as $column) {
+					$column_name = array_search($column, $structure[$struc_table_name]);
+
+					if (strtolower($column) == "custtypeid") {
+						$data_row_out[$column] = "INDI";
+						continue;
+					} else if (strtolower($column) == "dob") {
+						$data_row_out[$column] = date("M d Y 12:00:00:000\A\M", strtotime($row[$column_name]));
+						continue;
 					}
-				} else {
-					if ($table_column == "DOB") {
-						$source_data_row[$table_column] = date("M d Y g:i:s:000A", strtotime($row[$sybase_row_name]));
-					} else {
-						$source_data_row[$table_column] = $row[$sybase_row_name];
+
+					$data_row_out[$column] = $row[$column_name];
+				}
+
+				$data_out[$table][] = $data_row_out;
+			}
+		}
+
+		return $data_out;
+	}
+
+	function get_member_ids($member_data) {
+		foreach ($member_data as $table => $rows) {
+			if (strtolower($table) != "customer") {
+				continue;
+			}
+
+			foreach ($rows as $columns) {
+				foreach ($columns as $column => $data) {
+					if (strtolower($column) == "customerid") {
+						$member_id = trim($data);
+						$member_ids[] = $member_id;
+
+						continue;
 					}
 				}
 			}
-
-			$source_data[$source][] = $source_data_row;
 		}
 
-		return array($member_ids, $source_data);
+		$member_ids = array_unique($member_ids);
+
+		return $member_ids;
 	}
 
-	function create_copy_sql($source_data, $table_columns, $sources, $tables) {
+	function create_copy_sql($source_data, $sources, $source_columns, $tables) {
 		//loop through all the sources we need
 		foreach ($sources as $i => $source) {
 			//what's the name of the table we're going to create
 			//table names include the extract id
 			$table = str_replace("%{extract_id}", $this->extract_id, $tables[$i]);
 
-			//create table
-			$sql .= db_choose(
-				db_pgsql("CREATE TABLE {$table} (\n  ".implode(" TEXT,\n  ", $table_columns[$source])." TEXT\n);\n"), 
-				db_mysql("CREATE TABLE {$table} (\n  ".implode(" TEXT,\n  ", $table_columns[$source])." TEXT\n) ENGINE=InnoDB;\n")
-			);
-
-			//import from source file
-			$sql .= db_choose(
-				db_pgsql("COPY {$table} (".implode(", ", $table_columns[$source]).") FROM STDIN DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS ".'$$\$$'.";\n"),
-				db_mysql("pfeh;\n")
-			);
-
-
-			if (!empty($source_data[$source])) {
-				foreach ($source_data[$source] as $source_row) {
-					$sql .= "'".utf8_encode(implode("'|'", array_map("db_escape", $source_row)))."'\n";
-				}
-			}
-
-			$sql .= "\\.";
-			$sql .= "\n\n";
+			$sql .= $this->create_sql($table, $source_columns[$source]);
+			$sql .= $this->copy_sql($table, $source_columns[$source], $source_data[$source]);
 		}
+
+		return $sql;
+	}
+
+	function create_sql($table, $columns) {
+		//create table
+		$sql = db_choose(
+			db_pgsql("CREATE TABLE {$table} (\n  ".implode(" TEXT,\n  ", $columns)." TEXT\n);\n"), 
+			db_mysql("CREATE TABLE {$table} (\n  ".implode(" TEXT,\n  ", $columns)." TEXT\n) ENGINE=InnoDB;\n")
+		);
+		return $sql;
+	}
+
+	function copy_sql($table, $columns, $data) {
+		//import from source file
+		$sql = db_choose(
+			db_pgsql("COPY {$table} (".implode(", ", $columns).") FROM STDIN DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS ".'$$\$$'.";\n"),
+			db_mysql("pfeh;\n")
+		);
+
+		if (!empty($data)) {
+			foreach ($data as $source_row) {
+				unset($data_array);
+
+				foreach ($columns as $column) {
+					$data_array[] = "'".utf8_encode(db_escape($source_row[$column]))."'";
+				}
+
+				$sql .= implode("|", $data_array)."\n";
+			}
+		}
+
+		$sql .= "\\.";
+		$sql .= "\n\n";
 
 		return $sql;
 	}
