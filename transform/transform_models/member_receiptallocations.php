@@ -7,6 +7,9 @@ Class MemberReceiptAllocations {
 	function hook_models_required_tables($data) {
 		return array("dump_%{extract_id}_receiptallocation" => "ReceiptAllocation");
 	}
+	function hook_models_required_columns($data) {
+		return array();
+	}
 	function hook_models_transform_priority($data) {
 		return "tertiary";
 	}

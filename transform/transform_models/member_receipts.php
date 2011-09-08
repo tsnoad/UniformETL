@@ -7,6 +7,9 @@ Class MemberReceipts {
 	function hook_models_required_tables($data) {
 		return array("dump_%{extract_id}_receipt" => "Receipt");
 	}
+	function hook_models_required_columns($data) {
+		return array();
+	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}

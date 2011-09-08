@@ -46,6 +46,27 @@ Class Plugins {
 		array("models_required-tables", "MemberStatuses", "hook_models_required_tables"),
 		array("models_required-tables", "MemberWebStatuses", "hook_models_required_tables"),
 
+		array("models_required-columns", "MemberIds", "hook_models_required_columns"),
+		array("models_required-columns", "MemberAddresses", "hook_models_required_columns"),
+		array("models_required-columns", "MemberColleges", "hook_models_required_columns"),
+		array("models_required-columns", "MemberConfluenceStatuses", "hook_models_required_columns"),
+		array("models_required-columns", "MemberDivisions", "hook_models_required_columns"),
+		array("models_required-columns", "MemberEcpdStatuses", "hook_models_required_columns"),
+		array("models_required-columns", "MemberEmails", "hook_models_required_columns"),
+		array("models_required-columns", "MemberEpdpStatuses", "hook_models_required_columns"),
+		array("models_required-columns", "MemberGrades", "hook_models_required_columns"),
+		array("models_required-columns", "MemberInvoiceItems", "hook_models_required_columns"),
+		array("models_required-columns", "MemberInvoices", "hook_models_required_columns"),
+		array("models_required-columns", "MemberNames", "hook_models_required_columns"),
+		array("models_required-columns", "MemberPasswords", "hook_models_required_columns"),
+		array("models_required-columns", "MemberPersonals", "hook_models_required_columns"),
+		array("models_required-columns", "MemberReceiptAllocations", "hook_models_required_columns"),
+		array("models_required-columns", "MemberReceipts", "hook_models_required_columns"),
+		array("models_required-columns", "MemberSecretQuestions", "hook_models_required_columns"),
+		array("models_required-columns", "MemberSocieties", "hook_models_required_columns"),
+		array("models_required-columns", "MemberStatuses", "hook_models_required_columns"),
+		array("models_required-columns", "MemberWebStatuses", "hook_models_required_columns"),
+
 		array("models_transform-priority", "MemberIds", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberAddresses", "hook_models_transform_priority"),
 		array("models_transform-priority", "MemberColleges", "hook_models_transform_priority"),
@@ -69,8 +90,6 @@ Class Plugins {
 
 		array("transform_deleted-members-query", "ExtractFullPlugins", "hook_transform_deleted_members_query"),
 		array("transform_deleted-members-query", "ExtractLatestPlugins", "hook_transform_deleted_members_query"),
-
-/* 		array("extract-daemon", "ExtractFullLauncher", "start"), */
 
 		array("extract_index-sql", "MemberIds", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberAddresses", "hook_extract_index_sql"),

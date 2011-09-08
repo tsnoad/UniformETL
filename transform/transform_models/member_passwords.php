@@ -7,6 +7,9 @@ Class MemberPasswords {
 	function hook_models_required_tables($data) {
 		return array();
 	}
+	function hook_models_required_columns($data) {
+		return array();
+	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}

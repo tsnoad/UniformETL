@@ -22,6 +22,10 @@ class Models {
 		//create arrays of source tables and extract tables that can be used by the extractors
 		list($this->tables, $this->sources) = $this->define_tables(Conf::$do_transforms, $required_tables);
 
+		$required_columns = Plugins::hook("models_required-columns", array());
+
+		$this->columns = $this->define_columns(Conf::$do_transforms, $this->tables, $required_columns);
+
 		//ask each model how important it is
 		$transform_priority = Plugins::hook("models_transform-priority", array());
 
@@ -92,6 +96,22 @@ class Models {
 
 		//return both arrays
 		return array($extract_tables, $source_tables);
+	}
+
+	function define_columns($models, $tables, $requirements) {
+		foreach ($models as $model) {
+			if (!empty($requirements[$model])) {
+				foreach ($requirements[$model] as $required_source_table => $required_source_columns) {
+					$source_table_columns[$required_source_table] = array_merge((array)$source_table_columns[$required_source_table], (array)$required_source_columns);
+				}
+			}
+		}
+
+		foreach ($source_table_columns as $source_table => $source_columns) {
+			$source_table_columns_uniq[$source_table] = array_unique($source_columns);
+		}
+
+		return $source_table_columns_uniq;
 	}
 
 	/*

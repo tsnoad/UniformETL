@@ -44,8 +44,8 @@ class ExtractLatestTest extends PHPUnit_Framework_TestCase {
 
 	public function testfilter_columns() {
 		$structure = array(
-			"FOObar" => array("col1" => "foo", "col2" => "bar"),
-			"BARfoo" => array("col1" => "baz", "col2" => "fop")
+			"FOObar" => array("col1" => "Foo", "col2" => "Bar"),
+			"BARfoo" => array("col1" => "Baz", "col2" => "Fop")
 		);
 		$source_columns = array(
 			"foobar" => array("foo", "bar"), 

@@ -4,6 +4,11 @@ class Conf {
 	public static $software_path = "/home/uetl/";
 	public static $model_path = "/home/uetl/transform/transform_models/";
 
+	public static $run_extractors = array(
+		"ExtractFullLauncher",
+/* 		"ExtractLatest", */
+	);
+
 	public static $do_transforms = array(
 		"MemberIds",
 		"MemberPasswords",
@@ -42,7 +47,8 @@ class Conf {
 	public static $dump_path_check_regex = "/^\/data01\/datadump\/FoxtrotTableDump[0-9]{8,8}\.tgz$/";
 
 	//extractors/latest/extract_launcher.php
-	public static $sybasedbalias = "beebop";
+	public static $sybasestruct = "structure1";
+	public static $sybasedbalias = "serveralias";
 	public static $sybasedbname = "";
 	public static $sybasedbuser = "";
 	public static $sybasedbpass = "";

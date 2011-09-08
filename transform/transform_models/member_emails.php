@@ -7,6 +7,9 @@ Class MemberEmails {
 	function hook_models_required_tables($data) {
 		return array("dump_%{extract_id}_email" => "EMail");
 	}
+	function hook_models_required_columns($data) {
+		return array("EMail" => array("customerid", "emailtypeid", "emailaddress"));
+	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}

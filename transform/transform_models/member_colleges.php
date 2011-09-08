@@ -21,6 +21,12 @@ Class MemberColleges {
 			"dump_%{extract_id}_cpggradetype" => "cpgGradeType"
 		);
 	}
+	function hook_models_required_columns($data) {
+		return array(
+			"GradeHistory" => array("customerid", "cpgid", "gradetypeid", "gradeid", "datechange", "changereasonid"),
+			"cpgGradeType" => array("gradetypeid", "classid")
+		);
+	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}

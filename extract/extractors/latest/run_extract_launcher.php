@@ -4,6 +4,6 @@
 require_once("/etc/uniformetl/autoload.php");
 
 $extract = New ExtractLatest;
-$extract->start_extract();
+$extract->start();
 
 ?>

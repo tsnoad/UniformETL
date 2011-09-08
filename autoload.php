@@ -42,6 +42,10 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/extract/extractors/latest/extract_latest_plugins.php");
 			break;
 
+		case "SybaseDataStructures":
+		    require_once("/etc/uniformetl/extract/extractors/latest/sybase_data_structures.php");
+			break;
+
 		case "TransformLauncher":
 		    require_once("/etc/uniformetl/transform/transform_launcher.php");
 			break;

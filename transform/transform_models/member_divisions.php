@@ -7,6 +7,9 @@ Class MemberDivisions {
 	function hook_models_required_tables($data) {
 		return array("dump_%{extract_id}_cpgcustomer" => "cpgCustomer");
 	}
+	function hook_models_required_columns($data) {
+		return array("cpgCustomer" => array("customerid", "cpgid", "custstatusid", "divisionid"));
+	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}

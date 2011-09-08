@@ -7,6 +7,9 @@ Class MemberAddresses {
 	function hook_models_required_tables($data) {
 		return array("dump_%{extract_id}_address" => "Address");
 	}
+	function hook_models_required_columns($data) {
+		return array("Address" => array("customerid", "line1", "line2", "line3", "addrtypeid", "suburb", "state", "postcode", "countryid", "valid"));
+	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}

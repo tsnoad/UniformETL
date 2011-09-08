@@ -7,6 +7,9 @@ Class MemberPersonals {
 	function hook_models_required_tables($data) {
 		return array("dump_%{extract_id}_customer" => "Customer");
 	}
+	function hook_models_required_columns($data) {
+		return array("Customer" => array("customerid", "sex", "dob"));
+	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}

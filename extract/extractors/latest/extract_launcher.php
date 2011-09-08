@@ -10,77 +10,7 @@ Class ExtractLatest {
 	public $sybase_out;
 	public $sql_file;
 
-	public $sybase_data_structure = array(
-		"Customer" => array(
-			"CustomerId" => "CustomerId",
-			"Field1" => "Sex",
-			"Field2" => "DOB",
-		),
-		"CPGCustomer" => array(
-			"CustomerId" => "CustomerId",
-			"Field1" => "DivisionID",
-			"Field2" => "GradeID",
-			"Field3" => "CPGID",
-			"Field4" => "CustStatusID",
-		),
-		"Address" => array(
-			"CustomerId" => "CustomerId",
-			"Field1" => "AddrTypeID",
-			"Field2" => "Line1",
-			"Field3" => "Line2",
-			"Field4" => "Line3",
-			"Field5" => "Suburb",
-			"Field6" => "State",
-			"Field7" => "Postcode",
-			"Field8" => "CountryId",
-			"Field9" => "Valid",
-		),
-		"GroupMember" => array(
-			"CustomerId" => "CustomerId",
-			"Field1" => "GroupID",
-			"Field2" => "SubGroupID",
-			"Field3" => "RetirementDate",
-		),
-		"Email" => array(
-			"CustomerId" => "CustomerId",
-			"Field1" => "EmailAddress",
-			"Field2" => "EmailTypeID",
-		),
-		"Name" => array(
-			"CustomerId" => "CustomerId",
-			"Field1" => "NameTypeID",
-			"Field2" => "NameLine2",
-			"Field3" => "NameLine1",
-		),
-	);
-
-	public $source_columns = array(
-		"Customer" => array(
-			"CustomerId", "CustTypeId", "Sex", "DOB",
-		),
-		"cpgCustomer" => array(
-			"CustomerId", "DivisionID", "GradeID", "CPGID", "CustStatusID", "supppnenabled", "finstatus",
-		),
-		"Address" => array(
-			"CustomerId", "AddrTypeID", "Line1", "Line2", "Line3", "Suburb", "State", "Postcode", "CountryId", "Valid",
-		),
-		"GroupMember" => array(
-			"CustomerId", "GroupID", "SubGroupID", "RetirementDate",
-		),
-		"EMail" => array(
-			"CustomerId", "EmailAddress", "EmailTypeID",
-		),
-		"Name" => array(
-			"CustomerId", "NameTypeID", "NameLine2", "NameLine1",
-		),
-		"GradeHistory" => array("CustomerId","cpgid", "gradetypeid","gradeid", "datechange", "changereasonid",
-		),
-		"cpgGradeType" => array(
-			"CustomerId", "GradeTypeId", "classid",
-		),
-	);
-
-	function start_extract() {
+	function start() {
 		$this->check_already_extracting();
 		$this->check_already_transforming();
 
@@ -94,9 +24,10 @@ Class ExtractLatest {
 			}
 		}
 
-
 		$models = New Models;
 		$models->start();
+
+		$sybase_data_structure = SybaseDataStructures::$structures[Conf::$sybasestruct];
 
 		//reserve an extract id, and create an extract process in the database
 		$this->get_extract_id();
@@ -108,19 +39,21 @@ Class ExtractLatest {
 
 		$this->start_sybase();
 		
-		$member_data = $this->get_member_data($this->source_columns, $models->sources, $this->sybase_data_structure);
+		$member_data = $this->get_member_data($models->columns, $models->sources, $sybase_data_structure);
 		
 		$this->close_sybase();
 
-		$member_data = $this->filter_tables($member_data, $this->sybase_data_structure, $models->sources);
+		$member_data = $this->filter_tables($member_data, $sybase_data_structure, $models->sources);
 
-		$member_data = $this->filter_columns($member_data, $this->sybase_data_structure, $this->source_columns);
+		$member_data = $this->filter_columns($member_data, $sybase_data_structure, $models->columns);
 
 		$member_ids = $this->get_member_ids($member_data);
 
 		$this->save_member_ids($member_ids);
 
-		$sql = $this->create_copy_sql($member_data, $models->sources, $this->source_columns, $models->tables);
+		$sql = $this->create_copy_sql($member_data, $models->sources, $models->columns, $models->tables);
+
+var_dump($sql);
 
 		//write the sql to a file
 		file_put_contents($this->extractdir."/dump.sql", $sql);
@@ -257,6 +190,9 @@ Class ExtractLatest {
 		foreach ($member_data as $table => $rows) {
 			$struc_table_name = array_search(strtolower($table), $struc_table_names);
 
+			unset($struc_column_names);
+			$struc_column_names = array_map("strtolower", $structure[$struc_table_name]);
+
 			if (empty($rows)) {
 				continue;
 			}
@@ -265,7 +201,7 @@ Class ExtractLatest {
 				unset($data_row_out);
 
 				foreach ($source_columns[$table] as $column) {
-					$column_name = array_search($column, $structure[$struc_table_name]);
+					$column_name = array_search(strtolower($column), $struc_column_names);
 
 					if (strtolower($column) == "custtypeid") {
 						$data_row_out[$column] = "INDI";

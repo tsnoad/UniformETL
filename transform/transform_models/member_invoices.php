@@ -9,6 +9,9 @@ Class MemberInvoices {
 			"dump_%{extract_id}_invoice" => "Invoice"
 		);
 	}
+	function hook_models_required_columns($data) {
+		return array();
+	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}

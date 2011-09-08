@@ -7,6 +7,9 @@ Class MemberNames {
 	function hook_models_required_tables($data) {
 		return array("dump_%{extract_id}_name" => "Name");
 	}
+	function hook_models_required_columns($data) {
+		return array("Name" => array("customerid", "nametypeid", "nameline1", "nameline2"));
+	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}

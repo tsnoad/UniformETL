@@ -32,9 +32,32 @@ echo "OK\n";
 shell_exec(Conf::$software_path."extract/process_watcher.php >> ".Conf::$software_path."logs/extractdaemonlog");
 
 //start the launcher to check if there's any new data for us to process
+/*
 shell_exec(Conf::$software_path."extract/extractors/full/run_extract_launcher.php >> ".Conf::$software_path."logs/extractdaemonlog");
 
 shell_exec(Conf::$software_path."extract/extractors/latest/run_extract_launcher.php >> ".Conf::$software_path."logs/extractdaemonlog");
+*/
+
+foreach (Conf::$run_extractors as $run_extractor) {
+	unset($launcher);
+
+	switch ($run_extractor) {
+		case "ExtractFullLauncher":
+			$launcher = New ExtractFullLauncher;
+			break;
+		case "ExtractLatest":
+			$launcher = New ExtractLatest;
+			break;
+		default:
+			die("{$run_extractor} is not a valid extractor\n");
+			break;
+	}
+
+	$launcher->start();
+
+	//sleep for one second.
+	sleep(1);
+}
 
 //helpful log message
 echo str_pad(" Extract Daemon Complete ", 80, "-", STR_PAD_BOTH)."\n";

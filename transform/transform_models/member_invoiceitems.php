@@ -9,6 +9,9 @@ Class MemberInvoiceItems {
 			"dump_%{extract_id}_invoiceitem" => "InvoiceItem"
 		);
 	}
+	function hook_models_required_columns($data) {
+		return array();
+	}
 	function hook_models_transform_priority($data) {
 		return "tertiary";
 	}

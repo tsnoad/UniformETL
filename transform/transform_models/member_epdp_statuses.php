@@ -7,6 +7,9 @@ Class MemberEpdpStatuses {
 	function hook_models_required_tables($data) {
 		return array("dump_%{extract_id}_groupmember" => "GroupMember");
 	}
+	function hook_models_required_columns($data) {
+		return array("GroupMember" => array("customerid", "groupid", "subgroupid"));
+	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}

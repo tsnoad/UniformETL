@@ -29,6 +29,9 @@ Class MemberGrades {
 	function hook_models_required_tables($data) {
 		return array("dump_%{extract_id}_cpgcustomer" => "cpgCustomer");
 	}
+	function hook_models_required_columns($data) {
+		return array("cpgCustomer" => array("customerid", "cpgid", "custstatusid", "gradeid", "supppnenabled"));
+	}
 	function hook_models_transform_priority($data) {
 		return "secondary";
 	}
