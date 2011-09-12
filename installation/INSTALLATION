@@ -15,7 +15,7 @@ ln -s /home/uetl/ /etc/uniformetl
 4. Create config files from templates
 cp config.template.php config.php
 
-5. Edit Config files
+5. Edit Config file
 nano config.php
 
 6. Set correct permissions
@@ -60,43 +60,11 @@ Configuring API
 2. Create the .htaccess file from template
 cp /home/uetl/api/.htaccess.template /home/uetl/api/.htaccess
 
-5. Edit .htaccess files
+3. Edit .htaccess files
 nano /home/uetl/api/.htaccess
 
-2. Configure apache to make /home/uetl/api/ available
+4. Configure apache to make /home/uetl/api/ available
 
-3. Configure apache to obey /home/uetl/api/.htaccess
+5. Configure apache to obey /home/uetl/api/.htaccess
 
-
-Installing LDAP on SLES 11.0
-----------------------------
-
-0. Find nice soft brick wall
-
-1. Install openldap
-
-2. Generate a password
-slappasswd -s somepassword -h {SSHA}
-
-3. Edit ldap configuration
-vi /etc/openldap/slapd.conf
-
-4. AAAAAAAAAAAARG
-vi /etc/openldap/ldap.conf
-host    localhost
-base    dc=my-domain,dc=com
-
-5. If you're here, then you're doing better than me...
-vi /etc/ldap.conf
-
-6. Let's just pretend it worked ^_^
-ldapadd -x -W -D "cn=Manager,dc=my-domain,dc=com" -f tools/ldaptest.ldif
-
-
-Installing LDAP on Ubuntu
-----------------------------
-
-1. Install openldap
-
-2. Finished (Oh, how I hate SLES)
 

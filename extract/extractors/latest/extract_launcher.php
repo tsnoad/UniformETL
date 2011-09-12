@@ -207,7 +207,10 @@ var_dump($sql);
 						$data_row_out[$column] = "INDI";
 						continue;
 					} else if (strtolower($column) == "dob") {
-						$data_row_out[$column] = date("M d Y 12:00:00:000\A\M", strtotime($row[$column_name]));
+						unset($date_formatted);
+						$date_formatted = preg_replace("/^([0-9][0-9]?)\/([0-9][0-9]?)\/([0-9][0-9][0-9]?[0-9]?)$/", '$3-$2-$1', $row[$column_name]);
+
+						$data_row_out[$column] = $date_formatted;
 						continue;
 					}
 

@@ -10,6 +10,9 @@
 
 function __autoload($class_name) {
 	switch ($class_name) {
+		/**
+		 * System classes
+		 */
 		case "Conf":
 		    require_once("/etc/uniformetl/config.php");
 			break;
@@ -22,6 +25,10 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/janitor/janitor.php");
 			break;
 
+		/**
+		 * Extractors
+		 */
+		//Extract Full
 		case "ExtractFull":
 		    require_once("/etc/uniformetl/extract/extractors/full/extract.php");
 			break;
@@ -35,32 +42,47 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/extract/extractors/full/get_columns.php");
 			break;
 
+		//Extract Latest
 		case "ExtractLatest":
 		    require_once("/etc/uniformetl/extract/extractors/latest/extract_launcher.php");
 			break;
 		case "ExtractLatestPlugins":
 		    require_once("/etc/uniformetl/extract/extractors/latest/extract_latest_plugins.php");
 			break;
-
 		case "SybaseDataStructures":
 		    require_once("/etc/uniformetl/extract/extractors/latest/sybase_data_structures.php");
 			break;
 
+		//Extract Full - Staging
+		case "ExtractFullStaging":
+		    require_once("/etc/uniformetl/extract/extractors/full_staging/extract.php");
+			break;
+		case "ExtractFullStagingLauncher":
+		    require_once("/etc/uniformetl/extract/extractors/full_staging/extract_launcher.php");
+			break;
+		case "ExtractFullStagingGetColumns":
+		    require_once("/etc/uniformetl/extract/extractors/full_staging/get_columns.php");
+			break;
+
+		/**
+		 * Transform Classes
+		 */
 		case "TransformLauncher":
 		    require_once("/etc/uniformetl/transform/transform_launcher.php");
 			break;
-
 		case "SingleTransforms":
 		case "PluralTransforms":
 		case "Chunks":
 		case "GlobalTiming":
 		    require_once("/etc/uniformetl/transform/".strtolower($class_name).".php");
 			break;
-
 		case "Models":
 		    require_once("/etc/uniformetl/transform/transform_models.php");
 			break;
 
+		/**
+		 * Models
+		 */
 		case "MemberIds":
 		case "MemberPersonals":
 		case "MemberPasswords":
@@ -92,6 +114,9 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/transform/transform_models/member_confluence_statuses.php");
 			break;
 
+		/**
+		 * Other stuff
+		 */
 		case "PluginHistory":
 		    require_once("/etc/uniformetl/plugins/history.php");
 			break;
