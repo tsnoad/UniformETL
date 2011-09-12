@@ -210,6 +210,10 @@ var_dump($sql);
 						unset($date_formatted);
 						$date_formatted = preg_replace("/^([0-9][0-9]?)\/([0-9][0-9]?)\/([0-9][0-9][0-9]?[0-9]?)$/", '$3-$2-$1', $row[$column_name]);
 
+						if (!empty($date_formatted)) {
+							$date_formatted = date("M d Y 12:00:00:000\A\M", strtotime($date_formatted));
+						}
+
 						$data_row_out[$column] = $date_formatted;
 						continue;
 					}
