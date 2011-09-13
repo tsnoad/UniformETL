@@ -64,6 +64,14 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/extract/extractors/full_staging/get_columns.php");
 			break;
 
+		//Extract Latest - Staging
+		case "ExtractLatestStaging":
+		    require_once("/etc/uniformetl/extract/extractors/latest_staging/extract.php");
+			break;
+		case "ExtractLatestStagingLauncher":
+		    require_once("/etc/uniformetl/extract/extractors/latest_staging/extract_launcher.php");
+			break;
+
 		/**
 		 * Transform Classes
 		 */

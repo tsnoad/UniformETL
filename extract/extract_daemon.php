@@ -51,6 +51,9 @@ foreach (Conf::$run_extractors as $run_extractor) {
 		case "ExtractFullStagingLauncher":
 			$launcher = New ExtractFullStagingLauncher;
 			break;
+		case "ExtractLatestStagingLauncher":
+			$launcher = New ExtractLatestStagingLauncher;
+			break;
 		default:
 			die("{$run_extractor} is not a valid extractor\n");
 			break;

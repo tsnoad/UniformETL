@@ -90,7 +90,7 @@ Class Transform {
 	}
 
 	function deleted_members() {
-		$deleted_members_query = runq("SELECT m.* FROM member_ids m LEFT OUTER JOIN dump_{$this->extract_id}_customer c ON (m.member_id=".db_cast_bigint("c.customerid")." AND c.custtypeid='INDI') WHERE ".db_cast_bigint("c.customerid")." IS NULL;");
+		$deleted_members_query = runq("SELECT m.* FROM member_ids m LEFT OUTER JOIN dump_{$this->extract_id}_customer c ON (m.member_id=".db_cast_bigint("c.customerid")." AND c.custtypeid='INDI') WHERE ".db_cast_bigint("c.customerid")." IS NULL LIMIT 10000;");
 
 		list($deleted_members_query) = Plugins::hook("transform_deleted-members-query", array($deleted_members_query, $this->extract_process));
 
