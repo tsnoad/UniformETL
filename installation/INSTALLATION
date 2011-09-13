@@ -8,6 +8,9 @@ Installation
 2. Create folders
 mkdir logs
 mkdir extract/extract_processes
+mkdir /var/staging
+mkdir /var/staging/full
+mkdir /var/staging/latest
 
 3. Create permanent link to config files
 ln -s /home/uetl/ /etc/uniformetl
