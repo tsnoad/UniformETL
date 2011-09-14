@@ -47,18 +47,9 @@ var_dump($sql);
 		//write the sql to a file
 		file_put_contents($this->extractdir."/dump.sql", $sql);
 
-		passthru("tar -czf ".Conf::$extractor_config['latest_staging']['output_path']."/dump_{$this->extract_id}.tgz -C {$this->extractdir} dump.sql");
+		file_put_contents($this->extractdir."/member_ids.json", json_encode($member_ids));
 
-/*
-		//run the sql file against the database
-		if (Conf::$dblang == "pgsql") {
-			passthru("psql ".Conf::$dbname." < {$this->extractdir}/dump.sql 2>&1", $return_state);
-
-			var_dump($return_state);
-		} else if (Conf::$dblang == "mysql") {
-			passthru("mysql -u ".Conf::$dbuser." -p".Conf::$dbpass." ".Conf::$dbname." < {$this->extractdir}/dump.sql 2>&1");
-		}
-*/
+		passthru("tar -czf ".Conf::$extractor_config['latest_staging']['output_path']."/dump_{$this->extract_id}.tgz -C {$this->extractdir} dump.sql member_ids.json");
 		
 		try {
 			//let the database know we've finished the extract

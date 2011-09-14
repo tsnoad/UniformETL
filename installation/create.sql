@@ -34,6 +34,13 @@ CREATE TABLE extract_full_staged (
 	source_timestamp TIMESTAMP NOT NULL,
 	source_md5 TEXT NOT NULL
 );
+CREATE TABLE extract_latest_staged (
+	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,
+	source_path TEXT NOT NULL,
+	source_timestamp TIMESTAMP NOT NULL,
+	source_md5 TEXT NOT NULL,
+	member_ids TEXT
+);
 CREATE TABLE transform_processes (
 	transform_id BIGSERIAL PRIMARY KEY,
 	extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,

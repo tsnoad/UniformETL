@@ -80,6 +80,14 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/extract/extractors/full_staged/extract_launcher.php");
 			break;
 
+		//Extract Latest - Staged
+		case "ExtractLatestStaged":
+		    require_once("/etc/uniformetl/extract/extractors/latest_staged/extract.php");
+			break;
+		case "ExtractLatestStagedLauncher":
+		    require_once("/etc/uniformetl/extract/extractors/latest_staged/extract_launcher.php");
+			break;
+
 		/**
 		 * Transform Classes
 		 */

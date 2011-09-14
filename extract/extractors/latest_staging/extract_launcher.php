@@ -30,7 +30,8 @@ class ExtractLatestStagingLauncher {
 			$time_since = time() - strtotime($previous_extract[0]['finish_date']);
 			
 			if ($time_since < 3600) {
-				die("latest extract was run {$time_since}s seconds ago. need to wait longer between latest extracts...\n");
+				print_r("latest extract was run {$time_since}s seconds ago. need to wait longer between latest extracts...\n");
+				return;
 			}
 		}
 

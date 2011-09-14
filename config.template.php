@@ -46,6 +46,19 @@ class Conf {
 	public static $dumps_path = '/data01/datadump/*.tgz';
 	public static $dump_path_check_regex = "/^\/data01\/datadump\/FoxtrotTableDump[0-9]{8,8}\.tgz$/";
 
+	public static $extractor_config = array(
+		"full" => array(
+		),
+		"latest" => array(
+		),
+		"full_staging" => array(
+		),
+		"latest_staging" => array(
+		),
+		"full_staged" => array(
+		),
+	);
+
 	//extractors/latest/extract_launcher.php
 	public static $sybasestruct = "structure1";
 	public static $sybasedbalias = "serveralias";
