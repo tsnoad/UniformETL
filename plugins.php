@@ -90,6 +90,8 @@ Class Plugins {
 
 		array("transform_deleted-members-query", "ExtractFullPlugins", "hook_transform_deleted_members_query"),
 		array("transform_deleted-members-query", "ExtractLatestPlugins", "hook_transform_deleted_members_query"),
+		array("transform_deleted-members-query", "ExtractFullStagedPlugins", "hook_transform_deleted_members_query"),
+		array("transform_deleted-members-query", "ExtractLatestStagedPlugins", "hook_transform_deleted_members_query"),
 
 		array("extract_index-sql", "MemberIds", "hook_extract_index_sql"),
 		array("extract_index-sql", "MemberAddresses", "hook_extract_index_sql"),

@@ -8,12 +8,15 @@ class ExtractLatestStaging {
 	public $extractdir;
 	public $extractuntardir;
 
-	function start($source_path, $source_timestamp, $source_md5) {
+	function start() {
 
 		$models = New Models;
 		$models->start();
 
 		$sybase_data_structure = SybaseDataStructures::$structures[Conf::$sybasestruct];
+
+print_r($sybase_data_structure);
+print_r($models->columns);
 
 		//reserve an extract id, and create an extract process in the database
 		$this->get_extract_id();
@@ -158,7 +161,10 @@ var_dump($sql);
 			$struc_table_name = array_search(strtolower($table), $struc_table_names);
 
 			unset($struc_column_names);
-			$struc_column_names = array_map("strtolower", $structure[$struc_table_name]);
+
+			if (!empty($struc_table_name)) {
+				$struc_column_names = array_map("strtolower", $structure[$struc_table_name]);
+			}
 
 			if (empty($rows)) {
 				continue;
@@ -168,6 +174,11 @@ var_dump($sql);
 				unset($data_row_out);
 
 				foreach ($source_columns[$table] as $column) {
+					if (empty($struc_column_names)) {
+						$data_row_out[$column] = "";
+						continue;
+					}
+
 					$column_name = array_search(strtolower($column), $struc_column_names);
 
 					if (strtolower($column) == "custtypeid") {
@@ -243,24 +254,36 @@ var_dump($sql);
 
 	function copy_sql($table, $columns, $data) {
 		//import from source file
-		$sql = db_choose(
-			db_pgsql("COPY {$table} (".implode(", ", $columns).") FROM STDIN DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS ".'$$\$$'.";\n"),
-			db_mysql("pfeh;\n")
-		);
 
 		if (!empty($data)) {
-			foreach ($data as $source_row) {
-				unset($data_array);
+			if (Conf::$dblang == "pgsql") {
+				$sql = "COPY {$table} (".implode(", ", $columns).") FROM STDIN DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS ".'$$\$$'.";\n";
 
-				foreach ($columns as $column) {
-					$data_array[] = "'".utf8_encode(db_escape($source_row[$column]))."'";
+				foreach ($data as $source_row) {
+					unset($data_array);
+	
+					foreach ($columns as $column) {
+						$data_array[] = "'".utf8_encode(db_escape($source_row[$column]))."'";
+					}
+	
+					$sql .= implode("|", $data_array)."\n";
 				}
 
-				$sql .= implode("|", $data_array)."\n";
+				$sql .= "\\.";
+
+			} else if (Conf::$dblang == "mysql") {
+				foreach ($data as $source_row) {
+					unset($data_array);
+	
+					foreach ($columns as $column) {
+						$data_array[] = "'".utf8_encode(db_escape($source_row[$column]))."'";
+					}
+	
+					$sql .= "INSERT INTO {$table} (".implode(", ", $columns).") VALUES (".implode(", ", $data_array).");\n";
+				}
 			}
 		}
 
-		$sql .= "\\.";
 		$sql .= "\n\n";
 
 		return $sql;

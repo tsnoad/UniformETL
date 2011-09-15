@@ -79,6 +79,9 @@ function __autoload($class_name) {
 		case "ExtractFullStagedLauncher":
 		    require_once("/etc/uniformetl/extract/extractors/full_staged/extract_launcher.php");
 			break;
+		case "ExtractFullStagedPlugins":
+		    require_once("/etc/uniformetl/extract/extractors/full_staged/extract_full_staged_plugins.php");
+			break;
 
 		//Extract Latest - Staged
 		case "ExtractLatestStaged":
@@ -86,6 +89,9 @@ function __autoload($class_name) {
 			break;
 		case "ExtractLatestStagedLauncher":
 		    require_once("/etc/uniformetl/extract/extractors/latest_staged/extract_launcher.php");
+			break;
+		case "ExtractLatestStagedPlugins":
+		    require_once("/etc/uniformetl/extract/extractors/latest_staged/extract_latest_staged_plugins.php");
 			break;
 
 		/**

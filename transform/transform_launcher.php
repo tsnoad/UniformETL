@@ -79,12 +79,14 @@ class TransformLauncher {
 			$where_newer = "";
 		}
 
+		$where_extractor = "AND (e.extractor='full' OR e.extractor='latest' OR e.extractor='full_staged' OR e.extractor='latest_staged')";
+
 		//get extracts that:
 		//have finished and have not failed
 		//haven't had a transform started
 		//and are more recent than the latest completed transform
 		//sort the extracts by finish date so we can get the latest from the start of the array
-		$candidates = runq("SELECT e.extract_id FROM extract_processes e LEFT OUTER JOIN transform_processes t ON (t.extract_id=e.extract_id) WHERE e.finished=TRUE AND e.failed=FALSE AND t.extract_id IS NULL {$where_newer} ORDER BY e.finish_date DESC;");
+		$candidates = runq("SELECT e.extract_id FROM extract_processes e LEFT OUTER JOIN transform_processes t ON (t.extract_id=e.extract_id) WHERE e.finished=TRUE AND e.failed=FALSE AND t.extract_id IS NULL {$where_extractor} {$where_newer} ORDER BY e.finish_date DESC;");
 
 		return $candidates;
 	}
