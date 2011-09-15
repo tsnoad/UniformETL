@@ -6,7 +6,6 @@ class Conf {
 
 	public static $run_extractors = array(
 		"ExtractFullLauncher",
-/* 		"ExtractLatest", */
 	);
 
 	public static $do_transforms = array(
@@ -46,25 +45,55 @@ class Conf {
 	public static $dumps_path = '/data01/datadump/*.tgz';
 	public static $dump_path_check_regex = "/^\/data01\/datadump\/FoxtrotTableDump[0-9]{8,8}\.tgz$/";
 
-	public static $extractor_config = array(
-		"full" => array(
-		),
-		"latest" => array(
-		),
-		"full_staging" => array(
-		),
-		"latest_staging" => array(
-		),
-		"full_staged" => array(
-		),
-	);
-
 	//extractors/latest/extract_launcher.php
 	public static $sybasestruct = "structure1";
 	public static $sybasedbalias = "serveralias";
 	public static $sybasedbname = "";
 	public static $sybasedbuser = "";
 	public static $sybasedbpass = "";
+
+	public static $extractor_config = array(
+		"full" => array(
+			"server" => "",
+			"identity" => "",
+			"dumps_path" => "",
+			"dump_path_check_regex" => "",
+		),
+		"latest" => array(
+			"sybasestruct" => "structure1",
+			"sybasedbalias" => "",
+			"sybasedbname" => "",
+			"sybasedbuser" => "",
+			"sybasedbpass" => "",
+		),
+		"full_staging" => array(
+			"server" => "",
+			"identity" => "",
+			"dumps_path" => "",
+			"dump_path_check_regex" => "",
+			"output_path" => "",
+		),
+		"latest_staging" => array(
+			"sybasestruct" => "structure1",
+			"sybasedbalias" => "",
+			"sybasedbname" => "",
+			"sybasedbuser" => "",
+			"sybasedbpass" => "",
+			"output_path" => "",
+		),
+		"full_staged" => array(
+			"server" => "",
+			"identity" => "",
+			"dumps_path" => "",
+			"dump_path_check_regex" => "",
+		),
+		"latest_staged" => array(
+			"server" => "",
+			"identity" => "",
+			"dumps_path" => "",
+			"dump_path_check_regex" => "",
+		),
+	);
 
 	//chunks.php
 	public static $chunk_size = 10000;
