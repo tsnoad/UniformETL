@@ -35,7 +35,7 @@ class ExtractLatestStaged {
 			die("no files?");
 		}
 
-		passthru("sed -E -e 's/\%\{extract_id\}/{$this->extract_id}/g' -i {$this->extractdir}/dump.sql");
+		passthru("sed -e 's/\%{extract_id}/{$this->extract_id}/g' -i {$this->extractdir}/dump.sql");
 
 		$member_ids_json = file_get_contents("{$this->extractdir}/member_ids.json");
 		$member_ids = json_decode($member_ids_json, true);
