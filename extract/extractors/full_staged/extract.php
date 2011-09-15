@@ -39,7 +39,7 @@ class ExtractFullStaged {
 
 			var_dump($return_state);
 		} else if (Conf::$dblang == "mysql") {
-			passthru("mysql -u ".Conf::$dbuser." -p".Conf::$dbpass." ".Conf::$dbname." < {$this->extractdir}/dump.sql 2>&1");
+			passthru("mysql --local-infile=1 -u ".Conf::$dbuser." -p".Conf::$dbpass." ".Conf::$dbname." < {$this->extractdir}/dump.sql 2>&1");
 		}
 		
 		try {
