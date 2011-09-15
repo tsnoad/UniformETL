@@ -31,7 +31,7 @@ class ExtractFullStaged {
 		//untar the files that we'll need from the source tar file
 		$this->run_tar($models->sources);
 
-		passthru("sed -E -e 's/\%\{extract_id\}/{$this->extract_id}/g' -e 's/\%\{extract_dir\}/".str_replace("/", "\/", $this->extractdir)."/g' -i {$this->extractdir}/dump.sql");
+		passthru("sed -e 's/\%{extract_id}/{$this->extract_id}/g' -e 's/\%{extract_dir}/".str_replace("/", "\/", $this->extractdir)."/g' -i {$this->extractdir}/dump.sql");
 		
 		//run the sql file against the database
 		if (Conf::$dblang == "pgsql") {
