@@ -74,7 +74,7 @@ Class Janitor {
 		//get all extracts that are complete,
 		//have at least one completed transform,
 		//and have no incomplete transforms
-		$finished_extracts = runq("select distinct e.extract_id from extract_processes e left outer join transform_processes t on (t.extract_id=e.extract_id) left outer join transform_processes t2 on (t2.extract_id=t.extract_id and t2.transform_id!=t.transform_id and t2.finished=false) where (t.transform_id is not null and t.finished=true and t2.transform_id is null) or (e.extractor='full_staging' or e.extractor='latest_staging');");
+		$finished_extracts = runq("select distinct e.extract_id from extract_processes e left outer join transform_processes t on (t.extract_id=e.extract_id) left outer join transform_processes t2 on (t2.extract_id=t.extract_id and t2.transform_id!=t.transform_id and t2.finished=false) where (t.transform_id is not null and t.finished=true and t2.transform_id is null) or (e.finished=true and e.finish_date<".db_choose(db_pgsql("now() - INTERVAL '24 hours'"), db_mysql("date_sub(now(), INTERVAL 24 hour)"))." and (e.extractor='full_staging' or e.extractor='latest_staging'));");
 
 		if (empty($finished_extracts)) return null;
 		
