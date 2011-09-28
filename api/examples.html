@@ -3,10 +3,18 @@
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
 		<script type="text/javascript">
 			$(function() {
+				//replace the {api_url} placeholders in example <code> blocks
 				$(".get_url").html(function () {
 					var api_url = window.location.href.substring(0, window.location.href.indexOf("/examples.html"));
 
 					return $(this).html().replace("{api_url}", api_url);
+				});
+
+				//replace the {api_key} placeholders in example <code> blocks
+				$(".get_key").html(function () {
+					var api_key = window.location.href.substring(window.location.href.indexOf("api_key=") + 8);
+
+					return $(this).html().replace("{api_key}", api_key);
 				});
 
 				$("form").submit(function () {
@@ -14,18 +22,29 @@
 
 					var member_id = $(this).siblings("input.member_id").val();
 
-					var new_action = $(this).attr("action").replace("{api_url}", api_url).replace("{member_id}", member_id);
+					var api_key = window.location.href.substring(window.location.href.indexOf("api_key=") + 8);
+
+					$(this).children("input[name=api_key]").val(api_key);
+
+					var new_action = $(this).attr("action")
+						.replace("{api_url}", api_url)
+						.replace("{member_id}", member_id)
 
 					$(this).attr("action", new_action);
 				});
 
+				//create a menu from all the headings in the page
 				$("h2").html(function () {
+					//create an id from the header text
 					var heading_id = $(this).html().toLowerCase().replace(" ", "_");
 
+					//set the header's id
 					$(this).attr("id", heading_id);
 
+					//add a link to the menu
 					$(".menu").append("<li><a href='#"+heading_id+"'>"+$(this).html()+"</a></li>");
 
+					//return the header's original text. otherwise we'll get a header with no text
 					return $(this).html();
 				});
 			});
@@ -116,12 +135,8 @@
 	<body>
 		<div class="container">
 			<ul class="menu">
-<!--
-				<li>
-					<p style="color: rgba(0, 0, 0, 0.25);">Etiam processus dynamicus qui sequitur mutationem consuetudium, lectorum mirum est notare quam littera. Vulputate velit esse molestie consequat vel illum dolore eu feugiat nulla? Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore. Sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam. Per seacula quarta decima et quinta decima eodem modo. Demonstraverunt lectores legere me lius quod ii legunt saepius claritas est. Est notare quam littera gothica quam nunc putamus parum claram anteposuerit. Nisl ut aliquip, ex ea commodo consequat duis autem vel eum iriure. Me lius quod ii legunt saepius claritas est etiam processus? Facilisi nam liber tempor cum soluta nobis eleifend, option congue nihil. Duis dolore te feugait, nulla imperdiet doming id quod mazim. Eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue placerat. Claritatem insitam est usus legentis in iis qui facit eorum? Sequitur mutationem consuetudium lectorum mirum litterarum formas humanitatis per seacula quarta decima et quinta decima eodem?</p>
-				</li>
--->
 			</ul>
+
 			<div class="content">
 				<h1>API Demo</h1>
 		
@@ -163,7 +178,7 @@
 		
 				<h3>Request</h3>
 				<ul>
-					<li>Request URI: <code class="get_url">{api_url}/users/{member_id}</code></li>
+					<li>Request URI: <code class="get_url get_key">{api_url}/users/{member_id}</code></li>
 					<li>Request Method: <code>GET</code></li>
 				</ul>
 		
@@ -208,8 +223,8 @@
 </code></pre>
 
 				<h3>Examples</h3>
-				<pre><code class="get_url">curl {api_url}/users/{member_id} \
-  --get --data "api_key=3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2"</code></pre>
+				<pre><code class="get_url get_key">curl {api_url}/users/{member_id} \
+  --get --data "api_key={api_key}"</code></pre>
 
 				<hr />
 		
@@ -217,7 +232,7 @@
 					<label for="member_id">Member ID</label><input class="member_id" type="text" /><br />
 			
 					<form name="details" action="{api_url}/users/{member_id}" method="GET">
-						<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
+						<input type="hidden" name="api_key" value="{api_key}" />
 						<input type="submit" />
 					</form>
 				</div>
@@ -230,7 +245,7 @@
 		
 				<h3>Request</h3>
 				<ul>
-					<li>Request URI: <code class="get_url">{api_url}/users/{member_id}</code></li>
+					<li>Request URI: <code class="get_url get_key">{api_url}/users/{member_id}</code></li>
 					<li>Request Method: <code>POST</code></li>
 					<li>Request Data:<ul><li>password: <code>newpassword</code></li></ul></li>
 				</ul>
@@ -243,14 +258,14 @@
 				<pre><code>HTTP/1.1 200 OK</code></pre>
 		
 				<h3>Examples</h3>
-				<pre><code class="get_url">curl {api_url}/users/{member_id} \
-  --data "api_key=3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" \
+				<pre><code class="get_url get_key">curl {api_url}/users/{member_id} \
+  --data "api_key={api_key}" \
   --data "password=newpassword"</code></pre>
 				<div class="form">
 					<label for="member_id">Member ID</label><input class="member_id" type="text" /><br />
 			
 					<form name="update" action="{api_url}/users/{member_id}" method="POST">
-						<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
+						<input type="hidden" name="api_key" value="{api_key}" />
 			
 						<label for="password">Password</label><input name="password" type="password" /><br />
 						<input type="submit" />
@@ -265,9 +280,9 @@
 		
 				<h3>Request</h3>
 				<ul>
-					<li>Request URI: <code class="get_url">{api_url}/users/{member_id}/login</code></li>
+					<li>Request URI: <code class="get_url get_key">{api_url}/users/{member_id}/login</code></li>
 					<li>Request Method: <code>POST</code></li>
-					<li>Request Data:<ul><li>password: <code>somepassword</code></li></ul></li>
+					<li>Request Data:<ul><li>password: <code>trypassword</code></li></ul></li>
 				</ul>
 		
 				<h3>Response</h3>
@@ -278,9 +293,9 @@
 				<pre><code>HTTP/1.1 200 OK</code></pre>
 		
 				<h3>Examples</h3>
-				<pre><code class="get_url">curl {api_url}/users/{member_id}/login \
-  --data "api_key=3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" \
-  --data "password=somepassword"</code></pre>
+				<pre><code class="get_url get_key">curl {api_url}/users/{member_id}/login \
+  --data "api_key={api_key}" \
+  --data "password=trypassword"</code></pre>
 
 				<hr />
 		
@@ -288,7 +303,7 @@
 					<label for="member_id">Member ID</label><input class="member_id" type="text" /><br />
 			
 					<form name="login" action="{api_url}/users/{member_id}/login" method="POST">
-						<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
+						<input type="hidden" name="api_key" value="{api_key}" />
 			
 						<label for="password">Password</label><input name="password" type="password" /><br />
 			
