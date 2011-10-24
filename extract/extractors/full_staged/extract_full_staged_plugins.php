@@ -22,16 +22,20 @@ Class ExtractFullStagedPlugins {
 
 		$latest_members = array();
 
-		foreach ($latest_members_query as $latest_members_tmp) {
-			foreach (json_decode($latest_members_tmp['member_ids']) as $latest_member_id) {
-				$latest_member_ids[] = $latest_member_id;
+		if (!empty($latest_members_query)) {
+			foreach ($latest_members_query as $latest_members_tmp) {
+				foreach (json_decode($latest_members_tmp['member_ids']) as $latest_member_id) {
+					$latest_member_ids[] = $latest_member_id;
+				}
 			}
 		}
 
-		foreach ($deleted_members_query as $deleted_member_key => $deleted_member_tmp) {
-			if (in_array($deleted_member_tmp['member_id'], $latest_member_ids)) {
-				unset($deleted_members_query[$deleted_member_key]);
-				echo "Latest Memeber: {$deleted_member_tmp['member_id']}\n";
+		if (!empty($deleted_members_query)) {
+			foreach ($deleted_members_query as $deleted_member_key => $deleted_member_tmp) {
+				if (in_array($deleted_member_tmp['member_id'], $latest_member_ids)) {
+					unset($deleted_members_query[$deleted_member_key]);
+					echo "Latest Memeber: {$deleted_member_tmp['member_id']}\n";
+				}
 			}
 		}
 

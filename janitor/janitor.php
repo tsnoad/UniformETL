@@ -43,7 +43,7 @@ Class Janitor {
 
 		if (!empty($finished_tables)) {
 			foreach ($finished_tables as $finished_table) {
-				echo "dropping table {$tablename}\n";
+				echo "dropping table {$finished_table}\n";
 				try {
 					$this->drop_table($finished_table);
 				} catch (Exception $e) {
@@ -60,7 +60,7 @@ Class Janitor {
 
 		if (!empty($finished_dirs)) {
 			foreach ($finished_dirs as $finished_dir) {
-				echo "removing directory {$dirname}\n";
+				echo "removing directory {$finished_dir}\n";
 				try {
 					$this->remove_dir($finished_dir);
 				} catch (Exception $e) {
