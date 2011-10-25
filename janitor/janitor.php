@@ -68,6 +68,23 @@ Class Janitor {
 				}
 			}
 		}
+
+		try {
+			$finished_staging_dumps = $this->get_finished_staging_dumps($extract_ids);
+		} catch (Exception $e) {
+			die("could not get staging dumps for complete extracts.");
+		}
+
+		if (!empty($finished_staging_dumps)) {
+			foreach ($finished_staging_dumps as $finished_staging_dump) {
+				echo "removing staging dump {$finished_staging_dump}\n";
+				try {
+					$this->remove_staging_dump($finished_staging_dump);
+				} catch (Exception $e) {
+					die("could not remove staging dump {$finished_staging_dump}.");
+				}
+			}
+		}
 	}
 
 	function get_finished_extracts() {
@@ -131,6 +148,29 @@ Class Janitor {
 		}
 
 		shell_exec("rm -r ".escapeshellarg(Conf::$software_path."extract/extract_processes/".$dirname));
+	}
+
+	function get_finished_staging_dumps($extract_ids) {
+		$extract_dirs = scandir(Conf::$extractor_config['full_staging']['output_path']);
+
+		foreach ($extract_dirs as $extract_dir) {
+			//filter out . and ..
+			if (!preg_match("/^dump_[0-9]+\.tgz$/", $extract_dir)) continue;
+		
+			if (preg_match("/^dump_(".implode("|", $extract_ids).")\.tgz$/", $extract_dir)) {
+				$finished_dirs[] = $extract_dir;
+			}
+		}
+
+		return $finished_dirs;
+	}
+
+	function remove_staging_dump($dirname) {		
+		if (preg_match("/^dump_[0-9]+\.tgz$/", $dirname) !== 1) {
+			throw new Exception("cant remove staging dump {$dirname}. invalid name");
+		}
+
+		shell_exec("rm -r ".escapeshellarg(Conf::$extractor_config['full_staging']['output_path'].$dirname));
 	}
 }
 

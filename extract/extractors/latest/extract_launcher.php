@@ -81,7 +81,7 @@ var_dump($sql);
 			die("extract launcher is currently running");
 		}
 
-		$already_extracting = runq("SELECT count(*) FROM extract_processes WHERE finished=FALSE;");
+		$already_extracting = runq("SELECT count(*) as count FROM extract_processes WHERE finished=FALSE;");
 
 		if ($already_extracting[0]['count'] > 0) {
 			die("extract is currently running");
@@ -89,7 +89,7 @@ var_dump($sql);
 	}
 
 	function check_already_transforming() {
-		$already_transforming = runq("SELECT count(*) FROM transform_processes WHERE finished=FALSE;");
+		$already_transforming = runq("SELECT count(*) as count FROM transform_processes WHERE finished=FALSE;");
 
 		if ($already_transforming[0]['count'] > 0) {
 			die("transform is currently running");

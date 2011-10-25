@@ -258,7 +258,7 @@ class ExtractLatestStagedLauncher {
 	 */
 	function dump_too_old($file) {
 		//what's the mtime of the newest file used for an extract
-		$newest_process_query = runq("SELECT max(source_timestamp) FROM extract_latest_staged;");
+		$newest_process_query = runq("SELECT max(source_timestamp) max FROM extract_latest_staged;");
 		$newest_process_timestamp = $newest_process_query[0]['max'];
 	
 		//if this file's mtime is older (or the same)
