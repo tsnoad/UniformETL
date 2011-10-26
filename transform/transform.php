@@ -220,11 +220,19 @@ Class Transform {
 		echo str_pad($this->global_timing->transform_completed(), 8, " ", STR_PAD_LEFT);
 		echo "\n";
 
+		if (!isset($this->stats[$transform])) {
+			$this->stats[$transform] = array("add" => 0, "nochange" => 0, "update" => 0, "delete" => 0, "total" => 0);
+		}
+
 		$this->stats[$transform]['add'] += count($data_add);
 		$this->stats[$transform]['nochange'] += count($data_nochange);
 		$this->stats[$transform]['update'] += count($data_update);
 		$this->stats[$transform]['delete'] += $data_delete_count;
 		$this->stats[$transform]['total'] += count($data_add) + count($data_nochange) + count($data_update) + $data_delete_count;
+
+		if (!isset($this->stats['total'])) {
+			$this->stats['total'] = array("add" => 0, "nochange" => 0, "update" => 0, "delete" => 0, "total" => 0);
+		}
 
 		$this->stats['total']['add'] += count($data_add);
 		$this->stats['total']['nochange'] += count($data_nochange);
