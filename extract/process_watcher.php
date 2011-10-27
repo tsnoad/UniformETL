@@ -71,6 +71,13 @@ foreach ($unfinisheds_query as $unfinished) {
 
 	} else {
 		echo "\t"."failed.\n";
+
+		try {
+			copy(Conf::$software_path."logs/extractlog", Conf::$software_path."logs/archive/extract".$unfinished['extract_id']);
+		} catch (Exception $e) {
+			print_r("could not archive log");
+		}
+
 		shell_exec(Conf::$software_path."extract/process_recorder.php failed ".escapeshellarg($unfinished['extract_id']));
 		continue;
 	}

@@ -1,28 +1,6 @@
 <?php
 
 Class MemberGrades {
-/*
-	public static $grade_names = array(
-		"AFIL" => "Affiliate",
-		"ASOC" => "Associate",
-		"COMP" => "Companion",
-		"FELL" => "Fellow",
-		"GRAD" => "Graduate",
-		"HONF" => "Honorary Fellow",
-		"MEMB" => "Member",
-		"OFEL" => "Officer Fellow",
-		"OGRA" => "Officer Graduate",
-		"OMEM" => "Officer Member",
-		"OSTU" => "Officer Student",
-		"SNRM" => "Senior Member",
-		"STUD" => "Student (IEAust)",
-		"TFEL" => "Technologist Fellow",
-		"TGRA" => "Technologist Graduate",
-		"TMEM" => "Technologist Member",
-		"TSTU" => "Technologist Student"
-	);
-*/
-
 	function hook_models_required_transforms($data) {
 		return array("MemberIds");
 	}
@@ -107,30 +85,7 @@ Class MemberGrades {
 	}
 
 	function hook_api_get_member($data) {
-		$grade_constants = "(VALUES
-('AFIL', 'Affiliate', 'AffilIEAust', ''),
-('COMP', 'Companion', 'CompIEAust ', ''),
-('FELL', 'Fellow', 'FIEAust', 'CPEng'),
-('GRAD', 'Graduate', 'GradIEAust ', ''),
-('HONF', 'Honorary Fellow', 'HonFIEAust ', 'CPEng'),
-('MEMB', 'Member', 'MIEAust', 'CPEng'),
-('OFEL', 'Officer Fellow', 'OFIEAust', 'CEngO'),
-('OGRA', 'Officer Graduate', 'GradOIEAust', ''),
-('OMEM', 'Officer Member', 'OMIEAust', 'CEngO'),
-('OSTU', 'Officer Student', 'StudIEAust', ''),
-('SNRM', 'Senior Member', 'SMIEAust', 'CPEng'),
-('STUD', 'Student (IEAust)', 'StudIEAust', ''),
-('TFEL', 'Technologist Fellow', 'TFIEAust', 'CEngT'),
-('TGRA', 'Technologist Graduate', 'GradTIEAust', ''),
-('TMEM', 'Technologist Member', 'TMIEAust', 'CEngT'),
-('TSTU', 'Technologist Student', 'StudIEAust', '')
-) AS gn (grade, name, postnominals, chartered_postnominals)";
-
-		if (Conf::$dblang == "mysql") {
-			return array("g.grade AS grade, g.chartered, '' AS grade_postnominals", "LEFT JOIN grades g ON (g.member_id=m.member_id)");
-		}
-
-		return array("gn.name AS grade, g.chartered, case when g.chartered then gn.postnominals||' '||gn.chartered_postnominals else gn.postnominals end as grade_postnominals", "LEFT JOIN grades g ON (g.member_id=m.member_id) LEFT JOIN {$grade_constants} ON (gn.grade=g.grade)");
+		return array("gn.name AS grade, g.chartered, case when g.chartered then ".db_concat("gn.postnominals", "' '", "gn.chartered_postnominals")." else gn.postnominals end as grade_postnominals", "LEFT JOIN grades g ON (g.member_id=m.member_id) LEFT OUTER JOIN grade_names_postnominals gn ON (gn.grade=g.grade)");
 	}
 }
 

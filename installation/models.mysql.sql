@@ -108,6 +108,33 @@ create table grades (
 ) ENGINE=InnoDB;
 CREATE INDEX grades_member_id ON grades (member_id);
 
+create table grade_names_postnominals (
+	id BIGINT AUTO_INCREMENT PRIMARY KEY,
+	grade VARCHAR (512) NOT NULL,
+	name TEXT,
+	postnominals TEXT,
+	chartered_postnominals TEXT,
+	UNIQUE (grade)
+) ENGINE=InnoDB;
+CREATE INDEX grade_names_postnominals_grade ON grade_names_postnominals (grade);
+
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('AFIL', 'Affiliate', 'AffilIEAust', '');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('COMP', 'Companion', 'CompIEAust ', '');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('FELL', 'Fellow', 'FIEAust', 'CPEng');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('GRAD', 'Graduate', 'GradIEAust ', '');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('HONF', 'Honorary Fellow', 'HonFIEAust ', 'CPEng');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('MEMB', 'Member', 'MIEAust', 'CPEng');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('OFEL', 'Officer Fellow', 'OFIEAust', 'CEngO');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('OGRA', 'Officer Graduate', 'GradOIEAust', '');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('OMEM', 'Officer Member', 'OMIEAust', 'CEngO');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('OSTU', 'Officer Student', 'StudIEAust', '');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('SNRM', 'Senior Member', 'SMIEAust', 'CPEng');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('STUD', 'Student (IEAust)', 'StudIEAust', '');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('TFEL', 'Technologist Fellow', 'TFIEAust', 'CEngT');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('TGRA', 'Technologist Graduate', 'GradTIEAust', '');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('TMEM', 'Technologist Member', 'TMIEAust', 'CEngT');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('TSTU', 'Technologist Student', 'StudIEAust', '');
+
 create table divisions (
 	id BIGINT AUTO_INCREMENT PRIMARY KEY,
 	member_id BIGINT NOT NULL,
@@ -116,6 +143,25 @@ create table divisions (
 	FOREIGN KEY (member_id) REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
 CREATE INDEX divisions_member_id ON divisions (member_id);
+
+create table division_names (
+	id BIGINT AUTO_INCREMENT PRIMARY KEY,
+	division VARCHAR (512) NOT NULL,
+	name TEXT,
+	UNIQUE (division)
+) ENGINE=InnoDB;
+CREATE INDEX division_names_division ON division_names (division);
+
+INSERT INTO division_names (division, name) VALUES ('CBR', 'Canberra Division');
+INSERT INTO division_names (division, name) VALUES ('NAT', 'IEAust National Office');
+INSERT INTO division_names (division, name) VALUES ('NEWC', 'Newcastle Division');
+INSERT INTO division_names (division, name) VALUES ('NT', 'Northern Division');
+INSERT INTO division_names (division, name) VALUES ('QLD', 'Queensland Division');
+INSERT INTO division_names (division, name) VALUES ('SA', 'South Australia Division');
+INSERT INTO division_names (division, name) VALUES ('SYD', 'Sydney Division');
+INSERT INTO division_names (division, name) VALUES ('TAS', 'Tasmania Division');
+INSERT INTO division_names (division, name) VALUES ('VIC', 'Victoria Division');
+INSERT INTO division_names (division, name) VALUES ('WA', 'Western Australia Division');
 
 create table colleges (
 	id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -127,6 +173,23 @@ create table colleges (
 ) ENGINE=InnoDB;
 CREATE INDEX colleges_member_id ON colleges (member_id);
 
+create table college_names (
+	id BIGINT AUTO_INCREMENT PRIMARY KEY,
+	college VARCHAR (512),
+	name TEXT,
+	UNIQUE (college)
+) ENGINE=InnoDB;
+CREATE INDEX college_names_college ON college_names (college);
+
+INSERT INTO college_names (college, name) VALUES ('BIOM', 'Biomedical College');
+INSERT INTO college_names (college, name) VALUES ('CHEM', 'Chemical College');
+INSERT INTO college_names (college, name) VALUES ('CIVL', 'Civil College');
+INSERT INTO college_names (college, name) VALUES ('ELEC', 'Electrical College');
+INSERT INTO college_names (college, name) VALUES ('ENVI', 'Environmental College');
+INSERT INTO college_names (college, name) VALUES ('ITEL', 'Info Telecom & Electronics Eng College');
+INSERT INTO college_names (college, name) VALUES ('MECH', 'Mechanical College');
+INSERT INTO college_names (college, name) VALUES ('STRU', 'Structural College');
+
 create table societies (
 	id BIGINT AUTO_INCREMENT PRIMARY KEY,
 	member_id BIGINT NOT NULL,
@@ -136,6 +199,49 @@ create table societies (
 	FOREIGN KEY (member_id) REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB;
 CREATE INDEX societies_member_id ON societies (member_id);
+
+create table society_names (
+	id BIGINT AUTO_INCREMENT PRIMARY KEY,
+	society VARCHAR (512),
+	name TEXT,
+	UNIQUE (society)
+) ENGINE=InnoDB;
+CREATE INDEX society_names_society ON society_names (society);
+
+INSERT INTO society_names (society, name) VALUES ('TS01', 'Australasian Association for Engineering Education');
+INSERT INTO society_names (society, name) VALUES ('TS02', 'Mine Subsidence Technological Society');
+INSERT INTO society_names (society, name) VALUES ('TS03', 'Aust Society for Defence Engineering');
+INSERT INTO society_names (society, name) VALUES ('TS04', 'Society for Engineering Management Australia');
+INSERT INTO society_names (society, name) VALUES ('TS05', 'Materials Australia');
+INSERT INTO society_names (society, name) VALUES ('TS06', 'Info, Telecoms & Electronics Engineering Society');
+INSERT INTO society_names (society, name) VALUES ('TS07', 'Australian Geomechanics Society');
+INSERT INTO society_names (society, name) VALUES ('TS08', 'Australasian Tunneling Society');
+INSERT INTO society_names (society, name) VALUES ('TS09', 'Process Control Society');
+INSERT INTO society_names (society, name) VALUES ('TS10', 'Society for Engineering in Agriculture');
+INSERT INTO society_names (society, name) VALUES ('TS11', 'Australian Earthquake Engineering Society');
+INSERT INTO society_names (society, name) VALUES ('TS12', 'Australian Composite Structures Society');
+INSERT INTO society_names (society, name) VALUES ('TS13', 'Asset Management Council');
+INSERT INTO society_names (society, name) VALUES ('TS14', 'Risk Engineering Society');
+INSERT INTO society_names (society, name) VALUES ('TS15', 'Industrial Engineering Society');
+INSERT INTO society_names (society, name) VALUES ('TS16', 'IEAust International Association');
+INSERT INTO society_names (society, name) VALUES ('TS17', 'Society of Fire Safety');
+INSERT INTO society_names (society, name) VALUES ('TS18', 'Australasian Fluid and Thermal Engineering Society');
+INSERT INTO society_names (society, name) VALUES ('TS19', 'Society for Sustainability and Environmental Engineering');
+INSERT INTO society_names (society, name) VALUES ('TS20', 'Systems Engineering Society of Australia');
+INSERT INTO society_names (society, name) VALUES ('TS21', 'Red R Australia');
+INSERT INTO society_names (society, name) VALUES ('TS22', 'Australian Cost Engineering Society');
+INSERT INTO society_names (society, name) VALUES ('TS23', 'Maritime Engineering Society of Australia');
+INSERT INTO society_names (society, name) VALUES ('TS24', 'Society for Building Services Engineering');
+INSERT INTO society_names (society, name) VALUES ('TS25', 'Manufacturing Society of Australia');
+INSERT INTO society_names (society, name) VALUES ('TS26', 'Railway Technical Society of Australia');
+INSERT INTO society_names (society, name) VALUES ('TS27', 'Australian Society for Bulk Solids Handling');
+INSERT INTO society_names (society, name) VALUES ('TS28', 'Electromagnetic Compatibility Society of Australia');
+INSERT INTO society_names (society, name) VALUES ('TS29', 'PIANC Australia');
+INSERT INTO society_names (society, name) VALUES ('TS30', 'Forensic Engineering Society');
+INSERT INTO society_names (society, name) VALUES ('TS31', 'Electric Energy Society of Australia');
+INSERT INTO society_names (society, name) VALUES ('TS32', 'Australasian Particle Technology Society');
+INSERT INTO society_names (society, name) VALUES ('TS33', 'Mining Electrical and Mining Mechanical Engineering Society');
+INSERT INTO society_names (society, name) VALUES ('TS35', 'Aerospace Technical Society');
 
 create table invoices (
 	id BIGINT AUTO_INCREMENT PRIMARY KEY,

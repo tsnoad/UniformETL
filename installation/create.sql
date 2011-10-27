@@ -67,3 +67,16 @@ CREATE TABLE history (
   data TEXT
 );
 CREATE INDEX history_change_date ON history (change_date);
+
+CREATE TABLE extract_reports (
+  extract_report_id BIGSERIAL PRIMARY KEY,
+  extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,
+  reported BOOLEAN DEFAULT TRUE,
+  UNIQUE (extract_id)
+);
+CREATE TABLE transform_reports (
+  transform_report_id BIGSERIAL PRIMARY KEY,
+  transform_id BIGINT REFERENCES transform_processes ON UPDATE CASCADE ON DELETE CASCADE,
+  reported BOOLEAN DEFAULT TRUE,
+  UNIQUE (transform_id)
+);

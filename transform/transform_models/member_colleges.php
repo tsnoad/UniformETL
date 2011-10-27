@@ -1,17 +1,6 @@
 <?php
 
 Class MemberColleges {
-	public static $college_names = array(
-		"BIOM" => "Biomedical College",
-		"CHEM" => "Chemical College",
-		"CIVL" => "Civil College",
-		"ELEC" => "Electrical College",
-		"ENVI" => "Environmental College",
-		"ITEL" => "Info Telecom & Electronics Eng College",
-		"MECH" => "Mechanical College",
-		"STRU" => "Structural College"
-	);
-
 	function hook_models_required_transforms($data) {
 		return array("MemberIds");
 	}
@@ -110,13 +99,13 @@ Class MemberColleges {
 	function hook_api_get_member_plurals($data) {
 		list($member_id) = $data;
 
-		$colleges_query = runq("SELECT college FROM colleges WHERE member_id='".pg_escape_string($member_id)."';");
+		$colleges_query = runq("SELECT cn.name AS college FROM colleges c INNER JOIN college_names cn ON (cn.college=c.college) WHERE member_id='".pg_escape_string($member_id)."';");
 
 		if (empty($colleges_query)) return array("colleges" => array());
 
 		foreach ($colleges_query as $colleges_query_tmp) {
-			//put email addresses in array
-			$user['colleges'][] = MemberColleges::$college_names[$colleges_query_tmp['college']];
+			//put colleges in array
+			$user['colleges'][] = $colleges_query_tmp['college'];
 		}
 
 		return $user;

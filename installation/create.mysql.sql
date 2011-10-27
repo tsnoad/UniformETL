@@ -88,5 +88,20 @@ CREATE TABLE history (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   change_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   data TEXT
-);
+) ENGINE=InnoDB;
 CREATE INDEX history_change_date ON history (change_date);
+
+CREATE TABLE extract_reports (
+  extract_report_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  extract_id BIGINT,
+  reported BOOLEAN DEFAULT TRUE,
+  UNIQUE (extract_id),
+  FOREIGN KEY (extract_id) REFERENCES extract_processes (extract_id) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB;
+CREATE TABLE transform_reports (
+  transform_report_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  transform_id BIGINT,
+  reported BOOLEAN DEFAULT TRUE,
+  UNIQUE (transform_id),
+  FOREIGN KEY (transform_id) REFERENCES transform_processes (transform_id) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB;
