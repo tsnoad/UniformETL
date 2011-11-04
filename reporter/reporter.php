@@ -16,39 +16,80 @@ class Reporter {
 
 		if (empty($failures)) {
 			//all is well
+			echo "nothing to report\n";
 			return;
 		}
+
+		$already_reported_count = 0;
 
 		foreach ($failures as $failure) {
 			if ($failure['extract_failed'] == '1' || $failure['extract_failed'] == 't') {
 				if ($failure['extract_reported'] == '1' || $failure['extract_reported'] == 't') {
 					//failure message has already been sent
+					$already_reported_count ++;
 					continue;
 				}
 
-				echo "Extract has failed";
-				print_r($failure);
+				$body .= "Extract has failed\n--------\n\n";
+				echo "Extract has failed:\n";
 
-				print_r(file_get_contents(Conf::$software_path."logs/archive/extract".$failure['extract_id']));
+				if (is_file(Conf::$software_path."logs/archive/extract".$failure['extract_id'])) {
+					$log = file_get_contents(Conf::$software_path."logs/archive/extract".$failure['extract_id']);
+				} else {
+					$log = "log not available";
+					echo "log not available\n";
+				}
 
+			} else if ($failure['transform_failed'] == '1' || $failure['transform_failed'] == 't') {
+				if ($failure['transform_reported'] == '1' || $failure['transform_reported'] == 't') {
+					//failure message has already been sent
+					$already_reported_count ++;
+					continue;
+				}
+
+				$body .= "Transform has failed\n--------\n\n";
+				echo "Transform has failed:\n";
+
+				if (is_file(Conf::$software_path."logs/archive/transform".$failure['transform_id'])) {
+					$log = file_get_contents(Conf::$software_path."logs/archive/transform".$failure['transform_id']);
+				} else {
+					$log = "log not available";
+					echo "log not available\n";
+				}
+			}
+
+			print_r($failure);
+
+			$body .= "Process Information:\n";
+
+			$body .= print_r($failure, true);
+
+			$body .= "\n--------\n\n";
+			$body .= "Log Information:\n";
+
+			$body .= $log;
+
+			$body = escapeshellarg($body);
+			$subject = escapeshellarg("uETL failure notice");
+			$recipients = escapeshellarg(Conf::$report_email_recipients);
+
+			$mail_cmd = Conf::$report_email_cmd;
+			$mail_cmd = str_replace("%{body}", $body, $mail_cmd);
+			$mail_cmd = str_replace("%{subject}", $subject, $mail_cmd);
+			$mail_cmd = str_replace("%{recipients}", $recipients, $mail_cmd);
+
+ 			var_dump(shell_exec($mail_cmd));
+
+			echo "failure report sent.\n";
+
+			if ($failure['extract_failed'] == '1' || $failure['extract_failed'] == 't') {
 				try {
 					runq("INSERT INTO extract_reports (extract_id, reported) VALUES ('".db_escape($failure['extract_id'])."', TRUE);");
 				} catch (Exception $e) {
 					print_r("could not save report");
 					print_r($e->getMessage());
 				}
-
 			} else if ($failure['transform_failed'] == '1' || $failure['transform_failed'] == 't') {
-				if ($failure['transform_reported'] == '1' || $failure['transform_reported'] == 't') {
-					//failure message has already been sent
-					continue;
-				}
-
-				echo "Transform has failed";
-				print_r($failure);
-
-				print_r(file_get_contents(Conf::$software_path."logs/archive/transform".$failure['transform_id']));
-
 				try {
 					runq("INSERT INTO transform_reports (transform_id, reported) VALUES ('".db_escape($failure['transform_id'])."', TRUE);");
 				} catch (Exception $e) {
@@ -57,6 +98,8 @@ class Reporter {
 				}
 			}
 		}
+
+		echo "{$already_reported_count} failures previously reported\n";
 	}
 }
 
