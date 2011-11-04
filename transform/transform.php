@@ -67,6 +67,12 @@ Class Transform {
 
 		$this->recorder->record_start();
 
+		$members_count = $this->chunks->count_members();
+		if (in_array($this->extract_process['extractor'], array("latest", "latest_staging", "latest_staged")) && $members_count < 1) {
+			print_r("No new members to add\n\n");
+			$this->recorder->record_finish();
+		}
+
 		$this->deleted_members();
 
 		$chunk_ids = $this->chunks->create_chunks();
@@ -95,11 +101,14 @@ Class Transform {
 		list($deleted_members_query) = Plugins::hook("transform_deleted-members-query", array($deleted_members_query, $this->extract_process));
 
 		if (!empty($deleted_members_query)) {
+			$delete_members_class = New MemberIds;
+
 			foreach ($deleted_members_query as $deleted_member) {
-				print_r("Deleted Member (not enabled): ".$deleted_member['member_id']."\n");
+				$delete_members_class->delete_data($deleted_member['member_id']);
+				print_r("Deleted Member: ".$deleted_member['member_id']."\n");
 			}
 
-			print_r(count($deleted_members_query)." members deleted (not enabled)\n\n");
+			print_r(count($deleted_members_query)." members deleted\n\n");
 		} else {
 			print_r("No members to delete\n\n");
 		}

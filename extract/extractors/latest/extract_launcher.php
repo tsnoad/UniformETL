@@ -276,25 +276,35 @@ var_dump($sql);
 	}
 
 	function copy_sql($table, $columns, $data) {
-		//import from source file
-		$sql = db_choose(
-			db_pgsql("COPY {$table} (".implode(", ", $columns).") FROM STDIN DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS ".'$$\$$'.";\n"),
-			db_mysql("pfeh;\n")
-		);
-
 		if (!empty($data)) {
-			foreach ($data as $source_row) {
-				unset($data_array);
+			if (Conf::$dblang == "pgsql") {
+				$sql = "COPY {$table} (".implode(", ", $columns).") FROM STDIN DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS ".'$$\$$'.";\n";
 
-				foreach ($columns as $column) {
-					$data_array[] = "'".utf8_encode(db_escape($source_row[$column]))."'";
+				foreach ($data as $source_row) {
+					unset($data_array);
+	
+					foreach ($columns as $column) {
+						$data_array[] = "'".utf8_encode(db_escape($source_row[$column]))."'";
+					}
+	
+					$sql .= implode("|", $data_array)."\n";
 				}
 
-				$sql .= implode("|", $data_array)."\n";
+				$sql .= "\\.";
+
+			} else if (Conf::$dblang == "mysql") {
+				foreach ($data as $source_row) {
+					unset($data_array);
+	
+					foreach ($columns as $column) {
+						$data_array[] = "'".utf8_encode(db_escape($source_row[$column]))."'";
+					}
+	
+					$sql .= "INSERT INTO {$table} (".implode(", ", $columns).") VALUES (".implode(", ", $data_array).");\n";
+				}
 			}
 		}
 
-		$sql .= "\\.";
 		$sql .= "\n\n";
 
 		return $sql;
