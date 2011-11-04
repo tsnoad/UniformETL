@@ -25,6 +25,10 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/janitor/janitor.php");
 			break;
 
+		case "Reporter":
+		    require_once("/etc/uniformetl/reporter/reporter.php");
+			break;
+
 		/**
 		 * Extractors
 		 */

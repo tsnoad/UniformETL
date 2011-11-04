@@ -25,12 +25,19 @@ cp config.template.php config.php
 nano config.php
 
 6. Set correct permissions
-chown -R uetl:users /var/uetl/
-chmod 755 /var/uetl/
+chown -R uetl:uetl /var/uetl/
+chmod 770 /var/uetl/
+
+6b. add apache user (name depends on distribution) to uetl group
+usermod -a -G uetl www-data
+
+6c. add postgres user to uetl group
+usermod -a -G uetl postgres
 
 6. create database and load schema
 createdb hotel
 psql hotel < create.sql
+psql hotel < models.sql
 
 7a.
 mysql -u root

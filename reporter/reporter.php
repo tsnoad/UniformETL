@@ -4,14 +4,20 @@ require_once("/etc/uniformetl/autoload.php");
 require_once("/etc/uniformetl/database.php");
 
 /* php -r 'include("autoload.php"); $rep = new Reporter; $rep->start();' */
+/* php -r 'include("autoload.php"); $rep = new Reporter; $rep->report_history();' */
 
 class Reporter {
 	function start() {
+		$this->report_failures();
+		$this->report_history();
+	}
+
+	function report_failures() {
 		try {
 			$failures = runq("select e.extract_id, e.start_date as extract_start_date, e.finish_date as extract_finish_date, e.failed as extract_failed, er.reported as extract_reported, t.transform_id, t.start_date as transform_start_date, t.finish_date as transform_finish_date, t.failed as transform_failed, tr.reported as transform_reported from extract_processes e left outer join transform_processes t on (t.extract_id=e.extract_id) left outer join extract_reports er on (er.extract_id=e.extract_id) left outer join transform_reports tr on (tr.transform_id=t.transform_id) where e.failed=TRUE or t.failed=TRUE;");
 		} catch (Exception $e) {
 			print_r($e->getMessage());
-			die("could not get failed extracts");
+			die("could not get failed extracts/transforms");
 		}
 
 		if (empty($failures)) {
@@ -56,6 +62,20 @@ class Reporter {
 					print_r($e->getMessage());
 				}
 			}
+		}
+	}
+
+	function report_history() {
+		try {
+			$recents = runq("select e.extract_id, e.start_date as extract_start_date, e.finish_date as extract_finish_date, e.failed as extract_failed, t.transform_id, t.start_date as transform_start_date, t.finish_date as transform_finish_date, t.failed as transform_failed from extract_processes e left outer join transform_processes t on (t.extract_id=e.extract_id) where e.start_date>now()+interval '-24hours' or e.finished=false or t.start_date>now()+interval '-24hours' or t.finished=false;");
+		} catch (Exception $e) {
+			print_r($e->getMessage());
+			die("could not get recent extracts/transforms");
+		}
+
+		print_r($recents);
+
+		foreach ($recents as $recent) {
 		}
 	}
 }
