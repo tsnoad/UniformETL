@@ -1,6 +1,30 @@
 <?php
 
 Class MemberColleges {
+	public static $model_spec = array(
+		"type" => "plural",
+		"tables" => array(
+			array("table" => "GradeHistory"),
+			array("table" => "cpgGradeType", "join" => "inner", "on" => array(
+				"equals" => array(
+					array("table" => "GradeHistory", "column" => "gradetypeid"),
+					array("table" => "cpgGradeType", "column" => "gradetypeid"),
+				)
+			)),
+		),
+		"columns" => array(
+			"member_id" => array("table" => "GradeHistory", "column" => "customerid"),
+			"college" => array("table" => "GradeHistory", "column" => "gradetypeid"),
+			"grade" => array("table" => "GradeHistory", "column" => "gradeid"),
+		),
+		"where" => array(
+			array("table" => "GradeHistory", "column" => "cpgid", "equals" => "IEA"),
+			array("table" => "cpgGradeType", "column" => "classid", "equals" => "COLL"),
+			array("table" => "GradeHistory", "column" => "datechange", "equals" => ""),
+			array("table" => "GradeHistory", "column" => "changereasonid", "equals" => ""),
+		),
+	);
+
 	function hook_models_required_transforms($data) {
 		return array("MemberIds");
 	}

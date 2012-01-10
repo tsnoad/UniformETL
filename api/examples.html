@@ -28,7 +28,9 @@
 
 					var new_action = $(this).attr("action")
 						.replace("{api_url}", api_url)
-						.replace("{member_id}", member_id)
+						.replace("{member_id}", member_id);
+
+alert(new_action);
 
 					$(this).attr("action", new_action);
 				});

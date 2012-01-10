@@ -4,6 +4,12 @@ class Conf {
 	public static $software_path = "/home/uetl/";
 	public static $model_path = "/home/uetl/transform/transform_models/";
 
+	/**
+	 * $run_extractors: Which extractors do you want to use to get data?
+	 * Extractors for normal (non-staging) use are:
+	 * ExtractFullLauncher
+	 * ExtractLatest
+	 */
 	public static $run_extractors = array(
 		"ExtractFullLauncher",
 	);
@@ -36,8 +42,8 @@ class Conf {
 	public static $dbname = "hotel";
 	public static $dbuser = "";
 	public static $dbpass = "";
+	#$dblang options: pgsql OR mysql
 	public static $dblang = "pgsql";
-/* 	public static $dblang = "mysql"; */
 
 	//extractors/full/extract_launcher.php
 	public static $server = "user@remote.server.com";
@@ -61,7 +67,7 @@ class Conf {
 		),
 		"latest" => array(
 			"sybasestruct" => "structure1",
-			"sybasedbalias" => "",
+			"sybasedbalias" => "serveralias",
 			"sybasedbname" => "",
 			"sybasedbuser" => "",
 			"sybasedbpass" => "",
@@ -95,6 +101,21 @@ class Conf {
 		),
 	);
 
+	public static $model_config = array(
+		"MemberConfluenceStatuses" => array(
+			"ldaphost" => "localhost",
+			"ldapbasedn" => "dc=my-domain,dc=com",
+			"ldapuser" => "",
+			"ldappass" => "",
+		),
+		"MemberSlavePasswords" => array(
+			"master_dbhost" => "",
+			"master_dbname" => "",
+			"master_dbuser" => "",
+			"master_dbpass" => "",
+		),
+	);
+
 	//chunks.php
 	public static $chunk_size = 10000;
 
@@ -109,6 +130,9 @@ class Conf {
 	public static $member_confluence_statuses_ldappass = "";
 
 	public static $api_key = "3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2";
+
+	public static $report_email_cmd = "echo %{body} | mail -s %{subject} %{recipients}";
+	public static $report_email_recipients = "foo@example.com,bar@example.com";
 }
 
 ?>
