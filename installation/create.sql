@@ -68,6 +68,12 @@ CREATE TABLE history (
 );
 CREATE INDEX history_change_date ON history (change_date);
 
+CREATE TABLE password_changes (
+  member_id BIGINT,
+  change_date TIMESTAMP NOT NULL DEFAULT now()
+);
+CREATE INDEX password_changes_change_date ON password_changes (change_date);
+
 CREATE TABLE extract_reports (
   extract_report_id BIGSERIAL PRIMARY KEY,
   extract_id BIGINT REFERENCES extract_processes ON UPDATE CASCADE ON DELETE CASCADE,

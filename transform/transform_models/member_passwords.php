@@ -98,6 +98,8 @@ Class MemberPasswords {
 		$ldap_hash = "{SSHA}".base64_encode(pack("H*",sha1($data_add_item['password'].$ldap_salt)).$ldap_salt);
 
 		runq("INSERT INTO passwords (member_id, salt, hash, ldap_hash) VALUES ('".pg_escape_string($data_add_item['member_id'])."', '".pg_escape_string($salt)."', '".pg_escape_string($hash)."', '".pg_escape_string($ldap_hash)."');");
+
+		runq("INSERT INTO password_changes (member_id) VALUES ('".pg_escape_string($data_add_item['member_id'])."');");
 	}
 
 	function delete_data($data_delete_item) {
@@ -112,6 +114,8 @@ Class MemberPasswords {
 		$ldap_hash = "{SSHA}".base64_encode(pack("H*",sha1($data_add_item['password'].$ldap_salt)).$ldap_salt);
 
 		runq("UPDATE passwords SET salt='".pg_escape_string($salt)."', hash='".pg_escape_string($hash)."', ldap_hash='".pg_escape_string($ldap_hash)."' WHERE member_id='".pg_escape_string($data_add_item['member_id'])."';");
+
+		runq("INSERT INTO password_changes (member_id) VALUES ('".pg_escape_string($data_add_item['member_id'])."');");
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {
