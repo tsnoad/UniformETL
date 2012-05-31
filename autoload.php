@@ -25,6 +25,10 @@ function __autoload($class_name) {
 		    require_once("/etc/uniformetl/janitor/janitor.php");
 			break;
 
+		case "Reporter":
+		    require_once("/etc/uniformetl/reporter/reporter.php");
+			break;
+
 		/**
 		 * Extractors
 		 */
@@ -70,6 +74,28 @@ function __autoload($class_name) {
 			break;
 		case "ExtractLatestStagingLauncher":
 		    require_once("/etc/uniformetl/extract/extractors/latest_staging/extract_launcher.php");
+			break;
+
+		//Extract Full - Staged
+		case "ExtractFullStaged":
+		    require_once("/etc/uniformetl/extract/extractors/full_staged/extract.php");
+			break;
+		case "ExtractFullStagedLauncher":
+		    require_once("/etc/uniformetl/extract/extractors/full_staged/extract_launcher.php");
+			break;
+		case "ExtractFullStagedPlugins":
+		    require_once("/etc/uniformetl/extract/extractors/full_staged/extract_full_staged_plugins.php");
+			break;
+
+		//Extract Latest - Staged
+		case "ExtractLatestStaged":
+		    require_once("/etc/uniformetl/extract/extractors/latest_staged/extract.php");
+			break;
+		case "ExtractLatestStagedLauncher":
+		    require_once("/etc/uniformetl/extract/extractors/latest_staged/extract_launcher.php");
+			break;
+		case "ExtractLatestStagedPlugins":
+		    require_once("/etc/uniformetl/extract/extractors/latest_staged/extract_latest_staged_plugins.php");
 			break;
 
 		/**

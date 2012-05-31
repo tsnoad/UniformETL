@@ -53,6 +53,13 @@ foreach ($unfinisheds_query as $unfinished) {
 
 	} else {
 		echo "\t"."failed.\n";
+
+		try {
+			copy(Conf::$software_path."logs/transformlog", Conf::$software_path."logs/archive/transform".$unfinished['transform_id']);
+		} catch (Exception $e) {
+			print_r("could not archive log");
+		}
+
 		shell_exec(Conf::$software_path."transform/process_recorder.php failed ".escapeshellarg($unfinished['transform_id']));
 		continue;
 	}
