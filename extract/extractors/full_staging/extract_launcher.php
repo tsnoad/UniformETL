@@ -14,7 +14,7 @@
 require_once("/etc/uniformetl/autoload.php");
 require_once("/etc/uniformetl/database.php");
 
-class ExtractFullLauncher {
+class ExtractFullStagingLauncher {
 	function start() {
 		//helpful log message
 		echo "Starting Launcher...\n";
@@ -244,7 +244,7 @@ class ExtractFullLauncher {
 	 */
 	function dump_already_processed($file) {
 		//search for extract processes that have used files with the same mtime or md5 hash
-		$already_processed_query = runq("SELECT count(*) AS count FROM extract_processes p INNER JOIN extract_full f ON (f.extract_id=p.extract_id) WHERE f.source_md5='".db_escape($file['md5'])."' OR f.source_timestamp='".db_escape(date("c", $file['modtime']))."';");
+		$already_processed_query = runq("SELECT count(*) AS count FROM extract_processes p INNER JOIN extract_full_staging f ON (f.extract_id=p.extract_id) WHERE f.source_md5='".db_escape($file['md5'])."' OR f.source_timestamp='".db_escape(date("c", $file['modtime']))."';");
 		$already_processed_count = $already_processed_query[0]['count'];
 	
 		//if any extracts have used this file
@@ -258,7 +258,7 @@ class ExtractFullLauncher {
 	 */
 	function dump_too_old($file) {
 		//what's the mtime of the newest file used for an extract
-		$newest_process_query = runq("SELECT max(source_timestamp) as max FROM extract_full;");
+		$newest_process_query = runq("SELECT max(source_timestamp) as max FROM extract_full_staging;");
 		$newest_process_timestamp = $newest_process_query[0]['max'];
 	
 		//if this file's mtime is older (or the same)
@@ -275,7 +275,7 @@ class ExtractFullLauncher {
 		var_dump("jackpot");
 
 		//start the extract process
-		shell_exec(Conf::$software_path."extract/extractors/full/run_extract.php ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog &");
+		shell_exec(Conf::$software_path."extract/extractors/full_staging/run_extract.php ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog &");
 	}
 }
 

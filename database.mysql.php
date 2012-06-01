@@ -1,7 +1,7 @@
 <?php
 
 function db_format($query) {
-	$query = preg_replace("/([^\ \(\)\=]*)::BIGINT/i", "convert($1, signed)", $query);
+	$query = preg_replace("/([^\ \(\)\=]*)::BIGINT/i", "$1", $query);
 
 	$query = str_replace("E'\n'", "'\n'", $query);
 

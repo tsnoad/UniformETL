@@ -1,43 +1,6 @@
 <?php
 
 Class MemberSocieties {
-	public static $society_names = array(
-		"TS01" => "Australasian Association for Engineering Education",
-		"TS02" => "Mine Subsidence Technological Society",
-		"TS03" => "Aust Society for Defence Engineering",
-		"TS04" => "Society for Engineering Management Australia",
-		"TS05" => "Materials Australia",
-		"TS06" => "Info, Telecoms & Electronics Engineering Society",
-		"TS07" => "Australian Geomechanics Society",
-		"TS08" => "Australasian Tunneling Society",
-		"TS09" => "Process Control Society",
-		"TS10" => "Society for Engineering in Agriculture",
-		"TS11" => "Australian Earthquake Engineering Society",
-		"TS12" => "Australian Composite Structures Society",
-		"TS13" => "Asset Management Council",
-		"TS14" => "Risk Engineering Society",
-		"TS15" => "Industrial Engineering Society",
-		"TS16" => "IEAust International Association",
-		"TS17" => "Society of Fire Safety",
-		"TS18" => "Australasian Fluid and Thermal Engineering Society",
-		"TS19" => "Society for Sustainability and Environmental Engineering",
-		"TS20" => "Systems Engineering Society of Australia",
-		"TS21" => "Red R Australia",
-		"TS22" => "Australian Cost Engineering Society",
-		"TS23" => "Maritime Engineering Society of Australia",
-		"TS24" => "Society for Building Services Engineering",
-		"TS25" => "Manufacturing Society of Australia",
-		"TS26" => "Railway Technical Society of Australia",
-		"TS27" => "Australian Society for Bulk Solids Handling",
-		"TS28" => "Electromagnetic Compatibility Society of Australia",
-		"TS29" => "PIANC Australia",
-		"TS30" => "Forensic Engineering Society",
-		"TS31" => "Electric Energy Society of Australia",
-		"TS32" => "Australasian Particle Technology Society",
-		"TS33" => "Mining Electrical and Mining Mechanical Engineering Society",
-		"TS35" => "Aerospace Technical Society",
-	);
-
 	function hook_models_required_transforms($data) {
 		return array("MemberIds");
 	}
@@ -128,14 +91,13 @@ Class MemberSocieties {
 	function hook_api_get_member_plurals($data) {
 		list($member_id) = $data;
 
-		$societies_query = runq("SELECT society FROM societies WHERE member_id='".db_escape($member_id)."';");
+		$societies_query = runq("SELECT sn.name AS society FROM societies s INNER JOIN society_names sn ON (sn.society=s.society) WHERE member_id='".db_escape($member_id)."';");
 
 		if (empty($societies_query)) return array("societies" => array());
 
 		foreach ($societies_query as $societies_query_tmp) {
-			//put email addresses in array
-/* 			$user['societies'][] = $societies_query_tmp['society']; */
-			$user['societies'][] = MemberSocieties::$society_names[$societies_query_tmp['society']];
+			//put societies in array
+			$user['societies'][] = $societies_query_tmp['society'];
 		}
 
 		return $user;

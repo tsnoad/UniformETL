@@ -1,34 +1,22 @@
 <?php
 
-require_once("/etc/uniformetl/autoload.php");
 require_once("/etc/uniformetl/database.php");
+require_once("/etc/uniformetl/autoload.php");
 
-Class ExtractLatest {
+class ExtractLatestStaging {
 	public $extract_id;
-	public $required_tables;
-	public $sybase;
-	public $sybase_out;
-	public $sql_file;
+	public $extractdir;
+	public $extractuntardir;
 
 	function start() {
-		$this->check_already_extracting();
-		$this->check_already_transforming();
-
-		$previous_extract = runq("SELECT * FROM extract_processes WHERE extractor='latest' AND finished=TRUE ORDER BY finish_date DESC LIMIT 1;");
-
-		if (!empty($previous_extract)) {
-			$time_since = time() - strtotime($previous_extract[0]['finish_date']);
-			
-			if ($time_since < 3600) {
-				print_r("latest extract was run {$time_since}s seconds ago. need to wait longer between latest extracts...");
-				return;
-			}
-		}
 
 		$models = New Models;
 		$models->start();
 
 		$sybase_data_structure = SybaseDataStructures::$structures[Conf::$sybasestruct];
+
+print_r($sybase_data_structure);
+print_r($models->columns);
 
 		//reserve an extract id, and create an extract process in the database
 		$this->get_extract_id();
@@ -54,19 +42,17 @@ Class ExtractLatest {
 
 		$sql = $this->create_copy_sql($member_data, $models->sources, $models->columns, $models->tables);
 
+		//generate sql to create indexes
+		$sql .= $this->index_sql($models->transforms, $model_indexes);
+
 var_dump($sql);
 
 		//write the sql to a file
 		file_put_contents($this->extractdir."/dump.sql", $sql);
 
-		//run the sql file against the database
-		if (Conf::$dblang == "pgsql") {
-			passthru("psql ".Conf::$dbname." < {$this->extractdir}/dump.sql 2>&1", $return_state);
+		file_put_contents($this->extractdir."/member_ids.json", json_encode($member_ids));
 
-			var_dump($return_state);
-		} else if (Conf::$dblang == "mysql") {
-			passthru("mysql -u ".Conf::$dbuser." -p".Conf::$dbpass." ".Conf::$dbname." < {$this->extractdir}/dump.sql 2>&1");
-		}
+		passthru("tar -czf ".Conf::$extractor_config['latest_staging']['output_path']."/dump_{$this->extract_id}.tgz -C {$this->extractdir} dump.sql member_ids.json");
 		
 		try {
 			//let the database know we've finished the extract
@@ -74,26 +60,9 @@ var_dump($sql);
 		} catch (Exception $e) {
 			die($e->getMessage());
 		}
-	}
-
-	function check_already_extracting() {
-		if (trim(shell_exec("ps h -C run_extract_launcher.php o pid | wc -l")) > 1) {
-			die("extract launcher is currently running");
-		}
-
-		$already_extracting = runq("SELECT count(*) as count FROM extract_processes WHERE finished=FALSE;");
-
-		if ($already_extracting[0]['count'] > 0) {
-			die("extract is currently running");
-		}
-	}
-
-	function check_already_transforming() {
-		$already_transforming = runq("SELECT count(*) as count FROM transform_processes WHERE finished=FALSE;");
-
-		if ($already_transforming[0]['count'] > 0) {
-			die("transform is currently running");
-		}
+		
+		//helpful log message
+		echo "finished\n";
 	}
 
 	/**
@@ -121,10 +90,10 @@ var_dump($sql);
 			$this->extract_id = db_nextval("extract_processes", "extract_id");
 		
 			//create a process in the database
-			runq("INSERT INTO extract_processes (extract_id, extractor, extract_pid, models) VALUES ('".db_escape($this->extract_id)."', 'latest', '".db_escape(getmypid())."', '".db_escape(json_encode(Conf::$do_transforms))."');");
+			runq("INSERT INTO extract_processes (extract_id, extractor, extract_pid, models) VALUES ('".db_escape($this->extract_id)."', 'latest_staging', '".db_escape(getmypid())."', '".db_escape(json_encode(Conf::$do_transforms))."');");
 		
 			//record information about the source file
-			runq("INSERT INTO extract_latest (extract_id, member_ids) VALUES ('".db_escape($this->extract_id)."', '".db_escape("")."');");
+			runq("INSERT INTO extract_latest_staging (extract_id, member_ids) VALUES ('".db_escape($this->extract_id)."', '".db_escape("")."');");
 
 		} catch (Exception $e) {
 			print_r($e->getMessage());
@@ -147,7 +116,7 @@ var_dump($sql);
 
 	function save_member_ids($member_ids) {
 		try {
-			runq("UPDATE extract_latest SET member_ids='".db_escape(json_encode(array_values($member_ids)))."' WHERE extract_id='".db_escape($this->extract_id)."';");
+			runq("UPDATE extract_latest_staging SET member_ids='".db_escape(json_encode(array_values($member_ids)))."' WHERE extract_id='".db_escape($this->extract_id)."';");
 		} catch (Exception $e) {
 			print_r($e->getMessage());
 			die("could not save process");
@@ -192,7 +161,10 @@ var_dump($sql);
 			$struc_table_name = array_search(strtolower($table), $struc_table_names);
 
 			unset($struc_column_names);
-			$struc_column_names = array_map("strtolower", $structure[$struc_table_name]);
+
+			if (!empty($struc_table_name)) {
+				$struc_column_names = array_map("strtolower", $structure[$struc_table_name]);
+			}
 
 			if (empty($rows)) {
 				continue;
@@ -202,6 +174,11 @@ var_dump($sql);
 				unset($data_row_out);
 
 				foreach ($source_columns[$table] as $column) {
+					if (empty($struc_column_names)) {
+						$data_row_out[$column] = "";
+						continue;
+					}
+
 					$column_name = array_search(strtolower($column), $struc_column_names);
 
 					if (strtolower($column) == "custtypeid") {
@@ -257,7 +234,7 @@ var_dump($sql);
 		foreach ($sources as $i => $source) {
 			//what's the name of the table we're going to create
 			//table names include the extract id
-			$table = str_replace("%{extract_id}", $this->extract_id, $tables[$i]);
+			$table = $tables[$i];
 
 			$sql .= $this->create_sql($table, $source_columns[$source]);
 			$sql .= $this->copy_sql($table, $source_columns[$source], $source_data[$source]);
@@ -276,6 +253,8 @@ var_dump($sql);
 	}
 
 	function copy_sql($table, $columns, $data) {
+		//import from source file
+
 		if (!empty($data)) {
 			if (Conf::$dblang == "pgsql") {
 				$sql = "COPY {$table} (".implode(", ", $columns).") FROM STDIN DELIMITER '|' NULL AS '' CSV QUOTE AS $$'$$ ESCAPE AS ".'$$\$$'.";\n";
@@ -308,6 +287,27 @@ var_dump($sql);
 		$sql .= "\n\n";
 
 		return $sql;
+	}
+
+	/*
+	 * generate sql to create indexes
+	 */
+	function index_sql($models, $model_indexes) {
+		//for each model that's enabled
+		foreach ($models as $model) {
+			//for each index for this model
+			foreach ($model_indexes[$model] as $index) {
+				//add the extract id, and add the index to the array of indexes
+				$indexes[] = $index;
+			}
+		}
+		
+		//multiple models might use the same tables, and have the same indexes defined
+		//remove the duplicates
+		$indexes = array_unique($indexes);
+		
+		//implode to string
+		return implode("\n", $indexes);
 	}
 }
 

@@ -43,7 +43,7 @@ Class Janitor {
 
 		if (!empty($finished_tables)) {
 			foreach ($finished_tables as $finished_table) {
-				echo "dropping table {$tablename}\n";
+				echo "dropping table {$finished_table}\n";
 				try {
 					$this->drop_table($finished_table);
 				} catch (Exception $e) {
@@ -60,11 +60,45 @@ Class Janitor {
 
 		if (!empty($finished_dirs)) {
 			foreach ($finished_dirs as $finished_dir) {
-				echo "removing directory {$dirname}\n";
+				echo "removing directory {$finished_dir}\n";
 				try {
 					$this->remove_dir($finished_dir);
 				} catch (Exception $e) {
 					die("could not remove dir {$finished_table}.");
+				}
+			}
+		}
+
+		try {
+			$finished_full_staging_dumps = $this->get_finished_full_staging_dumps($extract_ids);
+		} catch (Exception $e) {
+			die("could not get staging dumps for complete extracts.");
+		}
+
+		if (!empty($finished_full_staging_dumps)) {
+			foreach ($finished_full_staging_dumps as $finished_full_staging_dump) {
+				echo "removing staging dump {$finished_full_staging_dump}\n";
+				try {
+					$this->remove_full_staging_dump($finished_full_staging_dump);
+				} catch (Exception $e) {
+					die("could not remove staging dump {$finished_full_staging_dump}.");
+				}
+			}
+		}
+
+		try {
+			$finished_latest_staging_dumps = $this->get_finished_latest_staging_dumps($extract_ids);
+		} catch (Exception $e) {
+			die("could not get staging dumps for complete extracts.");
+		}
+
+		if (!empty($finished_latest_staging_dumps)) {
+			foreach ($finished_latest_staging_dumps as $finished_latest_staging_dump) {
+				echo "removing staging dump {$finished_latest_staging_dump}\n";
+				try {
+					$this->remove_latest_staging_dump($finished_latest_staging_dump);
+				} catch (Exception $e) {
+					die("could not remove staging dump {$finished_latest_staging_dump}.");
 				}
 			}
 		}
@@ -74,7 +108,7 @@ Class Janitor {
 		//get all extracts that are complete,
 		//have at least one completed transform,
 		//and have no incomplete transforms
-		$finished_extracts = runq("select distinct e.extract_id from extract_processes e inner join transform_processes t on (t.extract_id=e.extract_id) left outer join transform_processes t2 on (t2.extract_id=t.extract_id and t2.transform_id!=t.transform_id and t2.finished=false) where t.transform_id is not null and t.finished=true and t2.transform_id is null;");
+		$finished_extracts = runq("select distinct e.extract_id from extract_processes e left outer join transform_processes t on (t.extract_id=e.extract_id) left outer join transform_processes t2 on (t2.extract_id=t.extract_id and t2.transform_id!=t.transform_id and t2.finished=false) where (t.transform_id is not null and t.finished=true and t2.transform_id is null) or (e.finished=true and e.finish_date<".db_choose(db_pgsql("now() - INTERVAL '24 hours'"), db_mysql("date_sub(now(), INTERVAL 24 hour)"))." and (e.extractor='full_staging' or e.extractor='latest_staging'));");
 
 		if (empty($finished_extracts)) return null;
 		
@@ -125,12 +159,58 @@ Class Janitor {
 		return $finished_dirs;
 	}
 
-	function remove_dir($dirname) {		
+	function remove_dir($dirname) {
 		if (preg_match("/^[0-9]+$/", $dirname) !== 1) {
 			throw new Exception("cant remove dir {$dirname}. invalid name");
 		}
 
 		shell_exec("rm -r ".escapeshellarg(Conf::$software_path."extract/extract_processes/".$dirname));
+	}
+
+	function get_finished_full_staging_dumps($extract_ids) {
+		$extract_dumps = scandir(Conf::$extractor_config['full_staging']['output_path']);
+
+		foreach ($extract_dumps as $extract_dump) {
+			//filter out . and ..
+			if (!preg_match("/^dump_[0-9]+\.tgz$/", $extract_dump)) continue;
+		
+			if (preg_match("/^dump_(".implode("|", $extract_ids).")\.tgz$/", $extract_dump)) {
+				$finished_dumps[] = $extract_dump;
+			}
+		}
+
+		return $finished_dumps;
+	}
+
+	function remove_full_staging_dump($dirname) {		
+		if (preg_match("/^dump_[0-9]+\.tgz$/", $dirname) !== 1) {
+			throw new Exception("cant remove staging dump {$dirname}. invalid name");
+		}
+
+		shell_exec("rm -r ".escapeshellarg(Conf::$extractor_config['full_staging']['output_path'].$dirname));
+	}
+
+	function get_finished_latest_staging_dumps($extract_ids) {
+		$extract_dumps = scandir(Conf::$extractor_config['latest_staging']['output_path']);
+
+		foreach ($extract_dumps as $extract_dump) {
+			//filter out . and ..
+			if (!preg_match("/^dump_[0-9]+\.tgz$/", $extract_dump)) continue;
+		
+			if (preg_match("/^dump_(".implode("|", $extract_ids).")\.tgz$/", $extract_dump)) {
+				$finished_dumps[] = $extract_dump;
+			}
+		}
+
+		return $finished_dumps;
+	}
+
+	function remove_latest_staging_dump($dirname) {		
+		if (preg_match("/^dump_[0-9]+\.tgz$/", $dirname) !== 1) {
+			throw new Exception("cant remove staging dump {$dirname}. invalid name");
+		}
+
+		shell_exec("rm -r ".escapeshellarg(Conf::$extractor_config['latest_staging']['output_path'].$dirname));
 	}
 }
 

@@ -1,6 +1,10 @@
 <?php
 
 Class MemberIds {
+	public static $foo = array(
+		"member_id" => array("table" => "customer", "column" => "customerid"),
+	);
+
 	function hook_models_required_transforms($data) {
 		return array();
 	}
@@ -23,6 +27,10 @@ Class MemberIds {
 				db_pgsql("CREATE INDEX dump_%{extract_id}_customer_custtypeid ON dump_%{extract_id}_customer (custtypeid='INDI');"), 
 				db_mysql("ALTER TABLE dump_%{extract_id}_customer MODIFY COLUMN custtypeid VARCHAR(32); CREATE INDEX dump_%{extract_id}_customer_custtypeid ON dump_%{extract_id}_customer (custtypeid);")
 			)
+		);
+		return array(
+			array("table" => "customer", "column" => "customerid", "type" => "bigint"),
+			array("table" => "customer", "column" => "custtypeid", "type" => "text"),
 		);
 	}
 

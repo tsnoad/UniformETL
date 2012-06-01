@@ -14,7 +14,7 @@
 require_once("/etc/uniformetl/autoload.php");
 require_once("/etc/uniformetl/database.php");
 
-class ExtractFullLauncher {
+class ExtractFullStagedLauncher {
 	function start() {
 		//helpful log message
 		echo "Starting Launcher...\n";
@@ -114,10 +114,10 @@ class ExtractFullLauncher {
 		//get the time
 		$remote_command = 'date +%s; ';
 		//find all matching files and get the path/name, mtime, and md5 hash of each
-		$remote_command .= 'for file in '.escapeshellarg(Conf::$dumps_path).' ; do echo $file; stat --format=%Y $file; md5sum $file | cut -d " " -f 1; done';
+		$remote_command .= 'for file in '.escapeshellarg(Conf::$extractor_config['full_staged']['dumps_path']).' ; do echo $file; stat --format=%Y $file; md5sum $file | cut -d " " -f 1; done';
 
 		//run the command on the remote server
-		$dump_query = shell_exec("ssh -i ".escapeshellarg(Conf::$identity)." ".escapeshellarg(Conf::$server)." '".$remote_command."'");
+		$dump_query = shell_exec("ssh -i ".escapeshellarg(Conf::$extractor_config['full_staged']['identity'])." ".escapeshellarg(Conf::$extractor_config['full_staged']['server'])." '".$remote_command."'");
 
 		//trim the trailing newline
 		$query_result = trim($dump_query);
@@ -175,7 +175,7 @@ class ExtractFullLauncher {
 			//1st row
 			if ($row_count % 3 === 0) {
 				//should be a file path/name
-				if (preg_match(Conf::$dump_path_check_regex, $dump_query_row) !== 1) {
+				if (preg_match(Conf::$extractor_config['full_staged']['dump_path_check_regex'], $dump_query_row) !== 1) {
 					throw new Exception("Y U NO filepath");
 				}
 		
@@ -244,7 +244,7 @@ class ExtractFullLauncher {
 	 */
 	function dump_already_processed($file) {
 		//search for extract processes that have used files with the same mtime or md5 hash
-		$already_processed_query = runq("SELECT count(*) AS count FROM extract_processes p INNER JOIN extract_full f ON (f.extract_id=p.extract_id) WHERE f.source_md5='".db_escape($file['md5'])."' OR f.source_timestamp='".db_escape(date("c", $file['modtime']))."';");
+		$already_processed_query = runq("SELECT count(*) AS count FROM extract_processes p INNER JOIN extract_full_staged f ON (f.extract_id=p.extract_id) WHERE f.source_md5='".db_escape($file['md5'])."' OR f.source_timestamp='".db_escape(date("c", $file['modtime']))."';");
 		$already_processed_count = $already_processed_query[0]['count'];
 	
 		//if any extracts have used this file
@@ -258,7 +258,7 @@ class ExtractFullLauncher {
 	 */
 	function dump_too_old($file) {
 		//what's the mtime of the newest file used for an extract
-		$newest_process_query = runq("SELECT max(source_timestamp) as max FROM extract_full;");
+		$newest_process_query = runq("SELECT max(source_timestamp) as max FROM extract_full_staged;");
 		$newest_process_timestamp = $newest_process_query[0]['max'];
 	
 		//if this file's mtime is older (or the same)
@@ -275,7 +275,7 @@ class ExtractFullLauncher {
 		var_dump("jackpot");
 
 		//start the extract process
-		shell_exec(Conf::$software_path."extract/extractors/full/run_extract.php ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog &");
+		shell_exec(Conf::$software_path."extract/extractors/full_staged/run_extract.php ".escapeshellarg($file['path'])." ".escapeshellarg(date("c", $file['modtime']))." ".escapeshellarg($file['md5'])." > ".Conf::$software_path."logs/extractlog &");
 	}
 }
 

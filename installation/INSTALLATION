@@ -3,14 +3,20 @@ UNIFORM ETL
 Installation
 ------------
 
-1. Get Files. Recommended installation path is /home/uetl/
+0. create user account
+useradd -m uetl
+
+1. Get Files. Recommended installation path is /var/uetl/
 
 2. Create folders
 mkdir logs
 mkdir extract/extract_processes
+mkdir /var/staging
+mkdir /var/staging/full
+mkdir /var/staging/latest
 
 3. Create permanent link to config files
-ln -s /home/uetl/ /etc/uniformetl
+ln -s /var/uetl/ /etc/uniformetl
 
 4. Create config files from templates
 cp config.template.php config.php
@@ -19,15 +25,27 @@ cp config.template.php config.php
 nano config.php
 
 6. Set correct permissions
-chown -R tsnoad:tsnoad /home/uetl/
-chmod -R 744 /home/uetl/
-chmod 755 /home/uetl/
-chmod 755 /home/uetl/extract/
-chmod -R 755 /home/uetl/extract/extract_processes/
+chown -R uetl:uetl /var/uetl/
+chmod 770 /var/uetl/
+
+6b. add apache user (name depends on distribution) to uetl group
+usermod -a -G uetl www-data
+
+6c. add postgres user to uetl group
+usermod -a -G uetl postgres
 
 6. create database and load schema
 createdb hotel
 psql hotel < create.sql
+psql hotel < models.sql
+
+7a.
+mysql -u root
+create database hotel;
+create user uetl@localhost identified by 'password';
+grant all on hotel.* to uetl@localhost;
+exit;
+mysql -u uetl -p hotel < installation/create.mysql.sql
 
 7. create ssh key for data source server.
 ssh-keygen -t rsa -f ~/.ssh/id_rsa_something
@@ -35,19 +53,19 @@ cat ~/.ssh/id_rsa_something.pub | ssh remote.server.com "cat >> ~/.ssh/authorize
 
 8. Add Extract Daemon to root's crontab
 #UETL Extract Daemon: waits for source data, starts extract, monitors progress.
-* * * * * su - tsnoad -c '/home/uetl/extract/extract_daemon.php >> /home/uetl/logs/extractdaemonlog'
+* * * * * su - uetl -c '/var/uetl/extract/extract_daemon.php >> /var/uetl/logs/extractdaemonlog'
 
 9. Add Transform Daemon to root's crontab
 #UETL Transform Daemon: waits for extract to finish, starts transform, monitors progress.
-* * * * * su - tsnoad -c '/home/uetl/transform/transform_daemon.php >> /home/uetl/logs/transformdaemonlog'
+* * * * * su - uetl -c '/var/uetl/transform/transform_daemon.php >> /var/uetl/logs/transformdaemonlog'
 
 10. Add janitor script to root's crontab
 #Janitor script: cleans up dump tables and extract folders for completed processes
-0 * * * * su - tsnoad -c '/home/hotel/janitor/run_janitor.php >> /home/hotel/logs/janitorlog'
+0 * * * * su - uetl -c '/var/uetl/janitor/run_janitor.php >> /var/uetl/logs/janitorlog'
 
 11. Add cleanup scripts to root's crontab
 #Periodically run VACUUM and ANALYZE to keep the database uncluttered
-0 6 * * * su - tsnoad -c 'pg_vacuum --dbname=hotel --analyze'
+0 6 * * * su - uetl -c 'pg_vacuum --dbname=hotel --analyze'
 
 12. Wait for Daemon to find data and start extracting...
 
@@ -58,13 +76,13 @@ Configuring API
 1. Make sure mod_rewrite is installed and enabled
 
 2. Create the .htaccess file from template
-cp /home/uetl/api/.htaccess.template /home/uetl/api/.htaccess
+cp /var/uetl/api/.htaccess.template /var/uetl/api/.htaccess
 
 3. Edit .htaccess files
-nano /home/uetl/api/.htaccess
+nano /hvar/uetl/api/.htaccess
 
-4. Configure apache to make /home/uetl/api/ available
+4. Configure apache to make /var/uetl/api/ available
 
-5. Configure apache to obey /home/uetl/api/.htaccess
+5. Configure apache to obey /var/uetl/api/.htaccess
 
 

@@ -1,6 +1,20 @@
 <?php
 
 Class MemberEmails {
+	public static $model_spec = array(
+		"type" => "plural",
+		"tables" => array(
+			"email",
+		),
+		"columns" => array(
+			"member_id" => array("table" => "email", "column" => "customerid"),
+			"email" => array("table" => "email", "column" => "emailaddress"),
+		),
+		"where" => array(
+			array("table" => "email", "column" => "emailtypeid", "equals" => "INET"),
+		),
+	);
+
 	function hook_models_required_transforms($data) {
 		return array("MemberIds");
 	}
@@ -23,6 +37,10 @@ Class MemberEmails {
 				db_pgsql("CREATE INDEX dump_%{extract_id}_email_customerid ON dump_%{extract_id}_email (cast(customerid AS BIGINT)) WHERE (emailtypeid='INET');"), 
 				db_mysql("ALTER TABLE dump_%{extract_id}_email MODIFY COLUMN customerid BIGINT; CREATE INDEX dump_%{extract_id}_email_customerid ON dump_%{extract_id}_email (customerid);")
 			)
+		);
+		return array(
+			array("table" => "email", "column" => "customerid", "type" => "bigint", "where" => array("emailtypeid", "INET")),
+			array("table" => "email", "column" => "emailtypeid", "type" => "text"),
 		);
 	}
 

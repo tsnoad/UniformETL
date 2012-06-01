@@ -6,6 +6,14 @@ class Chunks {
 	public $transform_id;
 	public $extract_id;
 
+	function count_members() {
+		//how many members are there?
+		$members_count_query = runq("select count(DISTINCT ".db_cast_bigint("customerid").") AS count FROM dump_{$this->extract_id}_customer WHERE ".db_cast_bigint("customerid")." IS NOT NULL AND custtypeid='INDI';");
+		$members_count = $members_count_query[0]['count'];
+
+		return $members_count;
+	}
+
 	function create_chunks() {
 		//helpful message
 		echo "Creating Chunks:"."\n";
@@ -14,8 +22,7 @@ class Chunks {
 		$timer = microtime(true);
 
 		//how many members are there?
-		$members_count_query = runq("select count(DISTINCT ".db_cast_bigint("customerid").") AS count FROM dump_{$this->extract_id}_customer WHERE ".db_cast_bigint("customerid")." IS NOT NULL AND custtypeid='INDI';");
-		$members_count = $members_count_query[0]['count'];
+		$members_count = $this->count_members();
 
 		if (empty($members_count)) {
 			die("HUHS");
