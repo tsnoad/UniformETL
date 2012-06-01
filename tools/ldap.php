@@ -21,16 +21,19 @@ http://www.server-world.info/en/note?os=SUSE_Linux_Enterprise_Server_11&p=ldap
 $timer = microtime(true);
 
 /* $base = "dc=example,dc=com"; */
-$base = "dc=my-domain,dc=com";
+/* $base = "dc=my-domain,dc=com"; */
+$base = "dc=nat,dc=internal";
 
 ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 
 /* $ldap = ldap_connect("localhost"); */
-$ldap = ldap_connect("192.168.13.189");
+$ldap = ldap_connect("ldaps://localhost/");
+/* $ldap = ldap_connect("192.168.13.189"); */
 var_dump($ldap);
 
+$bind = ldap_bind($ldap, "cn=administrator,".$base, "KR7DuXUx");
 /* $bind = ldap_bind($ldap, "cn=admin,".$base, "example"); */
-$bind = ldap_bind($ldap, "cn=Manager,".$base, "resources");
+/* $bind = ldap_bind($ldap, "cn=Manager,".$base, "resources"); */
 var_dump($bind);
 
 /*
@@ -41,7 +44,8 @@ for ($i = 1; $i <= $iterations; $i ++) {
 }
 */
 
-$searchids = array("3359780");
+/* $searchids = array("3359780"); */
+$searchids = array("3359780", "78086");
 
 var_dump($searchids);
 
