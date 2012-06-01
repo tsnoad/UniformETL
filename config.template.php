@@ -131,7 +131,12 @@ class Conf {
 
 	public static $api_key = "3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2";
 
+	/*
+	 * Reporer Config
+	 */
+	//command used to send reports via email. %{body} and other placeholders will be replaced with email content
 	public static $report_email_cmd = "echo %{body} | mail -s %{subject} %{recipients}";
+	//recipients. comma seperated list
 	public static $report_email_recipients = "foo@example.com,bar@example.com";
 }
 
