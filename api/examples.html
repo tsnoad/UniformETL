@@ -5,32 +5,30 @@
 			$(function() {
 				//replace the {api_url} placeholders in example <code> blocks
 				$(".get_url").html(function () {
-					var api_url = window.location.href.substring(0, window.location.href.indexOf("/examples.html"));
+					var api_url = window.location.protocol+"//"+window.location.host+window.location.pathname.substring(0, window.location.pathname.indexOf("/examples.html"));
 
 					return $(this).html().replace("{api_url}", api_url);
 				});
 
 				//replace the {api_key} placeholders in example <code> blocks
 				$(".get_key").html(function () {
-					var api_key = window.location.href.substring(window.location.href.indexOf("api_key=") + 8);
+					var api_key = window.location.search.substring(9);
 
 					return $(this).html().replace("{api_key}", api_key);
 				});
 
 				$("form").submit(function () {
-					var api_url = window.location.href.substring(0, window.location.href.indexOf("/examples.html"));
+					var api_url = window.location.protocol+"//"+window.location.host+window.location.pathname.substring(0, window.location.pathname.indexOf("/examples.html"));
 
 					var member_id = $(this).siblings("input.member_id").val();
 
-					var api_key = window.location.href.substring(window.location.href.indexOf("api_key=") + 8);
+					var api_key = window.location.search.substring(9);
 
 					$(this).children("input[name=api_key]").val(api_key);
 
 					var new_action = $(this).attr("action")
 						.replace("{api_url}", api_url)
 						.replace("{member_id}", member_id);
-
-alert(new_action);
 
 					$(this).attr("action", new_action);
 				});
@@ -160,19 +158,6 @@ alert(new_action);
 				When data is requested it will be returned in a JSON string. In all other situations the server returns a short text message explaining the HTTP Response Code that has been returned.
 		
 				<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
-		
-		
-		
-		<!--
-				<h2>All Members</h2>
-		
-				<form name="" action="/users" method="GET">
-					<input type="hidden" name="api_key" value="3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2" />
-					<input type="submit" />
-				</form>
-		
-				<hr />
-		-->
 		
 				<h2>Member Info</h2>
 		
