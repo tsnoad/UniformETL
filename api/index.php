@@ -30,10 +30,12 @@ Class API {
 	// Check that we're protected by SSL, and that the request has used a valid api key
 	function check_auth() {
 		//make sure that we're protected by SSL
+/*
 		if (empty($_SERVER['HTTPS'])) {
 			header("HTTP/1.1 401 Unauthorized");
 			die("HTTP/1.1 401 Unauthorized");
 		}
+*/
 
 		//make sure that the request has used a valid api key
 		if (empty($_REQUEST['api_key']) || $_REQUEST['api_key'] != Conf::$api_key) {
@@ -48,6 +50,8 @@ Class API {
 		$this->users_model = New APIModelUsers;
 		$this->user_model = New APIModelUser;
 		$this->userlogin_model = New APIModelUserLogin;
+		$this->passwordupdates_model = New APIModelPasswordUpdates;
+		$this->passwords_model = New APIModelPasswords;
 		$this->teapot_model = New APIModelTeapot;
 	
 		//add all the models to an array, so that we can loop through them
@@ -55,7 +59,9 @@ Class API {
 			$this->users_model,
 			$this->user_model,
 			$this->userlogin_model,
-			$this->teapot_model
+			$this->passwordupdates_model,
+			$this->passwords_model,
+			$this->teapot_model,
 		);
 	}
 

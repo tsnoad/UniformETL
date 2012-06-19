@@ -299,6 +299,94 @@
 				</div>
 		
 				<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
+		
+				<h2>Password Updates</h2>
+		
+				<p>Get the Member Ids of all members who's passwords have been changed in a given time range. Due to the sensitive nature of this data, only a limited number of users are allowed to make use of this service.</p>
+		
+				<h3>Request</h3>
+				<ul>
+					<li>Request URI: <code class="get_url get_key">{api_url}/passwordupdates</code></li>
+					<li>Request Method: <code>GET</code></li>
+					<li>Request Data:<ul>
+						<li>from: <code>2012-06-06 09:00:00</code></li>
+						<li>to: <code>2012-06-06 10:00:00</code></li>
+					</ul></li>
+				</ul>
+		
+				<h3>Response</h3>
+				<ul>
+					<li>Status Code: <code>200</code></li>
+				</ul>
+				<p class="prelabel">Response Body:</p>
+				<pre><code>[
+	"499850",
+	"2365759",
+	"4097540",
+	"119984"
+]</code></pre>
+		
+				<h3>Examples</h3>
+				<pre><code class="get_url get_key">curl {api_url}/passwordupdates \
+  --get --data "api_key={api_key}"</code></pre>
+
+				<hr />
+		
+				<div class="form">			
+					<form name="details" action="{api_url}/passwordupdates" method="GET">
+						<input type="hidden" name="api_key" value="{api_key}" />
+
+						<label for="from">From</label><input name="from" type="text" value="2012-06-06 09:00:00" /><br />
+						<label for="to">To</label><input name="to" type="text" value="2012-06-06 10:00:00" /><br />
+
+						<input type="submit" />
+					</form>
+				</div>
+		
+				<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
+		
+				<h2>Passwords</h2>
+		
+<!-- 				<p>Get the Member Ids of all members who's passwords have been changed in a given time range. Due to the sensitive nature of this data, only a limited number of users are allowed to make use of this service.</p> -->
+		
+				<h3>Request</h3>
+				<ul>
+					<li>Request URI: <code class="get_url get_key">{api_url}/passwords</code></li>
+					<li>Request Method: <code>GET</code></li>
+					<li>Request Data:<ul><li>member_ids: <code>3359780,499850,2365759</code></li></ul></li>
+				</ul>
+		
+				<h3>Response</h3>
+				<ul>
+					<li>Status Code: <code>200</code></li>
+				</ul>
+				<p class="prelabel">Response Body:</p>
+				<pre><code>{
+	"3359780":"{SSHA}3QR5s9\/UKoPPAE41IapsoWENi+ljUjFrbmszM
+GhGc0hSOURNcko4Vnl5d2xoR2s3Nk5wOQ==",
+	"499850":"{SSHA}XRmVCPffbEZV4+CkPy4yWTLviqMxUmdUMUNjWnV
+xTktSTXF1MUdxYXRjanVDQTE1STBueg==",
+	"2365759":"{SSHA}W97QrGa4pBmSKGQVSRziaiJzRG1QcGhvbUdTeG
+9hdUhvUUllRWhtQUtVWWhvT3lsd1UzYw=="
+}</code></pre>
+		
+				<h3>Examples</h3>
+				<pre><code class="get_url get_key">curl {api_url}/passwords \
+  --get --data "api_key={api_key}"</code></pre>
+
+				<hr />
+		
+				<div class="form">			
+					<form name="details" action="{api_url}/passwords" method="GET">
+						<input type="hidden" name="api_key" value="{api_key}" />
+
+						<label for="member_ids">Member Ids</label><input name="member_ids" type="text" value="3359780,499850,2365759" /><br />
+
+						<input type="submit" />
+					</form>
+				</div>
+		
+				<div class="dotbreak">&middot;&middot;&middot;&middot;&middot;</div>
 			</div>
 		</div>
 	</body>

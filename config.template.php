@@ -131,6 +131,10 @@ class Conf {
 
 	public static $api_key = "3CEaCHxr8IoTD0NzEpLeGdj6iWRnOr2";
 
+	//what remote hosts are allowed to use the passwords api
+	public static $api_pass_rem_hosts = array(
+	);
+
 	/*
 	 * Reporer Config
 	 */
