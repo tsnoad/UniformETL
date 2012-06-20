@@ -59,6 +59,9 @@ Class APIModelPasswordUpdates {
 
 		//remove duplicates
 		$changed_users = array_unique($changed_users);
+
+		//rekey will be required after duplicates are removed
+		$changed_users = array_values($changed_users);
 	
 		//all good
 		header("HTTP/1.1 200 OK");
