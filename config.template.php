@@ -124,7 +124,7 @@ class Conf {
 	public static $member_passwords_dbuser = "";
 	public static $member_passwords_dbpass = "";
 
-	public static $member_confluence_statuses_ldaphost = "localhost";
+	public static $member_confluence_statuses_ldaphost = "ldaps://localhost/";
 	public static $member_confluence_statuses_ldapbasedn = "dc=my-domain,dc=com";
 	public static $member_confluence_statuses_ldapuser = "";
 	public static $member_confluence_statuses_ldappass = "";

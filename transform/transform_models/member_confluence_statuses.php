@@ -5,7 +5,7 @@ Class MemberConfluenceStatuses {
 	public $base;
 
 	function hook_models_required_transforms($data) {
-		return array("MemberIds", "MemberNames", "MemberEmails", "MemberPasswords", "MemberWebStatuses");
+		return array("MemberIds", "MemberNames", "MemberEmails", "MemberWebStatuses");
 	}
 	function hook_models_required_tables($data) {
 		return array();
@@ -35,7 +35,7 @@ Class MemberConfluenceStatuses {
 		ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
 
 		$this->ldap = ldap_connect($ldaphost);
-		ldap_bind($this->ldap, "cn={$ldapuser},".$this->base, $ldappass);	
+		ldap_bind($this->ldap, "cn={$ldapuser},".$this->base, $ldappass);
 	}
 
 	function get_src_data($src_member_ids_chunk, $extract_id) {
