@@ -114,10 +114,10 @@ INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postn
 INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('GRAD', 'Graduate', 'GradIEAust ', '');
 INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('HONF', 'Honorary Fellow', 'HonFIEAust ', 'CPEng');
 INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('MEMB', 'Member', 'MIEAust', 'CPEng');
-INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('OFEL', 'Officer Fellow', 'OFIEAust', 'CEngO');
-INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('OGRA', 'Officer Graduate', 'GradOIEAust', '');
-INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('OMEM', 'Officer Member', 'OMIEAust', 'CEngO');
-INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('OSTU', 'Officer Student', 'StudIEAust', '');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('OFEL', 'Associate Fellow', 'AFIEAust', 'CEngA');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('OGRA', 'Associate Graduate', 'GradAIEAust', '');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('OMEM', 'Associate Member', 'AMIEAust', 'CEngA');
+INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('OSTU', 'Associate Student', 'StudIEAust', '');
 INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('SNRM', 'Senior Member', 'SMIEAust', 'CPEng');
 INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('STUD', 'Student (IEAust)', 'StudIEAust', '');
 INSERT INTO grade_names_postnominals (grade, name, postnominals, chartered_postnominals) VALUES ('TFEL', 'Technologist Fellow', 'TFIEAust', 'CEngT');
