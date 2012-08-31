@@ -52,8 +52,10 @@ Class APIModelPasswords {
 		$passwords = array();
 
 		//create an array of member ids and passwords
-		foreach ($passwords_query as $password) {
-			$passwords[$password['member_id']] = $password['ldap_hash'];
+		if (!empty($passwords_query)) {
+			foreach ($passwords_query as $password) {
+				$passwords[$password['member_id']] = $password['ldap_hash'];
+			}
 		}
 	
 		//all good
