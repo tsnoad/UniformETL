@@ -41,6 +41,8 @@ Class Janitor {
 			die("could not get tables for complete extracts.");
 		}
 
+die();
+
 		if (!empty($finished_tables)) {
 			foreach ($finished_tables as $finished_table) {
 				echo "dropping table {$finished_table}\n";
@@ -119,13 +121,17 @@ Class Janitor {
 	}
 
 	function get_finished_tables($extract_ids) {
-		//get all the tables in the database that belong to one of the complete extracts
-		if (Conf::$dblang == "pgsql") {
-			$fin_dump_table = "tablename ~ '^dump_(".implode("|", $extract_ids).")_[a-zA-Z]+$'";
-			$finished_tables = runq("select tablename from pg_tables where {$fin_dump_table};");
-		} else if (Conf::$dblang == "mysql") {
-			$fin_dump_table = "table_name REGEXP '^dump_(".implode("|", $extract_ids).")_[a-zA-Z]+$'";
-			$finished_tables = runq("select table_name as tablename from information_schema.tables where {$fin_dump_table};");
+		foreach (array_chunk($extract_ids, 1000) as $extract_id_chunk) {
+			//get all the tables in the database that belong to one of the complete extracts
+			if (Conf::$dblang == "pgsql") {
+var_dump(substr($extract_ids, 0, 80));
+				$fin_dump_table = "tablename ~ '^dump_(".implode("|", $extract_ids).")_[a-zA-Z]+$'";
+/* 				$finished_tables = runq("select tablename from pg_tables where {$fin_dump_table};"); */
+/* print_r($finished_tables); */
+			} else if (Conf::$dblang == "mysql") {
+				$fin_dump_table = "table_name REGEXP '^dump_(".implode("|", $extract_ids).")_[a-zA-Z]+$'";
+				$finished_tables = runq("select table_name as tablename from information_schema.tables where {$fin_dump_table};");
+			}
 		}
 
 		if (empty($finished_tables)) return null;
@@ -146,6 +152,8 @@ Class Janitor {
 
 	function get_finished_dirs($extract_ids) {
 		$extract_dirs = scandir(Conf::$software_path."extract/extract_processes/");
+
+		$finished_dirs = array();
 
 		foreach ($extract_dirs as $extract_dir) {
 			//filter out . and ..
@@ -168,7 +176,11 @@ Class Janitor {
 	}
 
 	function get_finished_full_staging_dumps($extract_ids) {
+		if (!isset(Conf::$extractor_config['full_staging']['output_path']) || !is_dir(Conf::$extractor_config['full_staging']['output_path'])) return null;
+
 		$extract_dumps = scandir(Conf::$extractor_config['full_staging']['output_path']);
+
+		$finished_dumps = array();
 
 		foreach ($extract_dumps as $extract_dump) {
 			//filter out . and ..
@@ -191,7 +203,11 @@ Class Janitor {
 	}
 
 	function get_finished_latest_staging_dumps($extract_ids) {
+		if (!isset(Conf::$extractor_config['latest_staging']['output_path']) || !is_dir(Conf::$extractor_config['latest_staging']['output_path'])) return null;
+
 		$extract_dumps = scandir(Conf::$extractor_config['latest_staging']['output_path']);
+
+		$finished_dumps = array();
 
 		foreach ($extract_dumps as $extract_dump) {
 			//filter out . and ..
