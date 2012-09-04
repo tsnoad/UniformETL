@@ -89,6 +89,14 @@ create table epdp_statuses (
 );
 CREATE INDEX epdp_statuses_member_id ON epdp_statuses (member_id);
 
+create table nmep_statuses (
+	id BIGSERIAL PRIMARY KEY,
+	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,
+	participant BOOLEAN NOT NULL DEFAULT FALSE,
+	UNIQUE (member_id)
+);
+CREATE INDEX nmep_statuses_member_id ON nmep_statuses (member_id);
+
 create table grades (
 	id BIGSERIAL PRIMARY KEY,
 	member_id BIGINT NOT NULL REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE,

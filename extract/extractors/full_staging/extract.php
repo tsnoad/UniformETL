@@ -161,10 +161,11 @@ class ExtractFullStaging {
 		foreach ($sources as $i => $source) {
 			//GroupMember gets special treatment
 			if ($source == "GroupMember") {
-				//delete all the rows that don't contain the string 6052
+				//delete all the rows that don't contain the string 6052 or 10801
 				//6052 is the group id of the only group id we care about
+				//10801 is also a group we care about
 				//doing this shaves a 3.4GB file down to 5MB - saves a lot of processing time
-				passthru("sed -e '/^[^|]*||[^|]*||\ *6052\ *||/!d' -i {$this->extractuntardir}/tabout{$source}.dat");
+				passthru("sed -e '/^[^|]*||[^|]*||\ *\(6052\|10801\)\ *||/!d' -i {$this->extractuntardir}/tabout{$source}.dat");
 			}
 	
 			//use the reformat script to reformat each file

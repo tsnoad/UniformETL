@@ -144,6 +144,9 @@ function __autoload($class_name) {
 		case "MemberEpdpStatuses":
 		    require_once("/etc/uniformetl/transform/transform_models/member_epdp_statuses.php");
 			break;
+		case "MemberNmepStatuses":
+		    require_once("/etc/uniformetl/transform/transform_models/member_nmep_statuses.php");
+			break;
 		case "MemberConfluenceStatuses":
 		    require_once("/etc/uniformetl/transform/transform_models/member_confluence_statuses.php");
 			break;

@@ -98,6 +98,15 @@ create table epdp_statuses (
 ) ENGINE=InnoDB;
 CREATE INDEX epdp_statuses_member_id ON epdp_statuses (member_id);
 
+create table nmep_statuses (
+	id BIGINT AUTO_INCREMENT PRIMARY KEY,
+	member_id BIGINT NOT NULL,
+	participant BOOLEAN NOT NULL DEFAULT FALSE,
+	UNIQUE (member_id),
+	FOREIGN KEY (member_id) REFERENCES member_ids (member_id) ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB;
+CREATE INDEX nmep_statuses_member_id ON nmep_statuses (member_id);
+
 create table grades (
 	id BIGINT AUTO_INCREMENT PRIMARY KEY,
 	member_id BIGINT NOT NULL,

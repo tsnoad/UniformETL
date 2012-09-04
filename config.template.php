@@ -26,6 +26,7 @@ class Conf {
 		"MemberWebStatuses",
 		"MemberEcpdStatuses",
 		"MemberEpdpStatuses",
+		"MemberNmepStatuses",
 		"MemberConfluenceStatuses",
 		"MemberInvoices",
 		"MemberInvoiceItems",
