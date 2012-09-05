@@ -55,7 +55,7 @@ Class MemberNmepStatuses {
 	}
 
 	function get_src_members_nmep_statuses($chunk_id, $extract_id) {
-		$src_member_nmep_statuses_query = runq("SELECT DISTINCT ch.member_id, CASE WHEN gp.groupid='6052' THEN TRUE ELSE FALSE END as participant FROM chunk_member_ids ch LEFT OUTER JOIN dump_{$extract_id}_groupmember gp ON (gp.customerid::BIGINT=ch.member_id AND gp.groupid='6052') WHERE ch.chunk_id='{$chunk_id}';");
+		$src_member_nmep_statuses_query = runq("SELECT DISTINCT ch.member_id, CASE WHEN gp.groupid='10801' AND gp.subgroupid='39685' THEN TRUE ELSE FALSE END as participant FROM chunk_member_ids ch LEFT OUTER JOIN dump_{$extract_id}_groupmember gp ON (gp.customerid::BIGINT=ch.member_id AND gp.groupid='10801' AND gp.subgroupid='39685') WHERE ch.chunk_id='{$chunk_id}';");
 
 		return $this->get_members_nmep_statuses($src_member_nmep_statuses_query);
 	}
