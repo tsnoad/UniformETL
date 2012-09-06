@@ -32,7 +32,7 @@ Class APIModelNmep {
 		$member_id = $this->get_member_id();
 
 		//put together the query and run it
-		$user_query = runq("SELECT * FROM nmep_statuses n LEFT OUTER JOIN passwords p ON (p.member_id=n.member_id) WHERE n.member_id='".db_escape($member_id)."' AND n.participant='t' LIMIT 1;");
+		$user_query = runq("SELECT n.*, p.hash FROM nmep_statuses n LEFT OUTER JOIN passwords p ON (p.member_id=n.member_id) WHERE n.member_id='".db_escape($member_id)."' AND n.participant='t' LIMIT 1;");
 		$user = $user_query[0];
 	
 		//not in database?
@@ -56,7 +56,7 @@ Class APIModelNmep {
 		$member_id = $this->get_member_id();
 
 		//put together the query and run it
-		$user_query = runq("SELECT * FROM nmep_statuses n LEFT OUTER JOIN passwords p ON (p.member_id=n.member_id) WHERE n.member_id='".db_escape($member_id)."' AND n.participant='t' LIMIT 1;");
+		$user_query = runq("SELECT n.*, p.hash FROM nmep_statuses n LEFT OUTER JOIN passwords p ON (p.member_id=n.member_id) WHERE n.member_id='".db_escape($member_id)."' AND n.participant='t' LIMIT 1;");
 		$user = $user_query[0];
 	
 		//not in database?
@@ -71,33 +71,28 @@ Class APIModelNmep {
 			die("HTTP/1.1 403 Unauthorized");
 		}
 
-/*
-
-		//if we have to update the member's password
-		if (!isset($_POST['password'])) {
-			header("HTTP/1.1 400 Bad Request");
-			die("HTTP/1.1 400 Bad Request");
-		}
 
 		//get the transform models class, so we can access the models
 		$models = New Models;
 
-		//load the passwords model
-		$password_model = $models->init_class("MemberPasswords");
+		//if we have to update the member's password
+		if (isset($_POST['password'])) {
+			//load the passwords model
+			$password_model = $models->init_class("MemberPasswords");
 
-		//data to pass on to model
-		$add_or_update_data = array(
-			"member_id" => $member_id,
-			"password" => $_POST['password']
-		);
+			//data to pass on to model
+			$add_or_update_data = array(
+				"member_id" => $member_id,
+				"password" => $_POST['password']
+			);
 
-		//update password, or create one if necessary
-		$password_model->update_or_add_data($add_or_update_data);
+			//update password, or create one if necessary
+			$password_model->update_or_add_data($add_or_update_data);
+		}
 
 		//all good
 		header("HTTP/1.1 200 OK");
 		print_r("HTTP/1.1 200 OK");
-*/
 	}
 
 	function get_member_id() {
