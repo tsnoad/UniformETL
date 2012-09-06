@@ -32,9 +32,10 @@ Class MemberConfluenceStatuses {
 
 		$this->base = $ldapbasedn;
 
-		ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
-
 		$this->ldap = ldap_connect($ldaphost);
+
+		ldap_set_option($this->ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+
 		ldap_bind($this->ldap, "cn={$ldapuser},".$this->base, $ldappass);
 	}
 
@@ -187,6 +188,89 @@ Class MemberConfluenceStatuses {
 		if (empty($add['givenname'])) $add['givenname'] = " ";
 
 		ldap_modify($this->ldap, "uid={$data_add_item['member_id']},".$this->base, $add);
+	}
+
+	function get_src_data_by_member_id($member_id, $extract_id) {
+		$src_member_names_query = runq("SELECT DISTINCT * FROM names n WHERE n.member_id='{$member_id}';");
+
+		foreach ($src_member_names_query as $src_member_names_tmp) {
+			$member_id = $src_member_names_tmp['member_id'];
+			$nametype = $src_member_names_tmp['type'];
+
+			$src_member_names[$member_id][$nametype] = $src_member_names_tmp;
+		}
+
+
+		$src_member_emails_query = runq("SELECT DISTINCT * FROM emails e WHERE e.member_id='{$member_id}';");
+
+		foreach ($src_member_emails_query as $src_member_emails_tmp) {
+			$member_id = $src_member_emails_tmp['member_id'];
+			$email_id = $src_member_emails_tmp['id'];
+
+			$src_member_emails[$member_id][$email_id] = $src_member_emails_tmp;
+		}
+
+
+		$src_member_statuses_query = runq("SELECT DISTINCT m.member_id, p.ldap_hash FROM member_ids m INNER JOIN passwords p ON (p.member_id=m.member_id) INNER JOIN web_statuses w ON (w.member_id=m.member_id) WHERE m.member_id='{$member_id}';");
+
+		foreach ($src_member_statuses_query as $src_member_statuses_tmp) {
+			$member_id = $src_member_statuses_tmp['member_id'];
+			$src_member_statuses[$member_id]['member_id'] = $member_id;
+
+			foreach (array("PREF", "OFIC") as $name_type) {
+				if (empty($src_member_names[$member_id][$name_type])) continue;
+
+				$src_member_statuses[$member_id]['cn'] = strtolower($src_member_names[$member_id][$name_type]['given_names'].$src_member_names[$member_id][$name_type]['family_name']);
+				$src_member_statuses[$member_id]['sn'] = $src_member_names[$member_id][$name_type]['family_name'];
+				$src_member_statuses[$member_id]['givenname'] = $src_member_names[$member_id][$name_type]['given_names'];
+
+				break;
+			}
+
+			if (!empty($src_member_emails[$member_id])) {
+				$newest_email_id = max(array_keys($src_member_emails[$member_id]));
+				$src_member_statuses[$member_id]['mail'] = $src_member_emails[$member_id][$newest_email_id]['email'];
+			}
+
+			$src_member_statuses[$member_id]['userpassword'] = $src_member_statuses_tmp['ldap_hash'];
+		}
+
+		return $src_member_statuses;
+	}
+
+	function get_dst_data_by_member_id($member_id) {
+		$this->connect_to_ldap();
+
+		$search = ldap_search($this->ldap, $this->base, "(|(uid=".$member_id."))", array("uid", "cn", "sn", "givenname", "mail", "userpassword"));
+		$search_results = ldap_get_entries($this->ldap, $search);
+
+		if (empty($search_results)) return null;
+
+		foreach ($search_results as $search_result) {
+			if (empty($search_result['uid'][0])) continue;
+
+			$member_id = $search_result['uid'][0];
+
+			$dst_member_statuses[$member_id]['member_id'] = $member_id;
+			$dst_member_statuses[$member_id]['cn'] = $search_result['cn'][0];
+			$dst_member_statuses[$member_id]['sn'] = $search_result['sn'][0];
+			$dst_member_statuses[$member_id]['givenname'] = $search_result['givenname'][0];
+			$dst_member_statuses[$member_id]['mail'] = $search_result['mail'][0];
+			$dst_member_statuses[$member_id]['userpassword'] = $search_result['userpassword'][0];
+		}
+
+		return $dst_member_statuses;
+	}
+
+	function update_password($member_id) {
+		$src_member_statuses = $this->get_src_data_by_member_id($member_id);
+		$dst_member_statuses = $this->get_dst_data_by_member_id($member_id);
+
+		if (empty($dst_member_statuses)) {
+			$this->add_data($src_member_statuses[$member_id]);
+		} else {
+			$this->update_data($src_member_statuses[$member_id]);
+		}
 	}
 
 	function transform($src_data_by_members, $dst_data_by_members) {
