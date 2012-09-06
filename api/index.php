@@ -50,6 +50,7 @@ Class API {
 		$this->userlogin_model = New APIModelUserLogin;
 		$this->passwordupdates_model = New APIModelPasswordUpdates;
 		$this->passwords_model = New APIModelPasswords;
+		$this->nmep_model = New APIModelNmep;
 		$this->teapot_model = New APIModelTeapot;
 	
 		//add all the models to an array, so that we can loop through them
@@ -59,6 +60,7 @@ Class API {
 			$this->userlogin_model,
 			$this->passwordupdates_model,
 			$this->passwords_model,
+			$this->nmep_model,
 			$this->teapot_model,
 		);
 	}
