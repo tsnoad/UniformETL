@@ -3,6 +3,10 @@
 require_once("/etc/uniformetl/autoload.php");
 
 Class APIModelNmep {
+
+	//clients must be highly trusted
+	const TRUST_REQUIRED = Conf::API_CLIENT_LOW_TRUST;
+
 	function who_me() {
 		return preg_match("/^nmep\/[0-9]+\/?$/", $_GET['url']);
 	}
