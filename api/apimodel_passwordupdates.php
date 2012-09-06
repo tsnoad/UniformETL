@@ -3,6 +3,10 @@
 require_once("/etc/uniformetl/autoload.php");
 
 Class APIModelPasswordUpdates {
+
+	//clients must be highly trusted
+	const TRUST_REQUIRED = Conf::API_CLIENT_HIGH_TRUST;
+
 	function who_me() {
 		return preg_match("/^passwordupdates\/?$/", $_GET['url']);
 	}
@@ -22,12 +26,6 @@ Class APIModelPasswordUpdates {
 	}
 
 	function get_changes() {
-		//make sure that the request has used a valid api key
-		if (empty($_SERVER['REMOTE_ADDR']) || !in_array($_SERVER['REMOTE_ADDR'], (array)Conf::$api_pass_rem_hosts)) {
-			header("HTTP/1.1 401 Unauthorized");
-			die("HTTP/1.1 401 Unauthorized");
-		}
-
 		//check that the dates are okay
 		$ts_from = $this->check_date($_GET['from']);
 		$ts_to = $this->check_date($_GET['to']);

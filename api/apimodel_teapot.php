@@ -4,6 +4,10 @@ require_once("/etc/uniformetl/autoload.php");
 
 // For when someone wants to know if we're a teapot
 Class APIModelTeapot {
+
+	//clients must be moderately trusted
+	const TRUST_REQUIRED = Conf::API_CLIENT_MED_TRUST;
+
 	//can this model process the request
 	function who_me() {
 		return preg_match("/^teapot\/?$/", $_GET['url']);
