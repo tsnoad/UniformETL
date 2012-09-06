@@ -105,7 +105,7 @@ Class APIModelUser {
 			//update password, or create one if necessary
 			$password_model->update_or_add_data($add_or_update_data);
 
-			if (in_array("MemberConfluenceStatuses", $do_transforms)) {
+			if (in_array("MemberConfluenceStatuses", Conf::$do_transforms)) {
 				//load the confluence statuses model
 				$confluence_model = $models->init_class("MemberConfluenceStatuses");
 	

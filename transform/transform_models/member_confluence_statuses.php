@@ -190,7 +190,7 @@ Class MemberConfluenceStatuses {
 		ldap_modify($this->ldap, "uid={$data_add_item['member_id']},".$this->base, $add);
 	}
 
-	function get_src_data_by_member_id($member_id, $extract_id) {
+	function get_src_data_by_member_id($member_id) {
 		$src_member_names_query = runq("SELECT DISTINCT * FROM names n WHERE n.member_id='{$member_id}';");
 
 		foreach ($src_member_names_query as $src_member_names_tmp) {
