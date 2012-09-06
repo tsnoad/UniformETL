@@ -136,6 +136,26 @@ class Conf {
 	public static $api_pass_rem_hosts = array(
 	);
 
+	//Trust levels used for authentication clients
+	const API_CLIENT_LOW_TRUST = 0;
+	const API_CLIENT_MED_TRUST = 1;
+	const API_CLIENT_HIGH_TRUST = 2;
+
+	//ip address patterns for trusted clients
+	public static $api_client_trust_levels = array(
+		//untrusted hosts. note that these host will still have to authenticate, and that communications will be encrypted
+		self::API_CLIENT_LOW_TRUST => array(
+			'[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}',
+		),
+		//moderately trusted hosts
+		self::API_CLIENT_MED_TRUST => array(
+			'192\.168\.0\.[0-9]{1,3}',
+		),
+		//highly trusted hosts
+		self::API_CLIENT_HIGH_TRUST => array(
+		),
+	);
+
 	/*
 	 * Reporer Config
 	 */

@@ -23,6 +23,20 @@ Class API {
 			die("HTTP/1.1 400 Bad Request");
 		}
 
+		//Client Verification
+		//get the level of trust required by this model. default to medium trust
+		$model_trust_required = (defined(get_class($model).'::TRUST_REQUIRED') ? $model::TRUST_REQUIRED : Conf::API_CLIENT_MED_TRUST);
+		//get all the ip patterns that are trusted at this level or higher
+		$all_trusted_clients = call_user_func_array('array_merge', array_slice(Conf::$api_client_trust_levels, $model_trust_required));
+		//create a regex search pattern
+		$client_search_pattern = '/^('.implode('|', $all_trusted_clients).')$/';
+
+		//make sure the client is trusted to the required level
+		if (empty($_SERVER['REMOTE_ADDR']) || !preg_match($client_search_pattern, $_SERVER['REMOTE_ADDR'])) {
+			header("HTTP/1.1 401 Unauthorized");
+			die("HTTP/1.1 401 Unauthorized");
+		}
+
 		//use the model to do stuff
 		$model->what_do_i_do();
 	}
