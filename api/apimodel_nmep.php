@@ -92,6 +92,15 @@ Class APIModelNmep {
 
 			//update password, or create one if necessary
 			$password_model->update_or_add_data($add_or_update_data);
+
+			if (in_array("MemberConfluenceStatuses", Conf::$do_transforms)) {
+				//load the confluence statuses model
+				$confluence_model = $models->init_class("MemberConfluenceStatuses");
+				
+				//get existing name, address, etc, and the new password from the database
+				//then create a new entry in ldap, or update the existing one
+				$confluence_model->update_password($member_id);
+			}
 		}
 
 		//all good
