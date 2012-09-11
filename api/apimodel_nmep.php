@@ -53,6 +53,7 @@ Class APIModelNmep {
 	
 		//all good
 		header("HTTP/1.1 200 OK");
+		print_r("HTTP/1.1 200 OK");
 	}
 
 	function update_user() {
