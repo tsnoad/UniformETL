@@ -24,8 +24,11 @@ Class API {
 		}
 
 		//Client Verification
+		//use some fancy tricks to accommodate php 5.2
+		$ref = new reflectionClass(get_class($model));
+		$ref_const = $ref->getConstants();
 		//get the level of trust required by this model. default to medium trust
-		$model_trust_required = (defined(get_class($model).'::TRUST_REQUIRED') ? $model::TRUST_REQUIRED : Conf::API_CLIENT_MED_TRUST);
+		$model_trust_required = (isset($ref_const["TRUST_REQUIRED"]) ? $ref_const["TRUST_REQUIRED"] : Conf::API_CLIENT_MED_TRUST);
 		//get all the ip patterns that are trusted at this level or higher
 		$all_trusted_clients = call_user_func_array('array_merge', array_slice(Conf::$api_client_trust_levels, $model_trust_required));
 		//create a regex search pattern
