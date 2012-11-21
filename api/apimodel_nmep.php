@@ -36,7 +36,7 @@ Class APIModelNmep {
 		$member_id = $this->get_member_id();
 
 		//put together the query and run it
-		$user_query = runq("SELECT n.*, p.hash FROM nmep_statuses n LEFT OUTER JOIN passwords p ON (p.member_id=n.member_id) LEFT OUTER JOIN personsal d ON (d.member_id=n.member_id) WHERE n.member_id='".db_escape($member_id)."' AND n.participant='t' AND d.dob IS NOT NULL LIMIT 1;");
+		$user_query = runq("SELECT n.*, p.hash FROM nmep_statuses n LEFT OUTER JOIN passwords p ON (p.member_id=n.member_id) LEFT OUTER JOIN personals d ON (d.member_id=n.member_id) WHERE n.member_id='".db_escape($member_id)."' AND n.participant='t' AND d.date_of_birth IS NOT NULL LIMIT 1;");
 		$user = $user_query[0];
 	
 		//not in database?
