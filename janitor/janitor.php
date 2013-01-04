@@ -119,21 +119,33 @@ Class Janitor {
 	}
 
 	function get_finished_tables($extract_ids) {
-		//get all the tables in the database that belong to one of the complete extracts
+		//get all the dump tables in the database
 		if (Conf::$dblang == "pgsql") {
-			$fin_dump_table = "tablename ~ '^dump_(".implode("|", $extract_ids).")_[a-zA-Z]+$'";
-			$finished_tables = runq("select tablename from pg_tables where {$fin_dump_table};");
+			$dump_table_regex = "tablename ~ '^dump_[0-9]+_[a-zA-Z]+$'";
+			$dump_tables = runq("select tablename from pg_tables where {$dump_table_regex};");
 		} else if (Conf::$dblang == "mysql") {
-			$fin_dump_table = "table_name REGEXP '^dump_(".implode("|", $extract_ids).")_[a-zA-Z]+$'";
-			$finished_tables = runq("select table_name as tablename from information_schema.tables where {$fin_dump_table};");
+			$dump_table_regex = "table_name REGEXP '^dump_[0-9]+_[a-zA-Z]+$'";
+			$dump_tables = runq("select table_name as tablename from information_schema.tables where {$dump_table_regex};");
 		}
 
-		if (empty($finished_tables)) return null;
+		if (empty($dump_tables)) return null;
 
 		//create array of table names
-		$tables_names = array_map(create_function('$a', 'return $a["tablename"];'), $finished_tables);
+		$tables_names = array_map("reset", $dump_tables);
 
-		return $tables_names;
+		//find which dump tables belong to complete extracts
+		foreach ($tables_names as $table_name) {
+			//get the extract id from the table name
+			unset($table_extract_id);
+			$table_extract_id = preg_replace('/^dump_([0-9]+)_[a-zA-Z]+$/', '$1', $table_name);
+			if (empty($table_extract_id)) continue;
+
+			if (in_array($table_extract_id, $extract_ids)) {
+				$finished_tables[] = $table_name;
+			}
+		}
+
+		return $finished_tables;
 	}
 
 	function drop_table($tablename) {		
