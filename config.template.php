@@ -156,6 +156,10 @@ class Conf {
 		),
 	);
 
+	//callback is made to these locations whenever a password is changed
+/* 	public static $api_passwd_callback_primary = "192.168.25.16"; */
+/* 	public static $api_passwd_callback_secondary = "192.168.25.31"; */
+
 	/*
 	 * Reporer Config
 	 */

@@ -113,6 +113,34 @@ Class APIModelUser {
 				//then create a new entry in ldap, or update the existing one
 				$confluence_model->update_password($member_id);
 			}
+
+			//primary callback -- will return 500 if callback fails
+			if (isset(Conf::$api_passwd_callback_primary) && !empty(Conf::$api_passwd_callback_primary)) {
+				$chp = curl_init();
+				curl_setopt($chp, CURLOPT_URL, "http://".Conf::$api_passwd_callback_primary."/retl_request/interim/person/".$member_id);
+				curl_setopt($chp, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($chp, CURLOPT_POST, true);
+				curl_setopt($chp, CURLOPT_POSTFIELDS, null);
+				curl_exec($chp);
+				$response = curl_getinfo($chp, CURLINFO_HTTP_CODE);
+				curl_close($chp);
+
+				if ("200" != $response) {
+					header("HTTP/1.1 500 Internal Server Error");
+					die("HTTP/1.1 500 Internal Server Error");
+				}
+			}
+
+			//secondary callback
+			if (isset(Conf::$api_passwd_callback_secondary) && !empty(Conf::$api_passwd_callback_secondary)) {
+				$chs = curl_init();
+				curl_setopt($chs, CURLOPT_URL, "http://".Conf::$api_passwd_callback_secondary."/retl_request/interim/person/".$member_id);
+				curl_setopt($chs, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($chs, CURLOPT_POST, true);
+				curl_setopt($chs, CURLOPT_POSTFIELDS, null);
+				curl_exec($chs);
+				curl_close($chs);
+			}
 		}
 
 		//all good
