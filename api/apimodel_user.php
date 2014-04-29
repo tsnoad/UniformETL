@@ -15,7 +15,8 @@ Class APIModelUser {
 				break;
 
 			case "POST":
-				$this->update_user();
+				header("HTTP/1.1 405 Method Not Allowed");
+				die("HTTP/1.1 405 Method Not Allowed");
 				break;
 
 			case "PUT":
@@ -84,6 +85,7 @@ Class APIModelUser {
 		echo json_encode($user);
 	}
 
+/*
 	function update_user() {
 		//get the member id
 		$member_id = $this->get_member_id();
@@ -147,6 +149,7 @@ Class APIModelUser {
 		header("HTTP/1.1 200 OK");
 		print_r("HTTP/1.1 200 OK");
 	}
+*/
 
 	function delete_user() {
 		header("HTTP/1.1 501 Not Implemented");
